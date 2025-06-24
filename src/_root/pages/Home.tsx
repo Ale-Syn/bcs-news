@@ -56,7 +56,7 @@ const Home = () => {
           <div className="w-full mb-8">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full mb-4 gap-4">
               <h2 className="h3-bold md:h2-bold text-[#1A1A1A]">
-                La Voz 
+                Altavoz BCS
                 <div className="h-1 w-20 bg-[#BB1919] rounded-full"></div>
               </h2>
               <div className="flex flex-wrap gap-2 sm:gap-3">
@@ -154,7 +154,7 @@ const Home = () => {
                 {filteredPosts && filteredPosts.length > 2 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full lg:w-1/2">
                     {filteredPosts.slice(0,2).map((post: Models.Document) => (
-                      <div key={post.$id} className="w-full">
+                      <div key={post.$id} className="w-full h-full">
                         <PostCard post={post} />
                       </div>
                     ))}
@@ -174,9 +174,9 @@ const Home = () => {
                   <div className="h-1 w-20 bg-[#BB1919] rounded-full"></div>
                 </h2>
                 {filteredPosts && filteredPosts.length > 2 ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 auto-rows-fr">
                     {filteredPosts.slice(0,5).map((post: Models.Document) => (
-                      <div key={post.$id} className="w-full">
+                      <div key={post.$id} className="w-full h-full flex">
                         <PostCard post={post} />
                       </div>
                     ))}

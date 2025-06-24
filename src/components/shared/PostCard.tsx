@@ -15,7 +15,7 @@ const PostCard = ({ post }: PostCardProps) => {
   if (!post.creator) return;
 
   return (
-    <div className="post-card bbc-card-hover">
+    <div className="post-card bbc-card-hover flex flex-col h-full">
       <Link to={`/posts/${post.$id}`} className="block">
         <div className="relative aspect-[4/3] w-full overflow-hidden">
           <img
@@ -26,7 +26,7 @@ const PostCard = ({ post }: PostCardProps) => {
         </div>
       </Link>
 
-      <div className="p-4">
+      <div className="p-4 flex flex-col flex-grow">
         <div className="flex-between mb-3">
           <div className="flex items-center gap-2">
             <Link to={`/profile/${post.creator.$id}`}>
@@ -54,7 +54,7 @@ const PostCard = ({ post }: PostCardProps) => {
           </Link>
         </div>
 
-        <Link to={`/posts/${post.$id}`}>
+        <Link to={`/posts/${post.$id}`} className="flex-grow flex flex-col">
           <h3 className="text-lg font-semibold text-[#1A1A1A] mb-2 line-clamp-2 hover:text-[#BB1919] transition-colors">
             {post.caption}
           </h3>
@@ -63,11 +63,11 @@ const PostCard = ({ post }: PostCardProps) => {
             <span>•</span>
             <span>{post.location}</span>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 flex-grow">
             {post.tags.map((tag: string, index: string) => (
               <span
                 key={`${tag}${index}`}
-                className="text-xs text-[#BB1919] bg-[#BB1919]/10 px-2 py-1 rounded-full"
+                className="text-xs text-[#BB1919] bg-[#BB1919]/10 px-2 py-1 rounded-full h-fit"
               >
                 #{tag}
               </span>
