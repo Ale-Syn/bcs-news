@@ -563,3 +563,78 @@ export async function updateUserRole(userId: string, role: "admin" | "user" | "e
     return null;
   }
 }
+
+// ============================================================
+// CATEGORIES
+// ============================================================
+
+// ============================== CREATE CATEGORY
+export async function createCategory(name: string) {
+  try {
+    const newCategory = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.categoriesCollectionId,
+      ID.unique(),
+      {
+        name: name,
+        createdAt: new Date().toISOString(),
+      }
+    );
+
+    return newCategory;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
+// ============================== GET CATEGORIES
+export async function getCategories() {
+  try {
+    const categories = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.categoriesCollectionId,
+      [Query.orderAsc("name")]
+    );
+
+    return categories;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
+// ============================== UPDATE CATEGORY
+export async function updateCategory(categoryId: string, name: string) {
+  try {
+    const updatedCategory = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.categoriesCollectionId,
+      categoryId,
+      {
+        name: name,
+      }
+    );
+
+    return updatedCategory;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
+// ============================== DELETE CATEGORY
+export async function deleteCategory(categoryId: string) {
+  try {
+    const result = await databases.deleteDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.categoriesCollectionId,
+      categoryId
+    );
+
+    return result;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}

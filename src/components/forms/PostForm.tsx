@@ -13,13 +13,14 @@ import {
   FormMessage,
   Button,
   Input,
+  Select,
   Textarea,
 } from "@/components/ui";
 import { PostValidation } from "@/lib/validation";
 import { useToast } from "@/components/ui/use-toast";
 import { useUserContext } from "@/context/AuthContext";
 import { FileUploader, Loader } from "@/components/shared";
-import { useCreatePost, useUpdatePost } from "@/lib/react-query/queries";
+import { useCreatePost, useUpdatePost, useGetCategories } from "@/lib/react-query/queries";
 
 type PostFormProps = {
   post?: Models.Document;
@@ -45,6 +46,7 @@ const PostForm = ({ post, action }: PostFormProps) => {
     useCreatePost();
   const { mutateAsync: updatePost, isLoading: isLoadingUpdate } =
     useUpdatePost();
+  const { data: categories, isLoading: isLoadingCategories } = useGetCategories();
 
   // Handler
   const handleSubmit = async (value: z.infer<typeof PostValidation>) => {
@@ -126,12 +128,23 @@ const PostForm = ({ post, action }: PostFormProps) => {
             <FormItem>
               <FormLabel className="shad-form_label">Categoria</FormLabel>
               <FormControl>
-                <Input 
-                  type="text" 
-                  className="shad-input" 
-                  placeholder="Ej: Arte, Expresion, Aprender"
-                  {...field} 
-                />
+                {isLoadingCategories ? (
+                  <div className="flex items-center justify-center h-10">
+                    <Loader />
+                  </div>
+                ) : (
+                  <Select 
+                    className="shad-input" 
+                    {...field}
+                  >
+                    <option value="">Selecciona una categoría</option>
+                    {categories?.documents.map((category: any) => (
+                      <option key={category.$id} value={category.name}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </Select>
+                )}
               </FormControl>
               <FormMessage className="shad-form_message" />
             </FormItem>

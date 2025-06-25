@@ -24,6 +24,7 @@ const AdminDashboard = () => {
 
   const quickActions = [
     { title: "Gestionar Usuarios", desc: "Ver y administrar cuentas de usuario", link: "/all-users", icon: "👤" },
+    { title: "Gestionar Categorías", desc: "Añadir y editar categorías de noticias", link: "/admin/categories", icon: "📂" },
     { title: "Moderar Contenido", desc: "Revisar posts y comentarios reportados", link: "/admin/content", icon: "🛡️" },
     { title: "Configuración", desc: "Ajustes generales del sistema", link: "/admin/settings", icon: "⚙️" },
     { title: "Analíticas", desc: "Ver estadísticas y reportes", link: "/admin/analytics", icon: "📊" },

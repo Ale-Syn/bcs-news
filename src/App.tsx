@@ -14,6 +14,7 @@ import {
   AdminSetup,
   PublicPage,
   AdminDashboard,
+  CategoriesManagement,
 } from "@/_root/pages";
 import AuthLayout from "./_auth/AuthLayout";
 import RootLayout from "./_root/RootLayout";
@@ -143,6 +144,14 @@ const App = () => {
                   <h1 className="text-2xl font-bold text-[#1A1A1A] mb-4">Analíticas</h1>
                   <p className="text-gray-600">Panel de analíticas en desarrollo...</p>
                 </div>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/categories"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
+                <CategoriesManagement />
               </ProtectedRoute>
             }
           />

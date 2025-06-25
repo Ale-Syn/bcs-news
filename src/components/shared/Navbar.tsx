@@ -48,6 +48,11 @@ const adminLinks = [
     route: "/create-post",
     label: "Añadir",
   },
+  {
+    imgURL: "/assets/icons/filter.svg",
+    route: "/admin/categories",
+    label: "Categorías",
+  },
 ];
 
 const Navbar = () => {
@@ -349,32 +354,34 @@ const Navbar = () => {
                   ))}
               </div>
 
-              {/* Category Links - Right Side */}
-              <div className="flex items-center space-x-3 border-l border-white/20 pl-6">
-                <Link
-                  to="/"
-                  className={cn(
-                    "text-sm font-medium transition-colors duration-200 rounded-lg px-3 py-2",
-                    !locationParam
-                      ? "bg-white text-[#BB1919]"
-                      : "text-white hover:bg-white/10"
-                  )}>
-                  Todas
-                </Link>
-                {locations.map((loc) => (
+              {/* Category Links - Right Side - Hidden for Admin users */}
+              {!isAdmin && (
+                <div className="flex items-center space-x-3 border-l border-white/20 pl-6">
                   <Link
-                    key={loc}
-                    to={`/${loc}`}
+                    to="/"
                     className={cn(
                       "text-sm font-medium transition-colors duration-200 rounded-lg px-3 py-2",
-                      locationParam === loc
+                      !locationParam
                         ? "bg-white text-[#BB1919]"
                         : "text-white hover:bg-white/10"
                     )}>
-                    {loc}
+                    Todas
                   </Link>
-                ))}
-              </div>
+                  {locations.map((loc) => (
+                    <Link
+                      key={loc}
+                      to={`/${loc}`}
+                      className={cn(
+                        "text-sm font-medium transition-colors duration-200 rounded-lg px-3 py-2",
+                        locationParam === loc
+                          ? "bg-white text-[#BB1919]"
+                          : "text-white hover:bg-white/10"
+                      )}>
+                      {loc}
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -421,37 +428,39 @@ const Navbar = () => {
               </Link>
             ))}
 
-            {/* Category Links for Mobile */}
-            <div className="border-t border-white/20 pt-2 mt-2">
-              <div className="px-4 py-2 text-white/70 text-xs font-medium">
-                CATEGORÍAS
-              </div>
-              <Link
-                to="/"
-                className={cn(
-                  "block text-sm font-medium transition-colors duration-200 rounded-lg px-4 py-2",
-                  !locationParam
-                    ? "bg-white text-[#BB1919]"
-                    : "text-white hover:bg-white/10"
-                )}
-                onClick={() => setIsOpen(false)}>
-                Todas
-              </Link>
-              {locations.map((loc) => (
+            {/* Category Links for Mobile - Hidden for Admin users */}
+            {!isAdmin && (
+              <div className="border-t border-white/20 pt-2 mt-2">
+                <div className="px-4 py-2 text-white/70 text-xs font-medium">
+                  CATEGORÍAS
+                </div>
                 <Link
-                  key={loc}
-                  to={`/${loc}`}
+                  to="/"
                   className={cn(
                     "block text-sm font-medium transition-colors duration-200 rounded-lg px-4 py-2",
-                    locationParam === loc
+                    !locationParam
                       ? "bg-white text-[#BB1919]"
                       : "text-white hover:bg-white/10"
                   )}
                   onClick={() => setIsOpen(false)}>
-                  {loc}
+                  Todas
                 </Link>
-              ))}
-            </div>
+                {locations.map((loc) => (
+                  <Link
+                    key={loc}
+                    to={`/${loc}`}
+                    className={cn(
+                      "block text-sm font-medium transition-colors duration-200 rounded-lg px-4 py-2",
+                      locationParam === loc
+                        ? "bg-white text-[#BB1919]"
+                        : "text-white hover:bg-white/10"
+                    )}
+                    onClick={() => setIsOpen(false)}>
+                    {loc}
+                  </Link>
+                ))}
+              </div>
+            )}
 
             {/* Admin user navigation items - only for admins */}
             {isAdmin &&

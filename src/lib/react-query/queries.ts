@@ -26,6 +26,10 @@ import {
   savePost,
   deleteSavedPost,
   updateUserRole,
+  createCategory,
+  getCategories,
+  updateCategory,
+  deleteCategory,
 } from "@/lib/appwrite/api";
 import { INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 
@@ -255,6 +259,54 @@ export const useUpdateUserRole = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_CURRENT_USER],
+      });
+    },
+  });
+};
+
+// ============================================================
+// CATEGORY QUERIES
+// ============================================================
+
+export const useGetCategories = () => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_CATEGORIES],
+    queryFn: getCategories,
+  });
+};
+
+export const useCreateCategory = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (name: string) => createCategory(name),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_CATEGORIES],
+      });
+    },
+  });
+};
+
+export const useUpdateCategory = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ categoryId, name }: { categoryId: string; name: string }) =>
+      updateCategory(categoryId, name),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_CATEGORIES],
+      });
+    },
+  });
+};
+
+export const useDeleteCategory = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (categoryId: string) => deleteCategory(categoryId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_CATEGORIES],
       });
     },
   });
