@@ -11,5 +11,16 @@ export default defineConfig({
   },
   build: {
     sourcemap: false,
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          appwrite: ['appwrite'],
+          'react-query': ['@tanstack/react-query'],
+          router: ['react-router-dom'],
+        },
+      },
+    },
   },
 });
