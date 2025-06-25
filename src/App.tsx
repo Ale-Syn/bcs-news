@@ -21,6 +21,7 @@ import SigninForm from "@/_auth/forms/SigninForm";
 import AdminLoginForm from "@/_auth/forms/AdminLoginForm";
 import { Toaster } from "@/components/ui/toaster";
 import ProtectedRoute from "@/components/shared/ProtectedRoute";
+import DebugInfo from "@/components/DebugInfo";
 
 import "./globals.css";
 
@@ -57,6 +58,9 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
+          {/* Ruta de debugging temporal */}
+          <Route path="/debug" element={<DebugInfo />} />
 
           {/* Rutas principales - PÚBLICAS */}
           <Route path="/" element={<Home />} />
