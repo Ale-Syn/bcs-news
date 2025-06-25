@@ -1,15 +1,15 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Menu, X, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { useUserContext } from "@/context/AuthContext";
-import { useSignOutAccount, useGetPosts } from "@/lib/react-query/queries";
+import { useSignOutAccount, useGetPosts, useGetRecentPosts } from "@/lib/react-query/queries";
 import { Input } from "../ui/input";
 import { useDebounce } from "@/hooks/useDebounce";
 
-// Regular navigation items
-const regularLinks = [
+// Public navigation items (for all users)
+const publicLinks = [
   {
     imgURL: "/assets/icons/home.svg",
     route: "/",
@@ -20,6 +20,10 @@ const regularLinks = [
     route: "/explore",
     label: "Noticias",
   },
+];
+
+// Authenticated user navigation items
+const userLinks = [
   {
     imgURL: "/assets/icons/bookmark.svg",
     route: "/saved",
@@ -29,6 +33,11 @@ const regularLinks = [
 
 // Admin-specific navigation items
 const adminLinks = [
+  {
+    imgURL: "/assets/icons/activity.svg",
+    route: "/admin/dashboard",
+    label: "Dashboard",
+  },
   {
     imgURL: "/assets/icons/people.svg",
     route: "/all-users",
@@ -52,12 +61,23 @@ const Navbar = () => {
   const debouncedSearch = useDebounce(searchQuery, 300);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useUserContext();
+  const { user, isAuthenticated } = useUserContext();
   const { mutate: signOut, isSuccess } = useSignOutAccount();
   const { data: postsData } = useGetPosts();
+  const { data: recentPosts } = useGetRecentPosts();
+  const { location: locationParam } = useParams();
 
   // Admin check - make sure we're properly checking the role
   const isAdmin = user?.role === "ADMIN";
+
+  // Get unique locations from posts for categories
+  const locations =
+    recentPosts?.documents.reduce((acc: string[], post) => {
+      if (post.location && !acc.includes(post.location)) {
+        acc.push(post.location);
+      }
+      return acc;
+    }, []) || [];
 
   // Handle scroll effect
   useEffect(() => {
@@ -198,32 +218,46 @@ const Navbar = () => {
                 )}
               </div>
 
-              <Button
-                variant="ghost"
-                className="hover:bg-white/10 text-white hover:text-white/80"
-                onClick={() => signOut()}>
-                <img
-                  src="/assets/icons/logout.svg"
-                  alt="logout"
-                  className="h-5 w-5 brightness-0 invert"
-                />
-              </Button>
-              <div className="flex items-center gap-3">
-                {isAdmin && (
-                  <span className="px-2 py-1 text-xs font-medium bg-white/10 text-white rounded-full">
-                    Admin
-                  </span>
-                )}
-                <Link to={`/profile/${user.id}`} className="flex-center gap-3">
-                  <img
-                    src={
-                      user.imageUrl || "/assets/icons/profile-placeholder.svg"
-                    }
-                    alt="profile"
-                    className="h-8 w-8 rounded-full border-2 border-white"
-                  />
-                </Link>
-              </div>
+              {/* Auth-dependent actions */}
+              {isAuthenticated ? (
+                <>
+                  <Button
+                    variant="ghost"
+                    className="hover:bg-white/10 text-white hover:text-white/80"
+                    onClick={() => signOut()}>
+                    <img
+                      src="/assets/icons/logout.svg"
+                      alt="logout"
+                      className="h-5 w-5 brightness-0 invert"
+                    />
+                  </Button>
+                  <div className="flex items-center gap-3">
+                    {isAdmin && (
+                      <span className="px-2 py-1 text-xs font-medium bg-white/10 text-white rounded-full">
+                        Admin
+                      </span>
+                    )}
+                    <Link to={`/profile/${user.id}`} className="flex-center gap-3">
+                      <img
+                        src={
+                          user.imageUrl || "/assets/icons/profile-placeholder.svg"
+                        }
+                        alt="profile"
+                        className="h-8 w-8 rounded-full border-2 border-white"
+                      />
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                /* Not authenticated - show only admin login */
+                <div className="flex items-center space-x-2">
+                  <Link to="/admin/login" className="hidden">
+                    <Button size="sm" className="bg-white text-[#BB1919] hover:bg-white/90">
+                      Acceso Admin
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -234,11 +268,11 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14">
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              {/* Navigation Items based on role */}
+            <div className="hidden md:flex items-center justify-between w-full">
+              {/* Navigation Items - Left Side */}
               <div className="flex items-center space-x-6">
-                {/* Regular navigation items - shown to all authenticated users */}
-                {regularLinks.map((link) => (
+                {/* Public navigation items - shown to all users */}
+                {publicLinks.map((link) => (
                   <Link
                     key={link.label}
                     to={link.route}
@@ -261,6 +295,32 @@ const Navbar = () => {
                     <span>{link.label}</span>
                   </Link>
                 ))}
+
+                {/* Admin user navigation items - only for admins */}
+                {isAdmin &&
+                  userLinks.map((link) => (
+                    <Link
+                      key={link.label}
+                      to={link.route}
+                      className={cn(
+                        "flex items-center space-x-2 text-sm font-medium transition-colors duration-200 rounded-lg px-4 py-2",
+                        location.pathname === link.route
+                          ? "bg-white text-[#BB1919]"
+                          : "text-white hover:bg-white/10"
+                      )}>
+                      <img
+                        src={link.imgURL}
+                        alt={link.label}
+                        className={cn(
+                          "h-5 w-5",
+                          location.pathname === link.route
+                            ? "brightness-0"
+                            : "brightness-0 invert"
+                        )}
+                      />
+                      <span>{link.label}</span>
+                    </Link>
+                  ))}
 
                 {/* Admin navigation items - shown only to admin users */}
                 {isAdmin &&
@@ -288,6 +348,33 @@ const Navbar = () => {
                     </Link>
                   ))}
               </div>
+
+              {/* Category Links - Right Side */}
+              <div className="flex items-center space-x-3 border-l border-white/20 pl-6">
+                <Link
+                  to="/"
+                  className={cn(
+                    "text-sm font-medium transition-colors duration-200 rounded-lg px-3 py-2",
+                    !locationParam
+                      ? "bg-white text-[#BB1919]"
+                      : "text-white hover:bg-white/10"
+                  )}>
+                  Todas
+                </Link>
+                {locations.map((loc) => (
+                  <Link
+                    key={loc}
+                    to={`/${loc}`}
+                    className={cn(
+                      "text-sm font-medium transition-colors duration-200 rounded-lg px-3 py-2",
+                      locationParam === loc
+                        ? "bg-white text-[#BB1919]"
+                        : "text-white hover:bg-white/10"
+                    )}>
+                    {loc}
+                  </Link>
+                ))}
+              </div>
             </div>
 
             {/* Mobile Menu Button */}
@@ -308,8 +395,8 @@ const Navbar = () => {
       {isOpen && (
         <div className="md:hidden bg-[#BB1919] border-t border-white/20">
           <div className="px-2 pt-2 pb-3 space-y-1">
-            {/* Regular navigation items - shown to all authenticated users */}
-            {regularLinks.map((link) => (
+            {/* Public navigation items - shown to all users */}
+            {publicLinks.map((link) => (
               <Link
                 key={link.label}
                 to={link.route}
@@ -333,6 +420,65 @@ const Navbar = () => {
                 {link.label}
               </Link>
             ))}
+
+            {/* Category Links for Mobile */}
+            <div className="border-t border-white/20 pt-2 mt-2">
+              <div className="px-4 py-2 text-white/70 text-xs font-medium">
+                CATEGORÍAS
+              </div>
+              <Link
+                to="/"
+                className={cn(
+                  "block text-sm font-medium transition-colors duration-200 rounded-lg px-4 py-2",
+                  !locationParam
+                    ? "bg-white text-[#BB1919]"
+                    : "text-white hover:bg-white/10"
+                )}
+                onClick={() => setIsOpen(false)}>
+                Todas
+              </Link>
+              {locations.map((loc) => (
+                <Link
+                  key={loc}
+                  to={`/${loc}`}
+                  className={cn(
+                    "block text-sm font-medium transition-colors duration-200 rounded-lg px-4 py-2",
+                    locationParam === loc
+                      ? "bg-white text-[#BB1919]"
+                      : "text-white hover:bg-white/10"
+                  )}
+                  onClick={() => setIsOpen(false)}>
+                  {loc}
+                </Link>
+              ))}
+            </div>
+
+            {/* Admin user navigation items - only for admins */}
+            {isAdmin &&
+              userLinks.map((link) => (
+                <Link
+                  key={link.label}
+                  to={link.route}
+                  className={cn(
+                    "flex items-center space-x-2 text-sm font-medium transition-colors duration-200 rounded-lg px-4 py-2",
+                    location.pathname === link.route
+                      ? "bg-white text-[#BB1919]"
+                      : "text-white hover:bg-white/10"
+                  )}
+                  onClick={() => setIsOpen(false)}>
+                  <img
+                    src={link.imgURL}
+                    alt={link.label}
+                    className={cn(
+                      "h-5 w-5 mr-2",
+                      location.pathname === link.route
+                        ? "brightness-0"
+                        : "brightness-0 invert"
+                    )}
+                  />
+                  {link.label}
+                </Link>
+              ))}
 
             {/* Admin navigation items - shown only to admin users */}
             {isAdmin &&
@@ -360,6 +506,18 @@ const Navbar = () => {
                   {link.label}
                 </Link>
               ))}
+
+            {/* Mobile admin login section for non-authenticated users */}
+            {!isAuthenticated && (
+              <div className="border-t border-white/20 pt-2 mt-2 hidden">
+                <Link
+                  to="/admin/login"
+                  className="flex items-center space-x-2 text-sm font-medium text-white hover:bg-white/10 rounded-lg px-4 py-2"
+                  onClick={() => setIsOpen(false)}>
+                  <span>Acceso Admin</span>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       )}

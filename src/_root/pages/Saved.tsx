@@ -20,9 +20,9 @@ const Saved = () => {
 
   return (
     <div className="saved-container">
-      <div className="flex gap-2 w-full max-w-5xl">
-        <h2 className="h3-bold md:h2-bold text-left w-full">
-          Noticias Guardadas
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="h3-bold md:h2-bold text-[#1A1A1A]">
+          Posts Guardados
           <div className="h-1 w-20 bg-[#BB1919] rounded-full"></div>
         </h2>
       </div>
@@ -40,9 +40,6 @@ const Saved = () => {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="body-bold text-[#1A1A1A]">Posts Guardados</h3>
-                <div className="text-sm text-[#666666] bg-[#F8F8F8] px-3 py-1 rounded-full border border-[#E5E5E5]">
-                  🖱️ Arrastra para reordenar
-                </div>
               </div>
               <DraggableGridPostList 
                 posts={savePosts} 

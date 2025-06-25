@@ -1,7 +1,7 @@
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -43,7 +43,7 @@ const SigninForm = () => {
     if (isLoggedIn) {
       form.reset();
 
-      navigate("/");
+      navigate("/home");
     } else {
       toast({ title: "Login failed. Please try again.", });
       
@@ -104,12 +104,7 @@ const SigninForm = () => {
           </Button>
 
           <p className="text-small-regular text-[#4A4A4A] text-center mt-2">
-            No tienes una cuenta?
-            <Link
-              to="/sign-up"
-              className="text-[#BB1919] hover:text-[#A51717] text-small-semibold ml-1">
-              Registrarse
-            </Link>
+            Solo para administradores autorizados.
           </p>
         </form>
       </div>

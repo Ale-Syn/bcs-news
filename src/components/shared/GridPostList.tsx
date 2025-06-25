@@ -57,15 +57,7 @@ const GridPostList = ({
             <div className="flex items-center justify-between">
               {showUser && (
                 <div className="flex items-center gap-2">
-                  <img
-                    src={
-                      post.creator?.imageUrl ||
-                      "/assets/icons/profile-placeholder.svg"
-                    }
-                    alt="creator"
-                    className="w-8 h-8 rounded-full border-2 border-[#BB1919]"
-                  />
-                  <p className="line-clamp-1 text-white font-medium">{post.creator?.name}</p>
+                  {/* Avatar removido */}
                 </div>
               )}
               {showStats && (

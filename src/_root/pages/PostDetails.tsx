@@ -6,7 +6,7 @@ import { PostStats } from "@/components/shared";
 
 import {
   useGetPostById,
-  useGetUserPosts,
+  useGetRecentPosts,
   useDeletePost,
 } from "@/lib/react-query/queries";
 import { multiFormatDateString } from "@/lib/utils";
@@ -18,14 +18,21 @@ const PostDetails = () => {
   const { user } = useUserContext();
 
   const { data: post, isLoading } = useGetPostById(id);
-  const { data: userPosts, isLoading: isUserPostLoading } = useGetUserPosts(
-    post?.creator.$id
-  );
+  const { data: allPosts, isLoading: isAllPostsLoading } = useGetRecentPosts();
   const { mutate: deletePost } = useDeletePost();
 
-  const relatedPosts = userPosts?.documents.filter(
-    (userPost) => userPost.$id !== id
-  );
+  // Filter posts by shared tags and exclude current post
+  const relatedPosts = allPosts?.documents.filter((relatedPost: any) => {
+    // Exclude current post
+    if (relatedPost.$id === id) return false;
+    
+    // Check if posts share at least one tag
+    if (!post?.tags || !relatedPost.tags) return false;
+    
+    return post.tags.some((tag: string) => 
+      relatedPost.tags.includes(tag)
+    );
+  }).slice(0, 8); // Limit to 8 related posts
 
   const handleDeletePost = () => {
     deletePost({ postId: id, imageId: post?.imageId });
@@ -73,32 +80,20 @@ const PostDetails = () => {
 
           <div className="post_details-info">
             <div className="flex-between w-full">
-              <Link
-                to={`/profile/${post?.creator.$id}`}
-                className="flex items-center gap-3">
-                <img
-                  src={
-                    post?.creator.imageUrl ||
-                    "/assets/icons/profile-placeholder.svg"
-                  }
-                  alt="creator"
-                  className="w-8 h-8 lg:w-12 lg:h-12 rounded-full"
-                />
-                <div className="flex gap-1 flex-col">
-                  <p className="base-medium lg:body-bold text-[#1A1A1A]">
-                    {post?.creator.name}
+              <div className="flex flex-col gap-2 flex-1">
+                <h1 className="text-xl lg:text-2xl font-bold text-[#1A1A1A] line-clamp-3">
+                  {post?.caption}
+                </h1>
+                <div className="flex-center gap-2 text-[#666666]">
+                  <p className="subtle-semibold lg:small-regular">
+                    {multiFormatDateString(post?.$createdAt)}
                   </p>
-                  <div className="flex-center gap-2 text-[#666666]">
-                    <p className="subtle-semibold lg:small-regular">
-                      {multiFormatDateString(post?.$createdAt)}
-                    </p>
-                    •
-                    <p className="subtle-semibold lg:small-regular">
-                      {post?.location}
-                    </p>
-                  </div>
+                  •
+                  <p className="subtle-semibold lg:small-regular">
+                    {post?.location}
+                  </p>
                 </div>
-              </Link>
+              </div>
 
               <div className="flex-center gap-4">
                 <Link
@@ -131,12 +126,11 @@ const PostDetails = () => {
             <hr className="border w-full border-[#E5E5E5]" />
 
             <div className="flex flex-col flex-1 w-full small-medium lg:base-regular text-[#1A1A1A]">
-              <p>{post?.caption}</p>
-              <ul className="flex gap-1 mt-2">
+              <ul className="flex gap-1 flex-wrap">
                 {post?.tags.map((tag: string, index: string) => (
                   <li
                     key={`${tag}${index}`}
-                    className="text-[#BB1919] small-regular">
+                    className="text-[#BB1919] small-regular bg-[#BB1919]/10 px-3 py-1 rounded-full">
                     #{tag}
                   </li>
                 ))}
@@ -159,12 +153,12 @@ const PostDetails = () => {
               Más Noticias Relacionadas
             </h3>
           </div>
-          {isUserPostLoading || !relatedPosts ? (
+          {isAllPostsLoading || !relatedPosts ? (
             <Loader />
           ) : relatedPosts.length === 0 ? (
             <NoDataMessage
               title="No hay noticias relacionadas"
-              message="No hay más noticias del mismo autor en este momento"
+              message="No hay más noticias con categorías similares en este momento"
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -207,17 +201,7 @@ const PostDetails = () => {
                   <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#1A1A1A]/95 to-transparent">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <img
-                          src={
-                            relatedPost.creator.imageUrl ||
-                            "/assets/icons/profile-placeholder.svg"
-                          }
-                          alt="creator"
-                          className="w-8 h-8 rounded-full border-2 border-[#BB1919]"
-                        />
-                        <p className="line-clamp-1 text-white font-medium">
-                          {relatedPost.creator.name}
-                        </p>
+                        {/* Avatar removido */}
                       </div>
                       <div className="flex items-center gap-4 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full">
                         <PostStats post={relatedPost} userId={user.id} />

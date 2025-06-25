@@ -27,9 +27,6 @@ const SearchResults = ({
       <div className="w-full">
         <div className="flex items-center justify-between mb-4">
           <h3 className="body-bold text-[#1A1A1A]">Resultados de búsqueda</h3>
-          <div className="text-sm text-[#666666] bg-[#F8F8F8] px-3 py-1 rounded-full border border-[#E5E5E5]">
-            🖱️ Arrastra para reordenar
-          </div>
         </div>
         <DraggableGridPostList 
           posts={searchedPosts.documents} 
@@ -82,10 +79,12 @@ const Explore = () => {
   return (
     <div className="explore-container">
       <div className="explore-inner_container">
-        <h2 className="h3-bold md:h2-bold w-full">
-          Buscar Noticia
-          <div className="h-1 w-20 bg-[#BB1919] rounded-full"></div>
-        </h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="h3-bold md:h2-bold text-[#1A1A1A]">
+            Explorar Noticias
+            <div className="h-1 w-20 bg-[#BB1919] rounded-full"></div>
+          </h2>
+        </div>
         <div className="flex gap-1 px-4 w-full rounded-lg bg-[#F8F8F8] border border-[#E5E5E5]">
           <img
             src="/assets/icons/search.svg"
@@ -113,9 +112,6 @@ const Explore = () => {
         </h3>
 
         <div className="flex items-center gap-4">
-          <div className="text-sm text-[#666666] bg-[#F8F8F8] px-3 py-1 rounded-full border border-[#E5E5E5]">
-            🖱️ Arrastra para reordenar
-          </div>
           <div className="flex-center gap-3 bg-[#F8F8F8] rounded-xl px-4 py-2 cursor-pointer border border-[#E5E5E5] hover:bg-[#F0F0F0] transition-colors duration-200">
             <p className="small-medium md:base-medium text-[#1A1A1A]">Todas</p>
             <img

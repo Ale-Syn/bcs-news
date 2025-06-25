@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { Models } from "appwrite";
 import PostCard from "./PostCard";
+import { useUserContext } from "@/context/AuthContext";
 
 type DraggablePostGridProps = {
   posts: Models.Document[];
@@ -14,7 +15,11 @@ const DraggablePostGrid = ({
   className = "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 auto-rows-fr",
   onReorder 
 }: DraggablePostGridProps) => {
+  const { user } = useUserContext();
   const [orderedPosts, setOrderedPosts] = useState<Models.Document[]>(posts);
+  
+  // Verificar si el usuario es ADMIN
+  const isAdmin = user.role === "ADMIN";
 
   useEffect(() => {
     setOrderedPosts(posts);
@@ -33,6 +38,48 @@ const DraggablePostGrid = ({
 
   if (!orderedPosts || orderedPosts.length === 0) return null;
 
+  // Componente de post individual
+  const PostItem = ({ post, isDragging = false }: { 
+    post: Models.Document; 
+    isDragging?: boolean;
+  }) => (
+    <div
+      className={`w-full h-full flex transition-transform duration-200 relative ${
+        isDragging 
+          ? 'rotate-3 scale-105 shadow-lg ring-2 ring-[#BB1919] ring-opacity-50' 
+          : 'hover:scale-102'
+      }`}
+      style={{
+        cursor: isAdmin ? (isDragging ? 'grabbing' : 'grab') : 'default',
+      }}
+    >
+      <PostCard post={post} />
+      
+
+      
+      {/* Drag indicator - solo para ADMIN */}
+      {isAdmin && isDragging && (
+        <div className="absolute top-2 right-2 bg-[#BB1919] text-white p-1 rounded-full z-10">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM8 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm0 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm0 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm0 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3-9a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm0 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm0 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm0 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+          </svg>
+        </div>
+      )}
+    </div>
+  );
+
+  // Si no es ADMIN, mostrar grilla estática
+  if (!isAdmin) {
+    return (
+      <div className={className}>
+        {orderedPosts.map((post) => (
+          <PostItem key={post.$id} post={post} />
+        ))}
+      </div>
+    );
+  }
+
+  // Si es ADMIN, mostrar con funcionalidad drag and drop
   return (
     <DragDropContext onDragEnd={handleOnDragEnd}>
       <Droppable droppableId="posts-grid" direction="horizontal">
@@ -49,17 +96,9 @@ const DraggablePostGrid = ({
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
-                    className={`w-full h-full flex transition-transform duration-200 ${
-                      snapshot.isDragging 
-                        ? 'rotate-3 scale-105 shadow-lg ring-2 ring-[#BB1919] ring-opacity-50' 
-                        : 'hover:scale-102'
-                    }`}
-                    style={{
-                      ...provided.draggableProps.style,
-                      cursor: snapshot.isDragging ? 'grabbing' : 'grab',
-                    }}
+                    style={provided.draggableProps.style}
                   >
-                    <PostCard post={post} />
+                    <PostItem post={post} isDragging={snapshot.isDragging} />
                   </div>
                 )}
               </Draggable>

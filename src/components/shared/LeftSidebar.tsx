@@ -57,6 +57,11 @@ const LeftSidebar = () => {
         <ul className="flex flex-col gap-6">
           {sidebarLinks.map((link: INavLink) => {
             const isActive = pathname === link.route;
+            
+            // Solo mostrar el Admin Panel si el usuario es admin
+            if (link.route === "/admin/dashboard" && user.role !== "ADMIN") {
+              return null;
+            }
 
             return (
               <li

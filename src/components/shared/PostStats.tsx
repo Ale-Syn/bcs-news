@@ -3,30 +3,27 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { Share2, Facebook, Instagram, Link as LinkIcon } from "lucide-react";
 
-import { checkIsLiked } from "@/lib/utils";
 import {
-  useLikePost,
   useSavePost,
   useDeleteSavedPost,
   useGetCurrentUser,
 } from "@/lib/react-query/queries";
+import { useUserContext } from "@/context/AuthContext";
 
 type PostStatsProps = {
   post: Models.Document;
-  userId: string;
+  userId?: string;
 };
 
 const PostStats = ({ post, userId }: PostStatsProps) => {
   const location = useLocation();
-  const likesList = post.likes.map((user: Models.Document) => user.$id);
+  const { isAuthenticated, user } = useUserContext();
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const shareMenuRef = useRef<HTMLDivElement>(null);
 
-  const [likes, setLikes] = useState<string[]>(likesList);
   const [isSaved, setIsSaved] = useState(false);
 
-  const { mutate: likePost } = useLikePost();
   const { mutate: savePost } = useSavePost();
   const { mutate: deleteSavePost } = useDeleteSavedPost();
 
@@ -53,27 +50,14 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
     };
   }, []);
 
-  const handleLikePost = (
-    e: React.MouseEvent<HTMLImageElement, MouseEvent>
-  ) => {
-    e.stopPropagation();
-
-    let likesArray = [...likes];
-
-    if (likesArray.includes(userId)) {
-      likesArray = likesArray.filter((Id) => Id !== userId);
-    } else {
-      likesArray.push(userId);
-    }
-
-    setLikes(likesArray);
-    likePost({ postId: post.$id, likesArray });
-  };
-
   const handleSavePost = (
     e: React.MouseEvent<HTMLImageElement, MouseEvent>
   ) => {
     e.stopPropagation();
+
+    if (!isAuthenticated || !userId || user.role !== "ADMIN") {
+      return;
+    }
 
     if (savedPostRecord) {
       setIsSaved(false);
@@ -102,24 +86,11 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
     ? "w-full"
     : "";
 
+  const isAdmin = isAuthenticated && user.role === "ADMIN";
+
   return (
     <div
-      className={`flex justify-between items-center z-20 ${containerStyles}`}>
-      <div className="flex gap-2 mr-5">
-        <img
-          src={`${
-            checkIsLiked(likes, userId)
-              ? "/assets/icons/liked.svg"
-              : "/assets/icons/like.svg"
-          }`}
-          alt="like"
-          width={20}
-          height={20}
-          onClick={(e) => handleLikePost(e)}
-          className="cursor-pointer"
-        />
-      </div>
-
+      className={`flex justify-end items-center z-20 ${containerStyles}`}>
       <div className="flex gap-2">
         <div className="relative" ref={shareMenuRef}>
           <Share2
@@ -149,14 +120,17 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
             </div>
           )}
         </div>
-        <img
-          src={isSaved ? "/assets/icons/saved.svg" : "/assets/icons/save.svg"}
-          alt="share"
-          width={20}
-          height={20}
-          className="cursor-pointer"
-          onClick={(e) => handleSavePost(e)}
-        />
+        
+        {isAdmin && (
+          <img
+            src={isSaved ? "/assets/icons/saved.svg" : "/assets/icons/save.svg"}
+            alt="save"
+            width={20}
+            height={20}
+            className="cursor-pointer"
+            onClick={(e) => handleSavePost(e)}
+          />
+        )}
       </div>
     </div>
   );

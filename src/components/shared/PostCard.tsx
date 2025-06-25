@@ -29,16 +29,7 @@ const PostCard = ({ post }: PostCardProps) => {
       <div className="p-4 flex flex-col flex-grow">
         <div className="flex-between mb-3">
           <div className="flex items-center gap-2">
-            <Link to={`/profile/${post.creator.$id}`}>
-              <img
-                src={post.creator?.imageUrl || "/assets/icons/profile-placeholder.svg"}
-                alt="creator"
-                className="w-7 h-7 rounded-full border-2 border-[#BB1919]"
-              />
-            </Link>
-            <span className="text-sm text-[#1A1A1A] font-medium">
-              {post.creator.name}
-            </span>
+            {/* Avatar removido */}
           </div>
 
           <Link

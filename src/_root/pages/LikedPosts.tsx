@@ -17,12 +17,12 @@ const LikedPosts = () => {
         <p className="text-light-4">Aun no tienes noticias guardadas</p>
       )}
 
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="body-bold text-[#1A1A1A]">Posts que me gustan</h3>
-          <div className="text-sm text-[#666666] bg-[#F8F8F8] px-3 py-1 rounded-full border border-[#E5E5E5]">
-            🖱️ Arrastra para reordenar
-          </div>
+      <div className="saved-container">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="h3-bold md:h2-bold text-[#1A1A1A]">
+            Posts que me Gustan
+            <div className="h-1 w-20 bg-[#BB1919] rounded-full"></div>
+          </h2>
         </div>
         <DraggableGridPostList 
           posts={currentUser.liked} 

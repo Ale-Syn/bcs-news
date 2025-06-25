@@ -36,15 +36,15 @@ const Location = () => {
     <div className="flex flex-1">
       <div className="common-container">
         <div className="user-container">
-          <h2 className="h3-bold md:h2-bold text-left w-full">
-            Posts from {decodeURIComponent(location || "")}
-          </h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="h3-bold md:h2-bold text-[#1A1A1A]">
+                             {decodeURIComponent(location || "")}
+              <div className="h-1 w-20 bg-[#BB1919] rounded-full"></div>
+            </h2>
+          </div>
           <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="body-bold text-[#1A1A1A]">Posts por ubicación</h3>
-            <div className="text-sm text-[#666666] bg-[#F8F8F8] px-3 py-1 rounded-full border border-[#E5E5E5]">
-              🖱️ Arrastra para reordenar
-            </div>
           </div>
           <DraggableGridPostList 
             posts={locationPosts} 

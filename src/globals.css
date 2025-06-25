@@ -206,7 +206,7 @@
   }
 
   .post_details-card {
-    @apply bg-dark-2 w-full max-w-5xl rounded-[30px] flex-col flex xl:flex-row border border-dark-4 xl:rounded-l-[24px];
+    @apply bg-white w-full max-w-5xl rounded-[30px] flex-col flex xl:flex-row border border-[#E5E5E5] xl:rounded-l-[24px];
   }
 
   .post_details-img {

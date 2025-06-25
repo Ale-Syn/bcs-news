@@ -1,5 +1,5 @@
 import { Models } from "appwrite";
-import { Loader, PostCard, NoDataMessage, DraggablePostGrid, DraggableSideGrid } from "@/components/shared";
+import { Loader, NoDataMessage, DraggablePostGrid, DraggableSideGrid } from "@/components/shared";
 import { useGetRecentPosts } from "@/lib/react-query/queries";
 import { Link, useParams } from "react-router-dom";
 import { multiFormatDateString } from "@/lib/utils";
@@ -26,14 +26,7 @@ const Home = () => {
   // Estado específico para las noticias laterales
   const [reorderedSidePosts, setReorderedSidePosts] = useState<Models.Document[]>([]);
 
-  // Get unique locations from posts
-  const locations =
-    posts?.documents.reduce((acc: string[], post) => {
-      if (post.location && !acc.includes(post.location)) {
-        acc.push(post.location);
-      }
-      return acc;
-    }, []) || [];
+
 
   if (isErrorPosts) {
     return (
@@ -82,30 +75,11 @@ const Home = () => {
       <div className="home-container">
         <div className="home-posts">
           <div className="w-full mb-0 mt-8">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full mb-4 gap-4">
-              <h2 className="h3-bold md:h2-bold text-[#1A1A1A]">
+            <div className="w-full mb-4">
+              <h1 className="h1-bold md:text-4xl md:font-bold text-[#1A1A1A]">
                 Altavoz BCS
-                <div className="h-1 w-20 bg-[#BB1919] rounded-full"></div>
-              </h2>
-              <div className="flex flex-wrap gap-2 sm:gap-3">
-                <Link
-                  to="/"
-                  className={`px-3 sm:px-4 py-2 rounded-xl bg-[#F8F8F8] text-[#1A1A1A] border border-[#E5E5E5] hover:bg-[#F0F0F0] transition-colors duration-200 small-medium md:base-medium ${
-                    !location ? "bg-[#F0F0F0]" : ""
-                  }`}>
-                  Todas
-                </Link>
-                {locations.map((loc) => (
-                  <Link
-                    key={loc}
-                    to={`/${loc}`}
-                    className={`px-3 sm:px-4 py-2 rounded-xl bg-[#F8F8F8] text-[#1A1A1A] border border-[#E5E5E5] hover:bg-[#F0F0F0] transition-colors duration-200 small-medium md:base-medium ${
-                      location === loc ? "bg-[#F0F0F0]" : ""
-                    }`}>
-                    {loc}
-                  </Link>
-                ))}
-              </div>
+                <div className="h-1 w-48 bg-[#BB1919] rounded-full"></div>
+              </h1>
             </div>
           </div>
           {isPostLoading && !posts ? (
@@ -144,17 +118,7 @@ const Home = () => {
                                 <div className="bbc-gradient-overlay" />
                                 <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
                                   <div className="flex items-center gap-3 mb-2">
-                                    <img
-                                      src={
-                                        post.creator?.imageUrl ||
-                                        "/assets/icons/profile-placeholder.svg"
-                                      }
-                                      alt="creator"
-                                      className="w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 border-[#BB1919]"
-                                    />
-                                    <span className="text-white text-xs sm:text-sm font-medium">
-                                      {post.creator?.name}
-                                    </span>
+                                    {/* Avatar removido */}
                                   </div>
                                   <h3 className="text-white text-lg sm:text-xl md:text-2xl font-bold mb-2 line-clamp-2">
                                     {post.caption}
@@ -179,32 +143,32 @@ const Home = () => {
                 )}
 
                 {/* Side Posts Grid with Drag and Drop */}
-                {sidePostsToDisplay && sidePostsToDisplay.length > 0 ? (
-                  <DraggableSideGrid 
-                    posts={sidePostsToDisplay} 
-                    onReorder={handleSideReorder}
-                  />
-                ) : (
-                  <div className="w-full lg:w-1/2">
+                <div className="w-full lg:w-1/2">
+                  <div className="mb-4">
+                    <h3 className="h3-bold text-[#1A1A1A]">Noticias Destacadas</h3>
+                  </div>
+                  {sidePostsToDisplay && sidePostsToDisplay.length > 0 ? (
+                    <DraggableSideGrid 
+                      posts={sidePostsToDisplay} 
+                      onReorder={handleSideReorder}
+                    />
+                  ) : (
                     <NoDataMessage
                       title="No hay registros"
                       message={"No hay registros disponibles en este momento"}
                     />
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
 
               {/* Full Width News Section with Drag and Drop */}
               <div className="mt-6 border-t border-[#E5E5E5] pt-6">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h2 className="h3-bold md:h2-bold text-[#1A1A1A]">
-                      Noticias Destacadas
+                    <h2 className="base-bold md:h3-bold text-[#1A1A1A]">
+                      Más Noticias
                       <div className="h-1 w-20 bg-[#BB1919] rounded-full"></div>
                     </h2>
-                  </div>
-                  <div className="text-sm text-[#666666] bg-[#F8F8F8] px-3 py-1 rounded-full border border-[#E5E5E5]">
-                    🖱️ Arrastra para reordenar
                   </div>
                 </div>
                 {postsToDisplay && postsToDisplay.length > 0 ? (
@@ -214,8 +178,8 @@ const Home = () => {
                   />
                 ) : (
                   <NoDataMessage
-                    title="No hay noticias destacadas"
-                    message={"No hay noticias destacadas disponibles en este momento"}
+                    title="No hay más noticias"
+                    message={"No hay más noticias disponibles en este momento"}
                   />
                 )}
               </div>

@@ -5,6 +5,11 @@ export const sidebarLinks = [
     label: "Inicio",
   },
   {
+    imgURL: "/assets/icons/activity.svg",
+    route: "/admin/dashboard",
+    label: "Admin Panel",
+  },
+  {
     imgURL: "/assets/icons/wallpaper.svg",
     route: "/explore",
     label: "Explorar",

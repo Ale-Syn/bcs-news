@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { createContext, useContext, useEffect, useState } from "react";
 
 import { IUser } from "@/types";
@@ -36,7 +35,6 @@ type IContextType = {
 const AuthContext = createContext<IContextType>(INITIAL_STATE);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const navigate = useNavigate();
   const [user, setUser] = useState<IUser>(INITIAL_USER);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,16 +43,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const currentAccount = await getCurrentUser();
       if (currentAccount) {
-        setUser({
+        const userRole = (currentAccount.role?.toUpperCase?.() as "ADMIN" | "USER" | "EDITOR") || "USER";
+        const userData = {
           id: currentAccount.$id,
           name: currentAccount.name,
           username: currentAccount.username,
           email: currentAccount.email,
           imageUrl: currentAccount.imageUrl,
           bio: currentAccount.bio,
-          role: (currentAccount.role?.toUpperCase?.() as "ADMIN" | "USER" | "EDITOR") || "USER",
-        });
+          role: userRole,
+        };
+        
+        setUser(userData);
         setIsAuthenticated(true);
+        
+        // Guardar usuario en localStorage para verificaciones de rol
+        localStorage.setItem('user', JSON.stringify(userData));
+        
         return true;
       }
       return false;
@@ -72,10 +77,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         cookieFallback === null ||
         cookieFallback === undefined
       ) {
-        const isLoggedIn = await checkAuthUser();
-        if (!isLoggedIn) {
-          navigate("/sign-in");
-        }
+        // Solo verificar autenticación, no redirigir automáticamente
+        await checkAuthUser();
       } else {
         await checkAuthUser();
       }
