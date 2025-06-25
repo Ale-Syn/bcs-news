@@ -49,8 +49,7 @@ const Footer = () => {
               <h3 className="text-lg font-bold mb-4 text-[#BB1919]">Contacto</h3>
               <div className="space-y-2">
                 <p>Email: admin@altavozbcs.com</p>
-                <p>Teléfono: (123) 456-7890</p>
-                
+                <p>Teléfono: (624) 264 9996</p>   
               </div>
             </div>
 
