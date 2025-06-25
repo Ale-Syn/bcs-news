@@ -17,7 +17,7 @@ const PostCard = ({ post }: PostCardProps) => {
   return (
     <div className="post-card bbc-card-hover flex flex-col h-full">
       <Link to={`/posts/${post.$id}`} className="block">
-        <div className="relative aspect-[4/3] w-full overflow-hidden">
+        <div className="relative aspect-[16/9] w-full overflow-hidden">
           <img
             src={post.imageUrl || "/assets/icons/profile-placeholder.svg"}
             alt="post image"
@@ -33,7 +33,7 @@ const PostCard = ({ post }: PostCardProps) => {
               <img
                 src={post.creator?.imageUrl || "/assets/icons/profile-placeholder.svg"}
                 alt="creator"
-                className="w-8 h-8 rounded-full border-2 border-[#BB1919]"
+                className="w-7 h-7 rounded-full border-2 border-[#BB1919]"
               />
             </Link>
             <span className="text-sm text-[#1A1A1A] font-medium">
@@ -64,7 +64,7 @@ const PostCard = ({ post }: PostCardProps) => {
             <span>{post.location}</span>
           </div>
           <div className="flex flex-wrap gap-2 flex-grow">
-            {post.tags.map((tag: string, index: string) => (
+            {post.tags.slice(0, 3).map((tag: string, index: string) => (
               <span
                 key={`${tag}${index}`}
                 className="text-xs text-[#BB1919] bg-[#BB1919]/10 px-2 py-1 rounded-full h-fit"
@@ -75,7 +75,7 @@ const PostCard = ({ post }: PostCardProps) => {
           </div>
         </Link>
 
-        <div className="mt-4">
+        <div className="mt-3">
           <PostStats post={post} userId={user.id} />
         </div>
       </div>

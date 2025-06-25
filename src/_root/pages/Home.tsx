@@ -53,7 +53,7 @@ const Home = () => {
     <div className="flex flex-1">
       <div className="home-container">
         <div className="home-posts">
-          <div className="w-full mb-8">
+          <div className="w-full mb-0 mt-8">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full mb-4 gap-4">
               <h2 className="h3-bold md:h2-bold text-[#1A1A1A]">
                 Altavoz BCS
@@ -84,7 +84,7 @@ const Home = () => {
             <Loader />
           ) : (
             <>
-              <div className="flex flex-col lg:flex-row gap-8 w-full">
+              <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 w-full">
                 {/* Featured Posts Carousel */}
                 {featuredPosts.length > 0 && (
                   <div className="featured-posts w-full lg:w-1/2 max-w-4xl">
@@ -168,14 +168,14 @@ const Home = () => {
               </div>
 
               {/* Full Width News Section */}
-              <div className="mt-16 border-t border-[#E5E5E5] pt-8">
-                <h2 className="h3-bold md:h2-bold text-[#1A1A1A] mb-8">
+              <div className="mt-6 border-t border-[#E5E5E5] pt-6">
+                <h2 className="h3-bold md:h2-bold text-[#1A1A1A] mb-6">
                   Noticias Destacadas
                   <div className="h-1 w-20 bg-[#BB1919] rounded-full"></div>
                 </h2>
                 {filteredPosts && filteredPosts.length > 2 ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 auto-rows-fr">
-                    {filteredPosts.slice(0,5).map((post: Models.Document) => (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 auto-rows-fr">
+                    {filteredPosts.slice(0,6).map((post: Models.Document) => (
                       <div key={post.$id} className="w-full h-full flex">
                         <PostCard post={post} />
                       </div>

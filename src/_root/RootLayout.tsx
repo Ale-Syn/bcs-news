@@ -7,10 +7,12 @@ const RootLayout = () => {
   return (
     <div className="w-full min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex flex-1 h-full pt-16">
-        <Outlet />
-      </main>
-      <Footer />
+      <div className="flex flex-1 flex-col overflow-y-auto pt-16">
+        <main className="flex flex-1">
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
     </div>
   );
 };
