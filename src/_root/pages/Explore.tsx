@@ -3,8 +3,9 @@ import { useInView } from "react-intersection-observer";
 
 import { Input } from "@/components/ui";
 import { useDebounce } from "@/hooks/useDebounce";
-import { GridPostList, Loader, NoDataMessage } from "@/components/shared";
+import { GridPostList, DraggableGridPostList, Loader, NoDataMessage } from "@/components/shared";
 import { useGetPosts, useSearchPosts } from "@/lib/react-query/queries";
+import { Models } from "appwrite";
 
 export type SearchResultProps = {
   isSearchFetching: boolean;
@@ -15,10 +16,30 @@ const SearchResults = ({
   isSearchFetching,
   searchedPosts,
 }: SearchResultProps) => {
+  const [reorderedSearchPosts, setReorderedSearchPosts] = useState<Models.Document[]>([]);
+
+  const handleSearchReorder = (newOrder: Models.Document[]) => {
+    setReorderedSearchPosts(newOrder);
+    localStorage.setItem('searchPostOrder', JSON.stringify(newOrder.map(post => post.$id)));
+  };
+
   if (isSearchFetching) {
     return <Loader />;
   } else if (searchedPosts && searchedPosts.documents.length > 0) {
-    return <GridPostList posts={searchedPosts.documents} />;
+    return (
+      <div className="w-full">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="body-bold text-[#1A1A1A]">Resultados de búsqueda</h3>
+          <div className="text-sm text-[#666666] bg-[#F8F8F8] px-3 py-1 rounded-full border border-[#E5E5E5]">
+            🖱️ Arrastra para reordenar
+          </div>
+        </div>
+        <DraggableGridPostList 
+          posts={searchedPosts.documents} 
+          onReorder={handleSearchReorder}
+        />
+      </div>
+    );
   } else {
     return (
       <NoDataMessage
@@ -34,9 +55,16 @@ const Explore = () => {
   const { data: posts, fetchNextPage, hasNextPage } = useGetPosts();
 
   const [searchValue, setSearchValue] = useState("");
+  const [reorderedPosts, setReorderedPosts] = useState<Models.Document[]>([]);
   const debouncedSearch = useDebounce(searchValue, 500);
   const { data: searchedPosts, isFetching: isSearchFetching } =
     useSearchPosts(debouncedSearch);
+
+  // Función para manejar el reordenamiento de posts populares
+  const handleReorder = (newOrder: Models.Document[]) => {
+    setReorderedPosts(newOrder);
+    localStorage.setItem('explorePostOrder', JSON.stringify(newOrder.map(post => post.$id)));
+  };
 
   useEffect(() => {
     if (inView && !searchValue) {
@@ -89,15 +117,20 @@ const Explore = () => {
           Noticias Populares
         </h3>
 
-        <div className="flex-center gap-3 bg-[#F8F8F8] rounded-xl px-4 py-2 cursor-pointer border border-[#E5E5E5] hover:bg-[#F0F0F0] transition-colors duration-200">
-          <p className="small-medium md:base-medium text-[#1A1A1A]">Todas</p>
-          <img
-            src="/assets/icons/filter.svg"
-            width={20}
-            height={20}
-            alt="filter"
-            className="invert-[0.2]"
-          />
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-[#666666] bg-[#F8F8F8] px-3 py-1 rounded-full border border-[#E5E5E5]">
+            🖱️ Arrastra para reordenar
+          </div>
+          <div className="flex-center gap-3 bg-[#F8F8F8] rounded-xl px-4 py-2 cursor-pointer border border-[#E5E5E5] hover:bg-[#F0F0F0] transition-colors duration-200">
+            <p className="small-medium md:base-medium text-[#1A1A1A]">Todas</p>
+            <img
+              src="/assets/icons/filter.svg"
+              width={20}
+              height={20}
+              alt="filter"
+              className="invert-[0.2]"
+            />
+          </div>
         </div>
       </div>
 
@@ -114,7 +147,11 @@ const Explore = () => {
           />
         ) : (
           posts.pages.map((item, index) => (
-            <GridPostList key={`page-${index}`} posts={item.documents} />
+            <DraggableGridPostList 
+              key={`page-${index}`} 
+              posts={item.documents}
+              onReorder={(newOrder) => handleReorder(newOrder)}
+            />
           ))
         )}
       </div>

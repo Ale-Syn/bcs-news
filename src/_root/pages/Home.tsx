@@ -1,8 +1,9 @@
 import { Models } from "appwrite";
-import { Loader, PostCard, NoDataMessage } from "@/components/shared";
+import { Loader, PostCard, NoDataMessage, DraggablePostGrid } from "@/components/shared";
 import { useGetRecentPosts } from "@/lib/react-query/queries";
 import { Link, useParams } from "react-router-dom";
 import { multiFormatDateString } from "@/lib/utils";
+import { useState } from "react";
 import {
   Carousel,
   CarouselContent,
@@ -19,6 +20,9 @@ const Home = () => {
     isLoading: isPostLoading,
     isError: isErrorPosts,
   } = useGetRecentPosts();
+
+  // Estado para manejar el orden personalizado de los posts
+  const [reorderedPosts, setReorderedPosts] = useState<Models.Document[]>([]);
 
   // Get unique locations from posts
   const locations =
@@ -46,8 +50,18 @@ const Home = () => {
       )
     : posts?.documents;
 
+  // Usar posts reordenados si existen, sino usar los originales
+  const postsToDisplay = reorderedPosts.length > 0 ? reorderedPosts : filteredPosts;
+
   // Get the first 5 posts as featured posts for the carousel
-  const featuredPosts = filteredPosts?.slice(0, 5) || [];
+  const featuredPosts = postsToDisplay?.slice(0, 5) || [];
+
+  // Función para manejar el reordenamiento
+  const handleReorder = (newOrder: Models.Document[]) => {
+    setReorderedPosts(newOrder);
+    // Aquí podrías agregar lógica para persistir el orden en localStorage o base de datos
+    localStorage.setItem('postOrder', JSON.stringify(newOrder.map(post => post.$id)));
+  };
 
   return (
     <div className="flex flex-1">
@@ -151,9 +165,9 @@ const Home = () => {
                 )}
 
                 {/* All Posts Grid */}
-                {filteredPosts && filteredPosts.length > 2 ? (
+                {postsToDisplay && postsToDisplay.length > 2 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full lg:w-1/2">
-                    {filteredPosts.slice(0,2).map((post: Models.Document) => (
+                    {postsToDisplay.slice(0,2).map((post: Models.Document) => (
                       <div key={post.$id} className="w-full h-full">
                         <PostCard post={post} />
                       </div>
@@ -167,20 +181,24 @@ const Home = () => {
                 )}
               </div>
 
-              {/* Full Width News Section */}
+              {/* Full Width News Section with Drag and Drop */}
               <div className="mt-6 border-t border-[#E5E5E5] pt-6">
-                <h2 className="h3-bold md:h2-bold text-[#1A1A1A] mb-6">
-                  Noticias Destacadas
-                  <div className="h-1 w-20 bg-[#BB1919] rounded-full"></div>
-                </h2>
-                {filteredPosts && filteredPosts.length > 2 ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 auto-rows-fr">
-                    {filteredPosts.slice(0,6).map((post: Models.Document) => (
-                      <div key={post.$id} className="w-full h-full flex">
-                        <PostCard post={post} />
-                      </div>
-                    ))}
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="h3-bold md:h2-bold text-[#1A1A1A]">
+                      Noticias Destacadas
+                      <div className="h-1 w-20 bg-[#BB1919] rounded-full"></div>
+                    </h2>
                   </div>
+                  <div className="text-sm text-[#666666] bg-[#F8F8F8] px-3 py-1 rounded-full border border-[#E5E5E5]">
+                    🖱️ Arrastra para reordenar
+                  </div>
+                </div>
+                {postsToDisplay && postsToDisplay.length > 0 ? (
+                  <DraggablePostGrid 
+                    posts={postsToDisplay.slice(0, 6)} 
+                    onReorder={handleReorder}
+                  />
                 ) : (
                   <NoDataMessage
                     title="No hay noticias destacadas"

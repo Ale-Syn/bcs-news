@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useGetPosts } from "@/lib/react-query/queries";
-import { GridPostList, Loader } from "@/components/shared";
+import { GridPostList, DraggableGridPostList, Loader } from "@/components/shared";
 
 const Location = () => {
   const { location } = useParams();
@@ -39,7 +39,21 @@ const Location = () => {
           <h2 className="h3-bold md:h2-bold text-left w-full">
             Posts from {decodeURIComponent(location || "")}
           </h2>
-          <GridPostList posts={locationPosts} showUser={true} />
+          <div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="body-bold text-[#1A1A1A]">Posts por ubicación</h3>
+            <div className="text-sm text-[#666666] bg-[#F8F8F8] px-3 py-1 rounded-full border border-[#E5E5E5]">
+              🖱️ Arrastra para reordenar
+            </div>
+          </div>
+          <DraggableGridPostList 
+            posts={locationPosts} 
+            showUser={true}
+            onReorder={(newOrder) => {
+              localStorage.setItem('locationPostOrder', JSON.stringify(newOrder.map(post => post.$id)));
+            }}
+          />
+        </div>
         </div>
       </div>
     </div>

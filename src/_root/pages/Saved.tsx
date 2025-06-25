@@ -1,6 +1,6 @@
 import { Models } from "appwrite";
 
-import { GridPostList, Loader, NoDataMessage } from "@/components/shared";
+import { GridPostList, DraggableGridPostList, Loader, NoDataMessage } from "@/components/shared";
 import { useGetCurrentUser } from "@/lib/react-query/queries";
 
 const Saved = () => {
@@ -37,7 +37,21 @@ const Saved = () => {
               message="Las noticias que guardes aparecerán aquí"
             />
           ) : (
-            <GridPostList posts={savePosts} showStats={false} />
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="body-bold text-[#1A1A1A]">Posts Guardados</h3>
+                <div className="text-sm text-[#666666] bg-[#F8F8F8] px-3 py-1 rounded-full border border-[#E5E5E5]">
+                  🖱️ Arrastra para reordenar
+                </div>
+              </div>
+              <DraggableGridPostList 
+                posts={savePosts} 
+                showStats={false}
+                onReorder={(newOrder) => {
+                  localStorage.setItem('savedPostOrder', JSON.stringify(newOrder.map(post => post.$id)));
+                }}
+              />
+            </div>
           )}
         </ul>
       )}

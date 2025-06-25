@@ -11,7 +11,7 @@ import { Button } from "@/components/ui";
 import { LikedPosts } from "@/_root/pages";
 import { useUserContext } from "@/context/AuthContext";
 import { useGetUserById } from "@/lib/react-query/queries";
-import { GridPostList, Loader } from "@/components/shared";
+import { GridPostList, DraggableGridPostList, Loader } from "@/components/shared";
 
 const Profile = () => {
   const { id } = useParams();
@@ -114,7 +114,24 @@ const Profile = () => {
       <Routes>
         <Route
           index
-          element={<GridPostList posts={currentUser.posts} showUser={false} />}
+                        element={
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="body-bold text-[#1A1A1A]">Mis Posts</h3>
+                    <div className="text-sm text-[#666666] bg-[#F8F8F8] px-3 py-1 rounded-full border border-[#E5E5E5]">
+                      🖱️ Arrastra para reordenar
+                    </div>
+                  </div>
+                  <DraggableGridPostList 
+                    posts={currentUser.posts} 
+                    showUser={false}
+                    onReorder={(newOrder) => {
+                      // Guardar el orden en localStorage
+                      localStorage.setItem('profilePostOrder', JSON.stringify(newOrder.map(post => post.$id)));
+                    }}
+                  />
+                </div>
+              }
         />
         {currentUser.$id === user.id && (
           <Route path="/liked-posts" element={<LikedPosts />} />

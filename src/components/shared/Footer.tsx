@@ -41,8 +41,8 @@ const Footer = () => {
 
   return (
     <>
-      <footer className="bg-[#E5E5E5] text-[#1A1A1A] mt-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <footer className="bg-[#E5E5E5] text-[#1A1A1A] mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Información de Contacto */}
             <div>
@@ -112,7 +112,7 @@ const Footer = () => {
           <div className="border-t border-[#D1D1D1] mt-8 pt-8">
             <p className="text-center text-sm text-[#4A4A4A]">
               
-              © {new Date().getFullYear()} La Voz. Todos los derechos reservados.
+              © {new Date().getFullYear()} Altavoz BCS. Todos los derechos reservados.
             </p>
           </div>
         </div>
