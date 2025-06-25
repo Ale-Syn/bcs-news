@@ -577,7 +577,7 @@ export async function createCategory(name: string) {
       ID.unique(),
       {
         name: name,
-        createdAt: new Date().toISOString(),
+        createdAt: new Date(),
       }
     );
 
