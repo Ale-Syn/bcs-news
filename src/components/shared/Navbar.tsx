@@ -4,9 +4,10 @@ import { Menu, X, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { useUserContext } from "@/context/AuthContext";
-import { useSignOutAccount, useGetPosts, useGetRecentPosts } from "@/lib/react-query/queries";
+import { useSignOutAccount, useGetPosts, useGetRecentPosts, useGetCategories } from "@/lib/react-query/queries";
 import { Input } from "../ui/input";
 import { useDebounce } from "@/hooks/useDebounce";
+import { Models } from "appwrite";
 
 // Public navigation items (for all users)
 const publicLinks = [
@@ -70,19 +71,24 @@ const Navbar = () => {
   const { mutate: signOut, isSuccess } = useSignOutAccount();
   const { data: postsData } = useGetPosts();
   const { data: recentPosts } = useGetRecentPosts();
-  const { location: locationParam } = useParams();
+  const { data: categoriesData } = useGetCategories();
+  const { location: locationParam, category: categoryParam } = useParams();
+  const currentParam = categoryParam || locationParam;
 
   // Admin check - make sure we're properly checking the role
   const isAdmin = user?.role === "ADMIN";
 
-  // Get unique locations from posts for categories
+  // Get categories from database - fallback to locations from posts if categories not available
+  const categories = categoriesData?.documents || [];
   const locations =
-    recentPosts?.documents.reduce((acc: string[], post) => {
-      if (post.location && !acc.includes(post.location)) {
-        acc.push(post.location);
-      }
-      return acc;
-    }, []) || [];
+    categories.length > 0 
+      ? categories.map((cat: Models.Document) => cat.name)
+      : recentPosts?.documents.reduce((acc: string[], post) => {
+          if (post.location && !acc.includes(post.location)) {
+            acc.push(post.location);
+          }
+          return acc;
+        }, []) || [];
 
   // Handle scroll effect
   useEffect(() => {
@@ -357,11 +363,11 @@ const Navbar = () => {
               {/* Category Links - Right Side - Hidden for Admin users */}
               {!isAdmin && (
                 <div className="flex items-center space-x-3 border-l border-white/20 pl-6">
-                  <Link
+                                      <Link
                     to="/"
                     className={cn(
                       "text-sm font-medium transition-colors duration-200 rounded-lg px-3 py-2",
-                      !locationParam
+                      !currentParam
                         ? "bg-white text-[#BB1919]"
                         : "text-white hover:bg-white/10"
                     )}>
@@ -370,10 +376,10 @@ const Navbar = () => {
                   {locations.map((loc) => (
                     <Link
                       key={loc}
-                      to={`/${loc}`}
+                      to={`/${encodeURIComponent(loc)}`}
                       className={cn(
                         "text-sm font-medium transition-colors duration-200 rounded-lg px-3 py-2",
-                        locationParam === loc
+                        decodeURIComponent(currentParam || "") === loc
                           ? "bg-white text-[#BB1919]"
                           : "text-white hover:bg-white/10"
                       )}>
@@ -438,7 +444,7 @@ const Navbar = () => {
                   to="/"
                   className={cn(
                     "block text-sm font-medium transition-colors duration-200 rounded-lg px-4 py-2",
-                    !locationParam
+                    !currentParam
                       ? "bg-white text-[#BB1919]"
                       : "text-white hover:bg-white/10"
                   )}
@@ -448,10 +454,10 @@ const Navbar = () => {
                 {locations.map((loc) => (
                   <Link
                     key={loc}
-                    to={`/${loc}`}
+                    to={`/${encodeURIComponent(loc)}`}
                     className={cn(
                       "block text-sm font-medium transition-colors duration-200 rounded-lg px-4 py-2",
-                      locationParam === loc
+                      decodeURIComponent(currentParam || "") === loc
                         ? "bg-white text-[#BB1919]"
                         : "text-white hover:bg-white/10"
                     )}

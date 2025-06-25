@@ -14,7 +14,7 @@ import {
 import Autoplay from "embla-carousel-autoplay";
 
 const Home = () => {
-  const { location } = useParams();
+  const { location, category } = useParams();
   const {
     data: posts,
     isLoading: isPostLoading,
@@ -38,10 +38,11 @@ const Home = () => {
     );
   }
 
-  // Filter posts by location if location param exists
-  const filteredPosts = location
+  // Filter posts by location or category if param exists
+  const filterParam = category || location;
+  const filteredPosts = filterParam
     ? posts?.documents.filter(
-        (post) => post.location === decodeURIComponent(location)
+        (post) => post.location === decodeURIComponent(filterParam)
       )
     : posts?.documents;
 

@@ -69,6 +69,8 @@ const App = () => {
           <Route path="/explore" element={<Explore />} />
           <Route path="/posts/:id" element={<PostDetails />} />
           <Route path="/location/:location" element={<Location />} />
+          <Route path="/category/:category" element={<Location />} />
+          <Route path="/:category" element={<Location />} />
           <Route path="/profile/:id/*" element={<Profile />} />
 
           {/* Rutas que requieren autenticación */}
