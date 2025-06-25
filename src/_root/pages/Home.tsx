@@ -1,5 +1,5 @@
 import { Models } from "appwrite";
-import { Loader, PostCard, NoDataMessage, DraggablePostGrid } from "@/components/shared";
+import { Loader, PostCard, NoDataMessage, DraggablePostGrid, DraggableSideGrid } from "@/components/shared";
 import { useGetRecentPosts } from "@/lib/react-query/queries";
 import { Link, useParams } from "react-router-dom";
 import { multiFormatDateString } from "@/lib/utils";
@@ -23,6 +23,8 @@ const Home = () => {
 
   // Estado para manejar el orden personalizado de los posts
   const [reorderedPosts, setReorderedPosts] = useState<Models.Document[]>([]);
+  // Estado específico para las noticias laterales
+  const [reorderedSidePosts, setReorderedSidePosts] = useState<Models.Document[]>([]);
 
   // Get unique locations from posts
   const locations =
@@ -56,11 +58,23 @@ const Home = () => {
   // Get the first 5 posts as featured posts for the carousel
   const featuredPosts = postsToDisplay?.slice(0, 5) || [];
 
+  // Posts para la sección lateral - usar reordenados si existen
+  const sidePostsToDisplay = reorderedSidePosts.length > 0 
+    ? reorderedSidePosts 
+    : postsToDisplay?.slice(0, 2) || [];
+
   // Función para manejar el reordenamiento
   const handleReorder = (newOrder: Models.Document[]) => {
     setReorderedPosts(newOrder);
     // Aquí podrías agregar lógica para persistir el orden en localStorage o base de datos
     localStorage.setItem('postOrder', JSON.stringify(newOrder.map(post => post.$id)));
+  };
+
+  // Función para manejar el reordenamiento de las noticias laterales
+  const handleSideReorder = (newOrder: Models.Document[]) => {
+    console.log('Reordenando posts laterales:', newOrder.map(p => p.caption)); // Debug
+    setReorderedSidePosts(newOrder);
+    localStorage.setItem('sidePostOrder', JSON.stringify(newOrder.map(post => post.$id)));
   };
 
   return (
@@ -164,20 +178,19 @@ const Home = () => {
                   </div>
                 )}
 
-                {/* All Posts Grid */}
-                {postsToDisplay && postsToDisplay.length > 2 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full lg:w-1/2">
-                    {postsToDisplay.slice(0,2).map((post: Models.Document) => (
-                      <div key={post.$id} className="w-full h-full">
-                        <PostCard post={post} />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <NoDataMessage
-                    title="No hay registros"
-                    message={"No hay registros disponibles en este momento"}
+                {/* Side Posts Grid with Drag and Drop */}
+                {sidePostsToDisplay && sidePostsToDisplay.length > 0 ? (
+                  <DraggableSideGrid 
+                    posts={sidePostsToDisplay} 
+                    onReorder={handleSideReorder}
                   />
+                ) : (
+                  <div className="w-full lg:w-1/2">
+                    <NoDataMessage
+                      title="No hay registros"
+                      message={"No hay registros disponibles en este momento"}
+                    />
+                  </div>
                 )}
               </div>
 

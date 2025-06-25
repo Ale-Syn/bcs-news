@@ -15,7 +15,7 @@ const PostCard = ({ post }: PostCardProps) => {
   if (!post.creator) return;
 
   return (
-    <div className="post-card bbc-card-hover flex flex-col h-full">
+    <div className="post-card bbc-card-hover flex flex-col h-full group">
       <Link to={`/posts/${post.$id}`} className="block">
         <div className="relative aspect-[16/9] w-full overflow-hidden">
           <img

@@ -5,6 +5,7 @@ export { default as PostCard } from "./PostCard";
 export { default as GridPostList } from "./GridPostList";
 export { default as DraggablePostGrid } from "./DraggablePostGrid";
 export { default as DraggableGridPostList } from "./DraggableGridPostList";
+export { default as DraggableSideGrid } from "./DraggableSideGrid";
 export { default as Topbar } from "./Topbar";
 export { default as UserCard } from "./UserCard";
 export { default as FileUploader } from "./FileUploader";
