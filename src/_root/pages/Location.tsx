@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useGetPosts } from "@/lib/react-query/queries";
-import { GridPostList, DraggableGridPostList, Loader } from "@/components/shared";
+import { DraggableGridPostList, Loader } from "@/components/shared";
 
 const Location = () => {
   const { location } = useParams();

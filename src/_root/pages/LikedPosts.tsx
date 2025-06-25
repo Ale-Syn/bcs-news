@@ -1,4 +1,4 @@
-import { GridPostList, DraggableGridPostList, Loader } from "@/components/shared";
+import { DraggableGridPostList, Loader } from "@/components/shared";
 import { useGetCurrentUser } from "@/lib/react-query/queries";
 
 const LikedPosts = () => {

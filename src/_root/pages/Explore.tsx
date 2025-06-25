@@ -3,7 +3,7 @@ import { useInView } from "react-intersection-observer";
 
 import { Input } from "@/components/ui";
 import { useDebounce } from "@/hooks/useDebounce";
-import { GridPostList, DraggableGridPostList, Loader, NoDataMessage } from "@/components/shared";
+import { DraggableGridPostList, Loader, NoDataMessage } from "@/components/shared";
 import { useGetPosts, useSearchPosts } from "@/lib/react-query/queries";
 import { Models } from "appwrite";
 
@@ -16,10 +16,7 @@ const SearchResults = ({
   isSearchFetching,
   searchedPosts,
 }: SearchResultProps) => {
-  const [reorderedSearchPosts, setReorderedSearchPosts] = useState<Models.Document[]>([]);
-
   const handleSearchReorder = (newOrder: Models.Document[]) => {
-    setReorderedSearchPosts(newOrder);
     localStorage.setItem('searchPostOrder', JSON.stringify(newOrder.map(post => post.$id)));
   };
 
@@ -55,14 +52,12 @@ const Explore = () => {
   const { data: posts, fetchNextPage, hasNextPage } = useGetPosts();
 
   const [searchValue, setSearchValue] = useState("");
-  const [reorderedPosts, setReorderedPosts] = useState<Models.Document[]>([]);
   const debouncedSearch = useDebounce(searchValue, 500);
   const { data: searchedPosts, isFetching: isSearchFetching } =
     useSearchPosts(debouncedSearch);
 
   // Función para manejar el reordenamiento de posts populares
   const handleReorder = (newOrder: Models.Document[]) => {
-    setReorderedPosts(newOrder);
     localStorage.setItem('explorePostOrder', JSON.stringify(newOrder.map(post => post.$id)));
   };
 

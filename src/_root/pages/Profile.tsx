@@ -11,7 +11,7 @@ import { Button } from "@/components/ui";
 import { LikedPosts } from "@/_root/pages";
 import { useUserContext } from "@/context/AuthContext";
 import { useGetUserById } from "@/lib/react-query/queries";
-import { GridPostList, DraggableGridPostList, Loader } from "@/components/shared";
+import { DraggableGridPostList, Loader } from "@/components/shared";
 
 const Profile = () => {
   const { id } = useParams();
