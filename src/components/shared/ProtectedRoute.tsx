@@ -11,8 +11,8 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
   const location = useLocation();
 
   if (!isAuthenticated) {
-    // Redirect to sign-in if not authenticated
-    return <Navigate to="/sign-in" state={{ from: location }} replace />;
+    // Redirect to admin login if not authenticated
+    return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role || "")) {

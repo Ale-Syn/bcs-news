@@ -21,7 +21,7 @@ const LeftSidebar = () => {
     signOut();
     setIsAuthenticated(false);
     setUser(INITIAL_USER);
-    navigate("/sign-in");
+    navigate("/admin/login");
   };
 
   return (

@@ -16,9 +16,7 @@ import {
   AdminDashboard,
   CategoriesManagement,
 } from "@/_root/pages";
-import AuthLayout from "./_auth/AuthLayout";
 import RootLayout from "./_root/RootLayout";
-import SigninForm from "@/_auth/forms/SigninForm";
 import AdminLoginForm from "@/_auth/forms/AdminLoginForm";
 import { Toaster } from "@/components/ui/toaster";
 import ProtectedRoute from "@/components/shared/ProtectedRoute";
@@ -30,11 +28,6 @@ const App = () => {
   return (
     <main className="flex h-screen">
       <Routes>
-        {/* Rutas de autenticación */}
-        <Route element={<AuthLayout />}>
-          <Route path="/sign-in" element={<SigninForm />} />
-        </Route>
-
         {/* Login específico para ADMIN */}
         <Route path="/admin/login" element={<AdminLoginForm />} />
 
@@ -59,8 +52,6 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-
-
 
           {/* Rutas principales - PÚBLICAS */}
           <Route path="/" element={<Home />} />
