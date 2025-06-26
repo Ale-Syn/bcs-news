@@ -2,7 +2,6 @@ import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea
 import { Models } from "appwrite";
 import { useUserContext } from "@/context/AuthContext";
 import { Link } from "react-router-dom";
-import { PostStats } from "@/components/shared";
 import { multiFormatDateString } from "@/lib/utils";
 
 type DraggableSideGridProps = {
