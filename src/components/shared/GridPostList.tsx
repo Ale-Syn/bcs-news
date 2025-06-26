@@ -30,21 +30,26 @@ const GridPostList = ({
               className="h-full w-full object-cover"
             />
             <div className="absolute top-0 left-0 right-0 p-4">
-              <div className="flex flex-wrap gap-2">
-                {post.tags?.map((tag: string, index: string) => (
+              <div className="flex flex-wrap gap-2 overflow-hidden" style={{ maxHeight: '2.5rem' }}>
+                {post.tags?.slice(0, 3).map((tag: string, index: string) => (
                   <span
                     key={`${tag}${index}`}
-                    className="text-xs text-white bg-[#BB1919]/90 px-2 py-1 rounded-full backdrop-blur-sm"
+                    className="text-xs text-white bg-[#BB1919]/90 px-2 py-1 rounded-full backdrop-blur-sm flex-shrink-0"
                   >
                     #{tag}
                   </span>
                 ))}
+                {post.tags && post.tags.length > 3 && (
+                  <span className="text-xs text-white bg-black/50 px-2 py-1 rounded-full backdrop-blur-sm flex-shrink-0">
+                    +{post.tags.length - 3}
+                  </span>
+                )}
               </div>
             </div>
             <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/95 via-[#1A1A1A]/50 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300">
               <div className="absolute bottom-0 left-0 right-0 p-4">
                 <h3 className="text-white text-lg font-semibold line-clamp-2 mb-2">
-                  {post.caption}
+                  {post.title}
                 </h3>
                 <div className="flex items-center gap-2 text-white/80 text-sm">
                   <span>{post.location}</span>

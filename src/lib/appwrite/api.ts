@@ -142,6 +142,7 @@ export async function createPost(post: INewPost) {
       ID.unique(),
       {
         creator: post.userId,
+        title: post.title,
         caption: post.caption,
         imageUrl: fileUrl,
         imageId: uploadedFile.$id,
@@ -299,6 +300,7 @@ export async function updatePost(post: IUpdatePost) {
       appwriteConfig.postCollectionId,
       post.postId,
       {
+        title: post.title,
         caption: post.caption,
         imageUrl: image.imageUrl,
         imageId: image.imageId,
@@ -636,5 +638,110 @@ export async function deleteCategory(categoryId: string) {
   } catch (error) {
     console.log(error);
     return null;
+  }
+}
+
+// ============================================================
+// POST ORDER
+// ============================================================
+
+// ============================== SAVE POST ORDER
+export async function savePostOrder(orderType: "main" | "side", postIds: string[]) {
+  try {
+    // Primero verificamos si ya existe un orden para este tipo
+    const existingOrder = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.postOrderCollectionId,
+      [Query.equal("orderType", orderType)]
+    );
+
+    if (existingOrder.documents.length > 0) {
+      // Actualizar el orden existente
+      const updatedOrder = await databases.updateDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.postOrderCollectionId,
+        existingOrder.documents[0].$id,
+        {
+          postIds: postIds,
+          updatedAt: new Date(),
+        }
+      );
+      return updatedOrder;
+    } else {
+      // Crear un nuevo orden
+      const newOrder = await databases.createDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.postOrderCollectionId,
+        ID.unique(),
+        {
+          orderType: orderType,
+          postIds: postIds,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
+      );
+      return newOrder;
+    }
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
+// ============================== GET POST ORDER
+export async function getPostOrder(orderType: "main" | "side") {
+  try {
+    const order = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.postOrderCollectionId,
+      [Query.equal("orderType", orderType)]
+    );
+
+    if (order.documents.length > 0) {
+      return order.documents[0];
+    }
+    return null;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
+// ============================== GET ORDERED POSTS
+export async function getOrderedPosts(orderType: "main" | "side") {
+  try {
+    const orderDoc = await getPostOrder(orderType);
+    
+    if (!orderDoc || !orderDoc.postIds || orderDoc.postIds.length === 0) {
+      // Si no hay orden guardado, devolver posts en orden por fecha
+      return await getRecentPosts();
+    }
+
+    // Obtener los posts en el orden guardado
+    const posts = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.postCollectionId,
+      [Query.orderDesc("$createdAt"), Query.limit(20)]
+    );
+
+    if (!posts) throw Error;
+
+    // Reordenar los posts según el orden guardado
+    const orderedPosts = orderDoc.postIds
+      .map((postId: string) => posts.documents.find(post => post.$id === postId))
+      .filter(Boolean); // Filtrar posts que ya no existen
+
+    // Agregar posts nuevos que no estén en el orden guardado
+    const newPosts = posts.documents.filter(
+      post => !orderDoc.postIds.includes(post.$id)
+    );
+
+    return {
+      documents: [...orderedPosts, ...newPosts],
+      total: posts.total
+    };
+  } catch (error) {
+    console.log(error);
+    return await getRecentPosts(); // Fallback a orden por fecha
   }
 }

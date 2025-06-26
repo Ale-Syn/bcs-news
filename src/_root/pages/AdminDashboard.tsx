@@ -30,6 +30,13 @@ const AdminDashboard = () => {
     { title: "Analíticas", desc: "Ver estadísticas y reportes", link: "/admin/analytics", icon: "📊" },
   ];
 
+  const recentActivities = [
+    { action: "Usuario registrado", user: "María González", time: "Hace 5 min", icon: "👤" },
+    { action: "Post publicado", user: "Carlos Ruiz", time: "Hace 15 min", icon: "📝" },
+    { action: "Comentario reportado", user: "Ana López", time: "Hace 30 min", icon: "⚠️" },
+    { action: "Post editado", user: "Luis Martinez", time: "Hace 1 hora", icon: "✏️" },
+  ];
+
   return (
     <div className="flex-1 h-full pt-20 p-6 bg-gray-50 overflow-y-auto">
       <div className="max-w-7xl mx-auto">
@@ -54,6 +61,30 @@ const AdminDashboard = () => {
                 </Button>
               </Link>
             </div>
+          </div>
+        </div>
+
+        {/* Nueva funcionalidad - Orden de Posts */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <h3 className="text-lg font-semibold text-blue-800 mb-2">🎯 Nueva Funcionalidad: Orden de Noticias</h3>
+          <p className="text-blue-700 mb-3">
+            Ahora puedes reordenar las noticias arrastrándolas en la página principal. El orden que establescas será visible para todos los usuarios visitantes.
+          </p>
+          <div className="bg-blue-100 p-3 rounded border-l-4 border-blue-500">
+            <p className="text-sm text-blue-800 font-medium mb-2">📋 Configuración requerida:</p>
+            <p className="text-sm text-blue-700">
+              Para activar esta funcionalidad, necesitas agregar la variable de entorno:
+              <code className="bg-white px-2 py-1 rounded mx-1 text-blue-900">VITE_APPWRITE_POST_ORDER_COLLECTION_ID</code>
+              en tu dashboard de Vercel y crear la colección correspondiente en Appwrite.
+            </p>
+          </div>
+          <div className="mt-3">
+            <Link 
+              to="/" 
+              className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Ir a la página principal para probar →
+            </Link>
           </div>
         </div>
 
@@ -116,22 +147,19 @@ const AdminDashboard = () => {
             </div>
           </Card>
 
-          {/* Recent Reports */}
+          {/* Recent Activities */}
           <Card className="p-6 bg-white">
-            <h3 className="text-lg font-semibold text-[#1A1A1A] mb-4">Reportes Recientes</h3>
+            <h3 className="text-lg font-semibold text-[#1A1A1A] mb-4">Actividades Recientes</h3>
             <div className="space-y-3">
-              {[1, 2, 3, 4].map((_, index) => (
+              {recentActivities.map((activity, index) => (
                 <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <div className="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center text-white">
-                    ⚠️
+                  <div className="w-10 h-10 bg-[#BB1919] rounded-full flex items-center justify-center text-white">
+                    {activity.icon}
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium text-[#1A1A1A]">Contenido reportado #{index + 1}</p>
-                    <p className="text-sm text-gray-600">Spam/Contenido inapropiado</p>
+                    <p className="font-medium text-[#1A1A1A]">{activity.action}</p>
+                    <p className="text-sm text-gray-600">{activity.user} • {activity.time}</p>
                   </div>
-                  <Button size="sm" variant="outline" className="text-xs">
-                    Revisar
-                  </Button>
                 </div>
               ))}
             </div>

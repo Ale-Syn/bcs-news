@@ -18,6 +18,9 @@ const PostDetails = () => {
   const { user } = useUserContext();
 
   const { data: post, isLoading } = useGetPostById(id);
+  
+  // Force re-render when navigating between different posts
+  const postKey = `post-details-${id}`;
   const { data: allPosts, isLoading: isAllPostsLoading } = useGetRecentPosts();
   const { mutate: deletePost } = useDeletePost();
 
@@ -71,7 +74,7 @@ const PostDetails = () => {
       {isLoading || !post ? (
         <Loader />
       ) : (
-        <div className="post_details-card">
+        <div key={postKey} className="post_details-card">
           <img
             src={post?.imageUrl}
             alt="creator"
@@ -82,7 +85,7 @@ const PostDetails = () => {
             <div className="flex-between w-full">
               <div className="flex flex-col gap-2 flex-1">
                 <h1 className="text-xl lg:text-2xl font-bold text-[#1A1A1A] line-clamp-3">
-                  {post?.caption}
+                  {post?.title}
                 </h1>
                 <div className="flex-center gap-2 text-[#666666]">
                   <p className="subtle-semibold lg:small-regular">
@@ -126,6 +129,14 @@ const PostDetails = () => {
             <hr className="border w-full border-[#E5E5E5]" />
 
             <div className="flex flex-col flex-1 w-full small-medium lg:base-regular text-[#1A1A1A]">
+              {/* Description/Caption */}
+              <div className="mb-4">
+                <p className="text-[#1A1A1A] base-regular whitespace-pre-wrap">
+                  {post?.caption}
+                </p>
+              </div>
+
+              {/* Tags */}
               <ul className="flex gap-1 flex-wrap">
                 {post?.tags.map((tag: string, index: string) => (
                   <li
@@ -189,7 +200,7 @@ const PostDetails = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/95 via-[#1A1A1A]/50 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300">
                       <div className="absolute bottom-0 left-0 right-0 p-4">
                         <h3 className="text-white text-lg font-semibold line-clamp-2 mb-2">
-                          {relatedPost.caption}
+                          {relatedPost.title}
                         </h3>
                         <div className="flex items-center gap-2 text-white/80 text-sm">
                           <span>{relatedPost.location}</span>

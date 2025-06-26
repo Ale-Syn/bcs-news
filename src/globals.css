@@ -128,16 +128,21 @@
 
   /* Home */
   .home-container {
-    @apply flex flex-col flex-1 items-center gap-8 py-8 px-1 md:px-2 lg:px-48 lg:py-10;
+    @apply flex flex-col flex-1 items-center gap-6 md:gap-8 py-6 md:py-8 px-2 sm:px-4 md:px-6 lg:px-20 xl:px-28 2xl:px-32 lg:py-10;
   }
 
   .home-posts {
-    @apply flex flex-col items-center w-full gap-4 md:gap-6;
+    @apply flex flex-col items-center w-full gap-3 md:gap-4 lg:gap-6;
   }
 
   /* Post Card */
   .post-card {
-    @apply bg-[#F8F8F8] rounded-xl border border-[#E5E5E5] w-full transition-all duration-300 hover:shadow-lg hover:shadow-[#BB1919]/10;
+    @apply bg-[#F8F8F8] rounded-lg md:rounded-xl border border-[#E5E5E5] w-full min-h-[200px] sm:min-h-[220px] md:min-h-[230px] lg:min-h-[210px] xl:min-h-[220px] transition-all duration-300 hover:shadow-lg hover:shadow-[#BB1919]/10;
+  }
+
+  /* Side Post Card - para noticias laterales */
+  .side-post-card {
+    @apply bg-[#F8F8F8] rounded-lg md:rounded-xl border border-[#E5E5E5] w-full min-h-[200px] sm:min-h-[220px] md:min-h-[230px] lg:min-h-[180px] xl:min-h-[190px] transition-all duration-300 hover:shadow-lg hover:shadow-[#BB1919]/10;
   }
 
   /* BBC-inspired button styles */

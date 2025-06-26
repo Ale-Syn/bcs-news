@@ -76,9 +76,9 @@ const DraggableGridPostList = ({
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/95 via-[#1A1A1A]/50 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300">
           <div className="absolute bottom-0 left-0 right-0 p-4">
-            <h3 className="text-white text-lg font-semibold line-clamp-2 mb-2">
-              {post.caption}
-            </h3>
+                                    <h3 className="text-white text-lg font-semibold line-clamp-2 mb-2">
+                          {post.title}
+                        </h3>
             <div className="flex items-center gap-2 text-white/80 text-sm">
               <span>{post.location}</span>
             </div>

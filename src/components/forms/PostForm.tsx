@@ -34,6 +34,7 @@ const PostForm = ({ post, action }: PostFormProps) => {
   const form = useForm<z.infer<typeof PostValidation>>({
     resolver: zodResolver(PostValidation),
     defaultValues: {
+      title: post ? post?.title : "",
       caption: post ? post?.caption : "",
       file: [],
       location: post ? post.location : "",
@@ -62,9 +63,43 @@ const PostForm = ({ post, action }: PostFormProps) => {
       if (!updatedPost) {
         toast({
           title: `${action} post failed. Please try again.`,
+          variant: "destructive",
         });
+      } else {
+        // Multiple scroll methods to ensure it works
+        try {
+          // Method 1: Window scroll
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          
+          // Method 2: Document scroll
+          document.documentElement.scrollTop = 0;
+          document.body.scrollTop = 0;
+          
+          // Method 3: Find main container and scroll
+          const mainContainer = document.querySelector('.common-container') || 
+                               document.querySelector('.home-container') ||
+                               document.querySelector('main') ||
+                               document.body;
+          if (mainContainer) {
+            mainContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        } catch (error) {
+          console.log('Scroll error:', error);
+        }
+        
+        // Show success message
+        toast({
+          title: "¡Noticia actualizada exitosamente!",
+          description: "Los cambios se han guardado correctamente.",
+          variant: "default",
+        });
+        
+        // Navigate to post details after a brief delay to show the toast
+        setTimeout(() => {
+          navigate(`/posts/${post.$id}`);
+        }, 1500);
+        return;
       }
-      return navigate(`/posts/${post.$id}`);
     }
 
     // ACTION = CREATE
@@ -76,9 +111,43 @@ const PostForm = ({ post, action }: PostFormProps) => {
     if (!newPost) {
       toast({
         title: `${action} post failed. Please try again.`,
+        variant: "destructive",
       });
+    } else {
+      // Multiple scroll methods to ensure it works
+      try {
+        // Method 1: Window scroll
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // Method 2: Document scroll
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        
+        // Method 3: Find main container and scroll
+        const mainContainer = document.querySelector('.common-container') || 
+                             document.querySelector('.home-container') ||
+                             document.querySelector('main') ||
+                             document.body;
+        if (mainContainer) {
+          mainContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      } catch (error) {
+        console.log('Scroll error:', error);
+      }
+      
+      // Show success message
+      toast({
+        title: "¡Noticia creada exitosamente!",
+        description: "La nueva noticia se ha publicado correctamente.",
+        variant: "default",
+      });
+      
+      // Navigate to home after a brief delay to show the toast
+      setTimeout(() => {
+        navigate("/");
+      }, 1500);
+      return;
     }
-    navigate("/");
   };
 
   return (
@@ -86,6 +155,25 @@ const PostForm = ({ post, action }: PostFormProps) => {
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
         className="flex flex-col gap-9 w-full">
+        <FormField
+          control={form.control}
+          name="title"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="shad-form_label">Título</FormLabel>
+              <FormControl>
+                <Input
+                  type="text"
+                  className="shad-input"
+                  placeholder="Título de la noticia..."
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage className="shad-form_message" />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="caption"

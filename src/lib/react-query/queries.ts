@@ -30,6 +30,8 @@ import {
   getCategories,
   updateCategory,
   deleteCategory,
+  savePostOrder,
+  getOrderedPosts,
 } from "@/lib/appwrite/api";
 import { INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 
@@ -97,8 +99,21 @@ export const useCreatePost = () => {
   return useMutation({
     mutationFn: (post: INewPost) => createPost(post),
     onSuccess: () => {
+      // Invalidate recent posts (home page)
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
+      });
+      // Invalidate infinite posts
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_INFINITE_POSTS],
+      });
+      // Invalidate ordered posts (draggable grids)
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_ORDERED_POSTS],
+      });
+      // Invalidate user posts
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_USER_POSTS],
       });
     },
   });
@@ -125,8 +140,25 @@ export const useUpdatePost = () => {
   return useMutation({
     mutationFn: (post: IUpdatePost) => updatePost(post),
     onSuccess: (data) => {
+      // Invalidate specific post
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_POST_BY_ID, data?.$id],
+      });
+      // Invalidate recent posts (home page)
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
+      });
+      // Invalidate infinite posts
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_INFINITE_POSTS],
+      });
+      // Invalidate ordered posts (draggable grids)
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_ORDERED_POSTS],
+      });
+      // Invalidate user posts
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_USER_POSTS],
       });
     },
   });
@@ -206,6 +238,33 @@ export const useDeleteSavedPost = () => {
         queryKey: [QUERY_KEYS.GET_CURRENT_USER],
       });
     },
+  });
+};
+
+// ============================================================
+// POST ORDER QUERIES
+// ============================================================
+
+export const useSavePostOrder = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ orderType, postIds }: { orderType: "main" | "side"; postIds: string[] }) =>
+      savePostOrder(orderType, postIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_ORDERED_POSTS],
+      });
+    },
+  });
+};
+
+export const useGetOrderedPosts = (orderType: "main" | "side") => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_ORDERED_POSTS, orderType],
+    queryFn: () => getOrderedPosts(orderType),
   });
 };
 
