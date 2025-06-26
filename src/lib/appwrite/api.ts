@@ -61,20 +61,35 @@ export async function saveUserToDB(user: {
 // ============================== SIGN IN
 export async function signInAccount(user: { email: string; password: string }) {
   try {
-    // Cerrar cualquier sesión activa primero
+    // Primero cerrar cualquier sesión existente
     try {
       await account.deleteSession("current");
     } catch (error) {
-      // Si no hay sesión activa, continuar
+      // Ignorar error si no hay sesión activa
       console.log("No hay sesión activa para cerrar");
     }
 
-    // Crear nueva sesión
+    // Verificar si el usuario existe en la base de datos y tiene rol ADMIN
+    const adminUsers = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [
+        Query.equal("email", user.email),
+        Query.equal("role", "ADMIN")
+      ]
+    );
+
+    if (!adminUsers.documents || adminUsers.documents.length === 0) {
+      throw new Error("Acceso denegado: Usuario no autorizado o no es administrador");
+    }
+
+    // Si el usuario tiene rol ADMIN, proceder con el login
     const session = await account.createEmailSession(user.email, user.password);
 
     return session;
   } catch (error) {
     console.log(error);
+    throw error;
   }
 }
 
@@ -104,7 +119,16 @@ export async function getCurrentUser() {
 
     if (!currentUser) throw Error;
 
-    return currentUser.documents[0];
+    const user = currentUser.documents[0];
+    
+    // Verificar que el usuario tenga rol ADMIN
+    if (!user.role || user.role.toUpperCase() !== "ADMIN") {
+      // Si no es admin, cerrar la sesión automáticamente
+      await signOutAccount();
+      throw new Error("Acceso denegado: Solo administradores pueden acceder");
+    }
+
+    return user;
   } catch (error) {
     console.log(error);
     return null;
@@ -119,6 +143,59 @@ export async function signOutAccount() {
     return session;
   } catch (error) {
     console.log(error);
+  }
+}
+
+// ============================== GET ADMIN USERS
+export async function getAdminUsers() {
+  try {
+    const adminUsers = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [Query.equal("role", "ADMIN")]
+    );
+
+    return adminUsers.documents;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+}
+
+// ============================== VERIFY ADMIN USER BY EMAIL
+export async function verifyAdminUserByEmail(email: string) {
+  try {
+    const adminUser = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [
+        Query.equal("email", email),
+        Query.equal("role", "ADMIN")
+      ]
+    );
+
+    return adminUser.documents.length > 0 ? adminUser.documents[0] : null;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
+// ============================== CLEAR ALL SESSIONS
+export async function clearAllSessions() {
+  try {
+    // Intentar cerrar sesión actual
+    await account.deleteSession("current");
+  } catch (error) {
+    console.log("No hay sesión activa para cerrar");
+  }
+  
+  try {
+    // Limpiar localStorage
+    localStorage.removeItem('cookieFallback');
+    localStorage.removeItem('user');
+  } catch (error) {
+    console.log("Error limpiando localStorage");
   }
 }
 
@@ -752,5 +829,61 @@ export async function getOrderedPosts(orderType: "main" | "side") {
   } catch (error) {
     console.log(error);
     return await getRecentPosts(); // Fallback a orden por fecha
+  }
+}
+
+// ============================== DIAGNÓSTICO DE CONEXIÓN
+export async function testDatabaseConnection() {
+  console.log("🔍 Iniciando diagnóstico de conexión...");
+  
+  // Verificar configuración
+  console.log("📋 Configuración de Appwrite:");
+  console.log("- URL:", appwriteConfig.url);
+  console.log("- Project ID:", appwriteConfig.projectId);
+  console.log("- Database ID:", appwriteConfig.databaseId);
+  console.log("- Post Collection ID:", appwriteConfig.postCollectionId);
+  console.log("- User Collection ID:", appwriteConfig.userCollectionId);
+
+  try {
+    // Test 1: Verificar conexión básica
+    console.log("🧪 Test 1: Verificando conexión con posts...");
+    const posts = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.postCollectionId,
+      [Query.limit(1)]
+    );
+    console.log("✅ Conexión con posts exitosa:", posts.total, "posts encontrados");
+
+    // Test 2: Verificar conexión con usuarios
+    console.log("🧪 Test 2: Verificando conexión con usuarios...");
+    const users = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [Query.limit(1)]
+    );
+    console.log("✅ Conexión con usuarios exitosa:", users.total, "usuarios encontrados");
+
+    // Test 3: Verificar datos específicos
+    if (posts.documents.length > 0) {
+      console.log("🧪 Test 3: Datos de ejemplo encontrados:");
+      console.log("- Primer post:", posts.documents[0].title || "Sin título");
+      console.log("- ID del post:", posts.documents[0].$id);
+      console.log("- Fecha creación:", posts.documents[0].$createdAt);
+    }
+
+    return {
+      success: true,
+      postsCount: posts.total,
+      usersCount: users.total,
+      samplePost: posts.documents[0] || null
+    };
+
+  } catch (error) {
+    console.error("❌ Error en diagnóstico:", error);
+    return {
+      success: false,
+      error: error,
+      message: error instanceof Error ? error.message : "Error desconocido"
+    };
   }
 }

@@ -33,45 +33,70 @@ const AdminLoginForm = () => {
   });
 
   const handleAdminSignin = async (user: z.infer<typeof SigninValidation>) => {
-    const session = await signInAccount(user);
+    try {
+      const session = await signInAccount(user);
 
-    if (!session) {
-      toast({ 
-        title: "Error de acceso", 
-        description: "Credenciales incorrectas. Verifique sus datos de administrador.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const isLoggedIn = await checkAuthUser();
-
-    if (isLoggedIn) {
-      // Verificar que el usuario sea ADMIN
-      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-      if (currentUser.role !== 'ADMIN') {
+      if (!session) {
         toast({ 
-          title: "Acceso denegado", 
-          description: "Esta área está restringida solo para administradores.",
+          title: "Error de acceso", 
+          description: "Credenciales incorrectas. Verifique sus datos de administrador.",
           variant: "destructive"
         });
-        // Logout del usuario no-admin
-        localStorage.removeItem('cookieFallback');
-        localStorage.removeItem('user');
-        navigate("/public");
         return;
       }
 
-      form.reset();
+      const isLoggedIn = await checkAuthUser();
+
+      if (isLoggedIn) {
+        // Verificar que el usuario sea ADMIN
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+        if (currentUser.role !== 'ADMIN') {
+          toast({ 
+            title: "Acceso denegado", 
+            description: "Esta área está restringida solo para administradores.",
+            variant: "destructive"
+          });
+          // Logout del usuario no-admin
+          localStorage.removeItem('cookieFallback');
+          localStorage.removeItem('user');
+          navigate("/public");
+          return;
+        }
+
+        form.reset();
+        toast({ 
+          title: "Bienvenido, Administrador", 
+          description: "Acceso concedido al panel de administración.",
+        });
+        navigate("/admin/dashboard");
+      } else {
+        toast({ 
+          title: "Error de autenticación", 
+          description: "No se pudo verificar las credenciales. Intente nuevamente.",
+          variant: "destructive"
+        });
+      }
+    } catch (error: any) {
+      console.error("Error en login de admin:", error);
+      
+      let errorMessage = "Error de inicio de sesión. Intente nuevamente.";
+      
+      if (error.message && error.message.includes("Acceso denegado")) {
+        errorMessage = "Acceso denegado: Solo administradores autorizados pueden ingresar.";
+      } else if (error.message && error.message.includes("Invalid credentials")) {
+        errorMessage = "Credenciales incorrectas. Verifique su email y contraseña.";
+      } else if (error.message && error.message.includes("session is active")) {
+        errorMessage = "Sesión activa detectada. Se ha limpiado automáticamente, intente nuevamente.";
+        // Limpiar localStorage para evitar problemas futuros
+        localStorage.removeItem('cookieFallback');
+        localStorage.removeItem('user');
+      } else if (error.message && error.message.includes("User not found")) {
+        errorMessage = "Usuario no encontrado en el sistema.";
+      }
+
       toast({ 
-        title: "Bienvenido, Administrador", 
-        description: "Acceso concedido al panel de administración.",
-      });
-      navigate("/admin/dashboard");
-    } else {
-      toast({ 
-        title: "Error de autenticación", 
-        description: "No se pudo verificar las credenciales. Intente nuevamente.",
+        title: "Error de acceso", 
+        description: errorMessage,
         variant: "destructive"
       });
     }

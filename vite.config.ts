@@ -9,6 +9,19 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    port: 5173,
+    host: true,
+    strictPort: false,
+    // Configuración para evitar problemas de CSP en desarrollo
+    fs: {
+      strict: false
+    }
+  },
+  define: {
+    // Evitar problemas con eval en desarrollo
+    global: 'globalThis',
+  },
   build: {
     sourcemap: false,
     chunkSizeWarningLimit: 1000,
@@ -22,5 +35,9 @@ export default defineConfig({
         },
       },
     },
+  },
+  // Configuración específica para evitar CSP con eval
+  esbuild: {
+    drop: [],
   },
 });

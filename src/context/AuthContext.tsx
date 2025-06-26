@@ -44,6 +44,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const currentAccount = await getCurrentUser();
       if (currentAccount) {
         const userRole = (currentAccount.role?.toUpperCase?.() as "ADMIN" | "USER" | "EDITOR") || "USER";
+        
+        // Solo permitir usuarios ADMIN
+        if (userRole !== "ADMIN") {
+          console.log("Usuario sin permisos de administrador, cerrando sesión");
+          setUser(INITIAL_USER);
+          setIsAuthenticated(false);
+          localStorage.removeItem('user');
+          localStorage.removeItem('cookieFallback');
+          return false;
+        }
+
         const userData = {
           id: currentAccount.$id,
           name: currentAccount.name,
@@ -64,7 +75,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       return false;
     } catch (error) {
-      console.error(error);
+      console.error("Error en autenticación:", error);
+      // Limpiar estado en caso de error
+      setUser(INITIAL_USER);
+      setIsAuthenticated(false);
+      localStorage.removeItem('user');
+      localStorage.removeItem('cookieFallback');
       return false;
     }
   };

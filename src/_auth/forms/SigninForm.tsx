@@ -30,24 +30,49 @@ const SigninForm = () => {
   });
 
   const handleSignin = async (user: z.infer<typeof SigninValidation>) => {
-    const session = await signInAccount(user);
+    try {
+      const session = await signInAccount(user);
 
-    if (!session) {
-      toast({ title: "Login failed. Please try again." });
+      if (!session) {
+        toast({ 
+          title: "Error de inicio de sesión", 
+          description: "Por favor, verifique sus credenciales e intente nuevamente.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const isLoggedIn = await checkAuthUser();
+
+      if (isLoggedIn) {
+        form.reset();
+        navigate("/home");
+      } else {
+        toast({ 
+          title: "Error de autorización", 
+          description: "No tiene permisos para acceder al sistema.",
+          variant: "destructive"
+        });
+        return;
+      }
+    } catch (error: any) {
+      console.error("Error en login:", error);
       
-      return;
-    }
-
-    const isLoggedIn = await checkAuthUser();
-
-    if (isLoggedIn) {
-      form.reset();
-
-      navigate("/home");
-    } else {
-      toast({ title: "Login failed. Please try again.", });
+      let errorMessage = "Error de inicio de sesión. Intente nuevamente.";
       
-      return;
+      if (error.message && error.message.includes("Acceso denegado")) {
+        errorMessage = "Acceso denegado: Solo administradores autorizados pueden ingresar.";
+      } else if (error.message && error.message.includes("Invalid credentials")) {
+        errorMessage = "Credenciales incorrectas. Verifique su email y contraseña.";
+      } else if (error.message && error.message.includes("User not found")) {
+        errorMessage = "Usuario no encontrado en el sistema.";
+      }
+
+      toast({ 
+        title: "Error de acceso", 
+        description: errorMessage,
+        variant: "destructive"
+      });
     }
   };
 
