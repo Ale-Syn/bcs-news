@@ -219,7 +219,7 @@
   }
 
   .post_details-info {
-    @apply bg-white flex flex-col gap-5 lg:gap-7 flex-1 items-start p-8 rounded-[30px];
+    @apply bg-white flex flex-col gap-5 lg:gap-7 flex-1 items-start p-8 rounded-[30px] h-80 lg:h-[520px];
   }
 
   .post_details-delete_btn {
@@ -325,5 +325,22 @@
 
   .shad-button_ghost {
     @apply hover:bg-[#F0F0F0] transition-colors duration-200;
+  }
+
+  /* Image Editor Slider Styles */
+  .slider::-webkit-slider-thumb {
+    @apply appearance-none w-4 h-4 bg-[#BB1919] rounded-full cursor-pointer shadow-md hover:shadow-lg transition-shadow;
+  }
+
+  .slider::-moz-range-thumb {
+    @apply w-4 h-4 bg-[#BB1919] rounded-full cursor-pointer border-0 shadow-md hover:shadow-lg transition-shadow;
+  }
+
+  .slider::-webkit-slider-track {
+    @apply bg-gray-200 h-2 rounded-lg;
+  }
+
+  .slider::-moz-range-track {
+    @apply bg-gray-200 h-2 rounded-lg border-0;
   }
 }

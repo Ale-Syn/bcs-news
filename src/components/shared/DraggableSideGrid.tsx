@@ -31,28 +31,24 @@ const SidePostCard = ({ post }: { post: Models.Document }) => {
       {/* Contenido - altura restante (165px) */}
       <div className="p-2 sm:p-3 md:p-3 flex flex-col justify-between" style={{ height: '200px' }}>
         <div className="flex-grow mt-3 sm:mt-4 md:mt-4">
-          <div className="flex-between mb-1 md:mb-2">
-            <div className="flex items-center gap-2">
-              {/* Avatar removido */}
-            </div>
-
-            <Link
-              to={`/update-post/${post.$id}`}
-              className={`${user.id !== post.creator.$id && "hidden"}`}>
-              <img
-                src={"/assets/icons/edit.svg"}
-                alt="edit"
-                width={16}
-                height={16}
-                className="md:w-5 md:h-5 opacity-70 hover:opacity-100 transition-opacity"
-              />
-            </Link>
-          </div>
-
           <Link to={`/posts/${post.$id}`} className="flex flex-col h-full">
-            <h3 className="text-sm sm:text-base md:text-base lg:text-lg font-semibold text-[#1A1A1A] mb-1 line-clamp-2 hover:text-[#BB1919] transition-colors">
-              {post.title}
-            </h3>
+            <div className="flex-between items-start mb-1 gap-2">
+              <h3 className="text-sm sm:text-base md:text-base lg:text-lg font-semibold text-[#1A1A1A] line-clamp-2 hover:text-[#BB1919] transition-colors flex-1 min-w-0">
+                {post.title}
+              </h3>
+              <Link
+                to={`/update-post/${post.$id}`}
+                className={`flex-shrink-0 ${user.id !== post.creator.$id && "hidden"}`}
+                onClick={(e) => e.stopPropagation()}>
+                <img
+                  src={"/assets/icons/edit.svg"}
+                  alt="edit"
+                  width={16}
+                  height={16}
+                  className="md:w-5 md:h-5 opacity-70 hover:opacity-100 transition-opacity"
+                />
+              </Link>
+            </div>
             <div className="flex items-center gap-1 md:gap-2 text-[#666666] text-xs mb-1 md:mb-2">
               <span>{multiFormatDateString(post.$createdAt)}</span>
               <span>•</span>

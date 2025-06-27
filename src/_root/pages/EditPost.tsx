@@ -18,14 +18,21 @@ const EditPost = () => {
   return (
     <div className="flex flex-1">
       <div className="common-container">
-        <div className="flex-start gap-3 justify-start w-full max-w-5xl">
-          <img src="/assets/icons/edit.svg" width={36} height={36} alt="edit" />
-          <h2 className="h3-bold md:h2-bold text-left w-full">
-            Editar Noticia
-          </h2>
+        <div className="max-w-5xl flex-start gap-3 justify-start w-full">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-3">
+              <img src="/assets/icons/edit.svg" width={36} height={36} alt="edit" />
+              <h2 className="h3-bold md:h2-bold text-[#1A1A1A]">
+                Editar Noticia
+              </h2>
+            </div>
+            <div className="h-1 w-20 bg-[#BB1919] rounded-full ml-12"></div>
+          </div>
         </div>
 
-        {isLoading ? <Loader /> : <PostForm action="Editar" post={post} />}
+        <div className="w-full max-w-5xl bg-white rounded-2xl border border-[#E5E5E5] p-6">
+          {isLoading ? <Loader /> : <PostForm action="Editar" post={post} />}
+        </div>
       </div>
     </div>
   );

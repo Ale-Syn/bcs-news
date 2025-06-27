@@ -81,10 +81,11 @@ const PostDetails = () => {
             className="post_details-img"
           />
 
-          <div className="post_details-info">
-            <div className="flex-between w-full">
-              <div className="flex flex-col gap-2 flex-1">
-                <h1 className="text-xl lg:text-2xl font-bold text-[#1A1A1A] line-clamp-3">
+          <div className="post_details-info overflow-hidden">
+            {/* Header Section - Fixed */}
+            <div className="flex-between w-full min-w-0 flex-shrink-0">
+              <div className="flex flex-col gap-2 flex-1 min-w-0">
+                <h1 className="text-xl lg:text-2xl font-bold text-[#1A1A1A] line-clamp-3 break-words max-w-full">
                   {post?.title}
                 </h1>
                 <div className="flex-center gap-2 text-[#666666]">
@@ -126,16 +127,19 @@ const PostDetails = () => {
               </div>
             </div>
 
-            <hr className="border w-full border-[#E5E5E5]" />
+            <hr className="border w-full border-[#E5E5E5] flex-shrink-0" />
 
-            <div className="flex flex-col flex-1 w-full small-medium lg:base-regular text-[#1A1A1A]">
-              {/* Description/Caption */}
-              <div className="mb-4">
-                <p className="text-[#1A1A1A] base-regular whitespace-pre-wrap">
+            {/* Scrollable Content Section */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar min-h-0">
+              <div className="pr-2">
+                <p className="text-[#1A1A1A] base-regular break-words overflow-wrap-anywhere whitespace-pre-wrap">
                   {post?.caption}
                 </p>
               </div>
+            </div>
 
+            {/* Footer Section - Fixed */}
+            <div className="flex flex-col gap-4 flex-shrink-0 pt-4">
               {/* Tags */}
               <ul className="flex gap-1 flex-wrap">
                 {post?.tags.map((tag: string, index: string) => (
@@ -146,10 +150,11 @@ const PostDetails = () => {
                   </li>
                 ))}
               </ul>
-            </div>
 
-            <div className="w-full">
-              <PostStats post={post} userId={user.id} />
+              {/* Post Stats */}
+              <div className="w-full">
+                <PostStats post={post} userId={user.id} />
+              </div>
             </div>
           </div>
         </div>

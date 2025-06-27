@@ -27,28 +27,24 @@ const PostCard = ({ post }: PostCardProps) => {
       </Link>
 
       <div className="p-3 sm:p-4 md:p-4 pb-4 sm:pb-5 md:pb-5 flex flex-col flex-grow">
-        <div className="flex-between mb-2 md:mb-3">
-          <div className="flex items-center gap-2">
-            {/* Avatar removido */}
-          </div>
-
-          <Link
-            to={`/update-post/${post.$id}`}
-            className={`${user.id !== post.creator.$id && "hidden"}`}>
-            <img
-              src={"/assets/icons/edit.svg"}
-              alt="edit"
-              width={16}
-              height={16}
-              className="md:w-5 md:h-5 opacity-70 hover:opacity-100 transition-opacity"
-            />
-          </Link>
-        </div>
-
         <Link to={`/posts/${post.$id}`} className="flex-grow flex flex-col">
-          <h3 className="text-sm sm:text-base md:text-base lg:text-lg font-semibold text-[#1A1A1A] mb-2 line-clamp-2 hover:text-[#BB1919] transition-colors">
-            {post.title}
-          </h3>
+          <div className="flex-between items-start mb-2 gap-2">
+            <h3 className="text-sm sm:text-base md:text-base lg:text-lg font-semibold text-[#1A1A1A] line-clamp-2 hover:text-[#BB1919] transition-colors flex-1 min-w-0">
+              {post.title}
+            </h3>
+            <Link
+              to={`/update-post/${post.$id}`}
+              className={`flex-shrink-0 ${user.id !== post.creator.$id && "hidden"}`}
+              onClick={(e) => e.stopPropagation()}>
+              <img
+                src={"/assets/icons/edit.svg"}
+                alt="edit"
+                width={16}
+                height={16}
+                className="md:w-5 md:h-5 opacity-70 hover:opacity-100 transition-opacity"
+              />
+            </Link>
+          </div>
           <div className="flex items-center gap-1 md:gap-2 text-[#666666] text-xs mb-2 md:mb-3">
             <span>{multiFormatDateString(post.$createdAt)}</span>
             <span>•</span>

@@ -19,7 +19,7 @@ import {
 import { PostValidation } from "@/lib/validation";
 import { useToast } from "@/components/ui/use-toast";
 import { useUserContext } from "@/context/AuthContext";
-import { FileUploader, Loader } from "@/components/shared";
+import { FileUploaderWithEditor, Loader } from "@/components/shared";
 import { useCreatePost, useUpdatePost, useGetCategories } from "@/lib/react-query/queries";
 
 type PostFormProps = {
@@ -199,7 +199,7 @@ const PostForm = ({ post, action }: PostFormProps) => {
             <FormItem>
               <FormLabel className="shad-form_label">Agregar Imagen</FormLabel>
               <FormControl>
-                <FileUploader
+                <FileUploaderWithEditor
                   fieldChange={field.onChange}
                   mediaUrl={post?.imageUrl}
                 />
