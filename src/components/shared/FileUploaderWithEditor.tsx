@@ -1,4 +1,4 @@
-import { useCallback, useState, useRef } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 import { FileWithPath, useDropzone } from "react-dropzone";
 import ReactCrop, { Crop, PixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
@@ -26,8 +26,10 @@ const FileUploaderWithEditor = ({ fieldChange, mediaUrl }: FileUploaderWithEdito
   const [rotation, setRotation] = useState<number>(0);
   const [brightness, setBrightness] = useState<number>(100);
   const [contrast, setContrast] = useState<number>(100);
+  const [showPasteHint, setShowPasteHint] = useState<boolean>(false);
   const imgRef = useRef<HTMLImageElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const pasteAreaRef = useRef<HTMLDivElement>(null);
 
   const onDrop = useCallback(
     (acceptedFiles: FileWithPath[]) => {
@@ -44,6 +46,82 @@ const FileUploaderWithEditor = ({ fieldChange, mediaUrl }: FileUploaderWithEdito
       "image/*": [".png", ".jpeg", ".jpg"],
     },
   });
+
+  // Handle paste from clipboard
+  const handlePaste = useCallback(async (e: ClipboardEvent) => {
+    e.preventDefault();
+    const items = e.clipboardData?.items;
+    
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      
+      if (item.type.indexOf('image') !== -1) {
+        const blob = item.getAsFile();
+        if (blob) {
+          // Convert blob to File
+          const pastedFile = new File([blob], `pasted-image-${Date.now()}.png`, {
+            type: blob.type
+          });
+          
+          setFile([pastedFile]);
+          setFileUrl(convertFileToUrl(pastedFile));
+          setShowEditor(true);
+          setShowPasteHint(false);
+        }
+        break;
+      }
+    }
+  }, []);
+
+  // Handle focus and blur for paste hint
+  const handleFocus = useCallback(() => {
+    setShowPasteHint(true);
+  }, []);
+
+  const handleBlur = useCallback(() => {
+    setTimeout(() => setShowPasteHint(false), 200);
+  }, []);
+
+  // Add event listeners for paste functionality
+  useEffect(() => {
+    const pasteArea = pasteAreaRef.current;
+    if (pasteArea) {
+      pasteArea.addEventListener('paste', handlePaste);
+      pasteArea.addEventListener('focus', handleFocus);
+      pasteArea.addEventListener('blur', handleBlur);
+      
+      return () => {
+        pasteArea.removeEventListener('paste', handlePaste);
+        pasteArea.removeEventListener('focus', handleFocus);
+        pasteArea.removeEventListener('blur', handleBlur);
+      };
+    }
+  }, [handlePaste, handleFocus, handleBlur]);
+
+  // Global paste listener when component is mounted
+  useEffect(() => {
+    const handleGlobalPaste = (e: ClipboardEvent) => {
+      // Only handle if no input is focused and we don't have an image yet
+      const activeElement = document.activeElement;
+      const isInputFocused = activeElement && (
+        activeElement.tagName === 'INPUT' || 
+        activeElement.tagName === 'TEXTAREA' ||
+        activeElement.getAttribute('contenteditable') === 'true'
+      );
+
+      if (!isInputFocused && !fileUrl && !showEditor) {
+        handlePaste(e);
+      }
+    };
+
+    document.addEventListener('paste', handleGlobalPaste);
+    
+    return () => {
+      document.removeEventListener('paste', handleGlobalPaste);
+    };
+  }, [handlePaste, fileUrl, showEditor]);
 
   const getCroppedImage = async (
     image: HTMLImageElement,
@@ -264,51 +342,81 @@ const FileUploaderWithEditor = ({ fieldChange, mediaUrl }: FileUploaderWithEdito
   return (
     <div>
       <div
-        {...getRootProps()}
-        className="flex flex-center flex-col bg-[#F8F8F8] rounded-xl cursor-pointer border-2 border-dashed border-[#E5E5E5] hover:border-[#BB1919] transition-colors duration-200">
-        <input {...getInputProps()} className="cursor-pointer" />
+        ref={pasteAreaRef}
+        tabIndex={0}
+        className="relative outline-none"
+        onKeyDown={(e) => {
+          // Allow paste with Ctrl+V
+          if (e.ctrlKey && e.key === 'v') {
+            // The paste event will be handled by the event listener
+          }
+        }}
+      >
+        <div
+          {...getRootProps()}
+          className={`flex flex-center flex-col bg-[#F8F8F8] rounded-xl cursor-pointer border-2 border-dashed transition-colors duration-200 ${
+            showPasteHint 
+              ? 'border-[#BB1919] bg-[#BB1919]/5' 
+              : 'border-[#E5E5E5] hover:border-[#BB1919]'
+          }`}>
+          <input {...getInputProps()} className="cursor-pointer" />
 
-        {fileUrl ? (
-          <>
-            <div className="flex flex-1 justify-center w-full p-5 lg:p-10">
-              <img src={fileUrl} alt="image" className="file_uploader-img" />
-            </div>
-            <div className="flex gap-2 items-center justify-center pb-4">
-              <p className="file_uploader-label">
-                Hacer click o arrastrar imagen para reemplazar
-              </p>
-              {file.length > 0 && (
-                <Button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowEditor(true);
-                  }}
-                  className="bg-[#BB1919] hover:bg-[#A31616] text-white text-xs px-3 py-1"
-                >
-                  Editar
+          {fileUrl ? (
+            <>
+              <div className="flex flex-1 justify-center w-full p-5 lg:p-10">
+                <img src={fileUrl} alt="image" className="file_uploader-img" />
+              </div>
+              <div className="flex gap-2 items-center justify-center pb-4">
+                <p className="file_uploader-label">
+                  Hacer click, arrastrar o pegar imagen para reemplazar
+                </p>
+                {file.length > 0 && (
+                  <Button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowEditor(true);
+                    }}
+                    className="bg-[#BB1919] hover:bg-[#A31616] text-white text-xs px-3 py-1"
+                  >
+                    Editar
+                  </Button>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="file_uploader-box">
+              <img
+                src="/assets/icons/file-upload.svg"
+                width={96}
+                height={77}
+                alt="file upload"
+                className="invert-[0.2]"
+              />
+
+              <h3 className="base-medium text-[#1A1A1A] mb-2 mt-6">
+                Arrastrar, seleccionar o pegar imagen
+              </h3>
+              <p className="text-[#666666] small-regular mb-4">SVG, PNG, JPG</p>
+              
+              <div className="flex flex-col items-center gap-2">
+                <Button type="button" className="shad-button_dark">
+                  Seleccionar Archivo
                 </Button>
-              )}
+                <p className="text-[#999999] text-xs">
+                  O presiona Ctrl+V para pegar desde el portapapeles
+                </p>
+              </div>
             </div>
-          </>
-        ) : (
-          <div className="file_uploader-box">
-            <img
-              src="/assets/icons/file-upload.svg"
-              width={96}
-              height={77}
-              alt="file upload"
-              className="invert-[0.2]"
-            />
+          )}
+        </div>
 
-            <h3 className="base-medium text-[#1A1A1A] mb-2 mt-6">
-              Arrastrar y soltar imagen aqui
-            </h3>
-            <p className="text-[#666666] small-regular mb-6">SVG, PNG, JPG</p>
-
-            <Button type="button" className="shad-button_dark">
-              Seleccionar Archivo
-            </Button>
+        {/* Paste Hint Overlay */}
+        {showPasteHint && (
+          <div className="absolute inset-0 flex items-center justify-center bg-[#BB1919]/10 rounded-xl pointer-events-none">
+            <div className="bg-[#BB1919] text-white px-4 py-2 rounded-lg font-medium shadow-lg">
+              📋 Pega tu imagen aquí (Ctrl+V)
+            </div>
           </div>
         )}
       </div>
