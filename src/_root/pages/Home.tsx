@@ -141,10 +141,10 @@ const Home = () => {
     <div className="flex flex-1">
       <div className="home-container">
         <div className="home-posts">
-          <div className="w-full mb-4 mt-8">
-            <h1 className="h1-bold md:text-4xl md:font-bold text-[#1A1A1A]">
-              Altavoz BCS
-              <div className="h-1 w-48 bg-[#BB1919] rounded-full"></div>
+          <div className="w-full mb-4 mt-8 text-center">
+            <h1 className="h1-bold text-5xl md:text-6xl lg:text-7xl font-bold text-[#1A1A1A]">
+              ALTAVOZ BCS
+              <div className="h-1 w-48 bg-[#BB1919] rounded-full mx-auto"></div>
             </h1>
           </div>
           {(isPostLoading || (!isAdmin && (isMainOrderLoading || isSideOrderLoading))) && !posts ? (
