@@ -130,9 +130,16 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
       }
     };
 
+    const handleScroll = () => {
+      setIsShareOpen(false);
+    };
+
     document.addEventListener('mousedown', handleClickOutside);
+    window.addEventListener('scroll', handleScroll, true); // true para capturar en fase de captura
+    
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll, true);
     };
   }, []);
 
@@ -199,14 +206,17 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
     navigator.clipboard.writeText(window.location.origin + "/posts/" + post.$id);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
+    setIsShareOpen(false); // Cerrar menú después de copiar
   };
 
   const handleShareFacebook = () => {
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.origin + "/posts/" + post.$id)}`, '_blank');
+    setIsShareOpen(false); // Cerrar menú después de compartir
   };
 
   const handleShareInstagram = () => {
     window.open(`https://www.instagram.com/`, '_blank');
+    setIsShareOpen(false); // Cerrar menú después de compartir
   };
 
   const containerStyles = location.pathname.startsWith("/profile")
@@ -236,13 +246,21 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
 
       {/* Sección de acciones a la derecha */}
       <div className="flex gap-2">
-        <div className="relative" ref={shareMenuRef}>
+        <div className="relative z-[9999]" ref={shareMenuRef}>
           <Share2
             className="w-5 h-5 cursor-pointer text-[#1A1A1A] hover:text-[#BB1919]"
             onClick={() => setIsShareOpen(!isShareOpen)}
           />
           {isShareOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-[#E5E5E5] py-2">
+            <div className="fixed w-48 bg-white rounded-lg shadow-xl border border-[#E5E5E5] py-2 z-[9999] shadow-2xl" 
+                 style={{
+                   top: shareMenuRef.current ? 
+                     shareMenuRef.current.getBoundingClientRect().bottom + 8 + 'px' : 
+                     'auto',
+                   right: shareMenuRef.current ? 
+                     window.innerWidth - shareMenuRef.current.getBoundingClientRect().right + 'px' : 
+                     'auto'
+                 }}>
               <button
                 onClick={handleCopyLink}
                 className="flex items-center w-full px-4 py-2 text-sm text-[#1A1A1A] hover:bg-[#F5F5F5]">
