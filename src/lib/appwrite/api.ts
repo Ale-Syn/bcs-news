@@ -99,8 +99,16 @@ export async function getAccount() {
     const currentAccount = await account.get();
 
     return currentAccount;
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
+    // Si el error es 401 (Unauthorized), significa que no hay sesión activa
+    // Esto es esperado cuando el usuario no está autenticado
+    if (error?.code === 401 || error?.status === 401) {
+      console.log("No hay sesión activa");
+      return null;
+    }
+    
+    console.log("Error obteniendo cuenta:", error);
+    return null;
   }
 }
 

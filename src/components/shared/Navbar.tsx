@@ -160,13 +160,7 @@ const Navbar = () => {
           <div className="flex justify-between items-center h-12">
             {/* Logo */}
             <Link to="/" className="flex items-center">
-              <img
-                src="/assets/images/logo.svg"
-                alt="logo"
-                width={130}
-                height={325}
-                className="h-6 w-auto brightness-0 invert"
-              />
+              <span className="text-white font-bold text-lg">ALTAVOZ BCS</span>
             </Link>
 
             {/* User Actions */}

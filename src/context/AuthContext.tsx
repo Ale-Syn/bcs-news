@@ -73,6 +73,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         return true;
       }
+      
+      // No hay usuario autenticado - esto es normal
+      console.log("No hay usuario autenticado");
+      setUser(INITIAL_USER);
+      setIsAuthenticated(false);
       return false;
     } catch (error) {
       console.error("Error en autenticación:", error);

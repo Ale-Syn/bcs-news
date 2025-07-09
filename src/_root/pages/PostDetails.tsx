@@ -1,4 +1,5 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 import { Button } from "@/components/ui";
 import { Loader, NoDataMessage } from "@/components/shared";
@@ -24,6 +25,25 @@ const PostDetails = () => {
   const { data: allPosts, isLoading: isAllPostsLoading } = useGetRecentPosts();
   const { mutate: deletePost } = useDeletePost();
 
+  // Scroll to top when navigating to a new post
+  useEffect(() => {
+    // Find the scrollable container (the one with overflow-y-auto in RootLayout)
+    const scrollContainer = document.querySelector('.overflow-y-auto');
+    
+    if (scrollContainer) {
+      scrollContainer.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    } else {
+      // Fallback to window scroll if container not found
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  }, [id]);
+
   // Filter posts by shared tags and exclude current post
   const relatedPosts = allPosts?.documents.filter((relatedPost: any) => {
     // Exclude current post
@@ -44,19 +64,13 @@ const PostDetails = () => {
 
   const handleRelatedPostClick = (e: React.MouseEvent, postId: string) => {
     e.preventDefault();
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-    // Small delay to ensure smooth scroll starts before navigation
-    setTimeout(() => {
-      navigate(`/posts/${postId}`);
-    }, 500);
+    navigate(`/posts/${postId}`);
   };
 
   return (
     <div className="post_details-container">
-      <div className="hidden md:flex max-w-5xl w-full">
+      {/* Botón Volver - Ahora visible en todas las pantallas */}
+      <div className="flex max-w-5xl w-full mb-4 md:mb-0">
         <Button
           onClick={() => navigate(-1)}
           variant="ghost"
@@ -64,92 +78,102 @@ const PostDetails = () => {
           <img
             src={"/assets/icons/back.svg"}
             alt="back"
-            width={24}
-            height={24}
+            width={20}
+            height={20}
+            className="md:w-6 md:h-6"
           />
-          <p className="small-medium lg:base-medium text-[#1A1A1A]">Volver</p>
+          <p className="text-sm md:text-base font-medium text-[#1A1A1A]">Volver</p>
         </Button>
       </div>
 
       {isLoading || !post ? (
         <Loader />
       ) : (
-        <div key={postKey} className="post_details-card">
-          <img
-            src={post?.imageUrl}
-            alt="creator"
-            className="post_details-img"
-          />
+        <div key={postKey} className="bg-white w-[calc(100%-16px)] sm:w-[calc(100%-32px)] md:w-full max-w-5xl mx-auto rounded-lg md:rounded-xl lg:rounded-3xl flex flex-col lg:flex-row border border-[#E5E5E5] overflow-hidden">
+          {/* Imagen - Responsiva y optimizada */}
+          <div className="lg:w-[48%] xl:w-[50%] bg-[#F8F8F8] p-2 md:p-3 lg:p-4 xl:p-5 flex items-center justify-center">
+            <div className="w-full relative">
+              <img
+                src={post?.imageUrl}
+                alt="post image"
+                className="h-48 sm:h-64 md:h-80 lg:h-[350px] xl:h-[400px] max-h-[50vh] sm:max-h-[60vh] lg:max-h-none w-[90%] sm:w-[95%] md:w-full max-w-md lg:max-w-none rounded-lg md:rounded-xl object-cover object-center shadow-sm mx-auto"
+              />
+            </div>
+          </div>
 
-          <div className="post_details-info overflow-hidden">
-            {/* Header Section - Fixed */}
-            <div className="flex-between w-full min-w-0 flex-shrink-0">
-              <div className="flex flex-col gap-2 flex-1 min-w-0">
-                <h1 className="text-xl lg:text-2xl font-bold text-[#1A1A1A] line-clamp-3 break-words max-w-full">
+          {/* Contenido - Flexible */}
+          <div className="flex-1 flex flex-col p-3 md:p-4 lg:p-6 xl:p-8 min-h-[400px] sm:min-h-[500px] lg:min-h-[520px]">
+            {/* Header Section */}
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4 lg:mb-6">
+              <div className="flex-1 min-w-0">
+                <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-[#1A1A1A] leading-tight mb-3">
                   {post?.title}
                 </h1>
-                <div className="flex-center gap-2 text-[#666666]">
-                  <p className="subtle-semibold lg:small-regular">
+                <div className="flex flex-wrap items-center gap-2 text-sm md:text-base text-[#666666]">
+                  <span className="font-medium">
                     {multiFormatDateString(post?.$createdAt)}
-                  </p>
-                  •
-                  <p className="subtle-semibold lg:small-regular">
+                  </span>
+                  <span>•</span>
+                  <span className="font-medium">
                     {post?.location}
-                  </p>
+                  </span>
                 </div>
               </div>
 
-              <div className="flex-center gap-4">
+              {/* Botones de acción */}
+              <div className="flex items-center gap-3 flex-shrink-0">
                 <Link
                   to={`/update-post/${post?.$id}`}
                   className={`${user.id !== post?.creator.$id && "hidden"}`}>
                   <img
                     src={"/assets/icons/edit.svg"}
                     alt="edit"
-                    width={24}
-                    height={24}
+                    width={20}
+                    height={20}
+                    className="md:w-6 md:h-6 opacity-70 hover:opacity-100 transition-opacity"
                   />
                 </Link>
 
                 <Button
                   onClick={handleDeletePost}
                   variant="ghost"
-                  className={`ost_details-delete_btn ${
+                  className={`p-2 hover:bg-red-50 rounded-lg ${
                     user.id !== post?.creator.$id && "hidden"
                   }`}>
                   <img
                     src={"/assets/icons/delete.svg"}
                     alt="delete"
-                    width={24}
-                    height={24}
+                    width={20}
+                    height={20}
+                    className="md:w-6 md:h-6 opacity-70 hover:opacity-100 transition-opacity"
                   />
                 </Button>
               </div>
             </div>
 
-            <hr className="border w-full border-[#E5E5E5] flex-shrink-0" />
+            <hr className="border-[#E5E5E5] mb-4 lg:mb-6" />
 
-            {/* Scrollable Content Section */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar min-h-0">
-              <div className="pr-2">
-                <p className="text-[#1A1A1A] base-regular break-words overflow-wrap-anywhere whitespace-pre-wrap">
-                  {post?.caption}
-                </p>
-              </div>
+            {/* Contenido Scrolleable */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 mb-4 lg:mb-6">
+              <p className="text-[#1A1A1A] text-sm md:text-base lg:text-lg leading-relaxed break-words whitespace-pre-wrap">
+                {post?.caption}
+              </p>
             </div>
 
-            {/* Footer Section - Fixed */}
-            <div className="flex flex-col gap-4 flex-shrink-0 pt-4">
+            {/* Footer Section */}
+            <div className="flex flex-col gap-4 mt-auto">
               {/* Tags */}
-              <ul className="flex gap-1 flex-wrap">
-                {post?.tags.map((tag: string, index: string) => (
-                  <li
-                    key={`${tag}${index}`}
-                    className="text-[#BB1919] small-regular bg-[#BB1919]/10 px-3 py-1 rounded-full">
-                    #{tag}
-                  </li>
-                ))}
-              </ul>
+              {post?.tags && post.tags.length > 0 && (
+                <ul className="flex gap-2 flex-wrap">
+                  {post.tags.map((tag: string, index: string) => (
+                    <li
+                      key={`${tag}${index}`}
+                      className="text-[#BB1919] text-xs md:text-sm font-medium bg-[#BB1919]/10 px-3 py-1.5 rounded-full">
+                      #{tag}
+                    </li>
+                  ))}
+                </ul>
+              )}
 
               {/* Post Stats */}
               <div className="w-full">
@@ -160,12 +184,12 @@ const PostDetails = () => {
         </div>
       )}
 
-      {/* Related News Section */}
-      <div className="w-full max-w-5xl mt-12">
-        <div className="bg-[#F8F8F8] rounded-2xl p-8">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="h-8 w-1 bg-[#BB1919] rounded-full"></div>
-            <h3 className="body-bold md:h3-bold text-[#1A1A1A]">
+      {/* Related News Section - Mejorado para responsivo */}
+      <div className="w-full max-w-5xl mt-8 md:mt-12">
+        <div className="bg-[#F8F8F8] rounded-xl md:rounded-2xl p-4 md:p-6 lg:p-8">
+          <div className="flex items-center gap-3 mb-4 md:mb-6">
+            <div className="h-6 md:h-8 w-1 bg-[#BB1919] rounded-full"></div>
+            <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-[#1A1A1A]">
               Más Noticias Relacionadas
             </h3>
           </div>
@@ -177,9 +201,9 @@ const PostDetails = () => {
               message="No hay más noticias con categorías similares en este momento"
             />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
               {relatedPosts.map((relatedPost) => (
-                <div key={relatedPost.$id} className="relative h-80">
+                <div key={relatedPost.$id} className="relative h-64 md:h-80">
                   <Link 
                     to={`/posts/${relatedPost.$id}`} 
                     className="grid-post_link"
@@ -188,11 +212,11 @@ const PostDetails = () => {
                     <img
                       src={relatedPost.imageUrl}
                       alt="post"
-                      className="h-full w-full object-cover rounded-xl"
+                      className="h-full w-full object-cover rounded-lg md:rounded-xl"
                     />
-                    <div className="absolute top-0 left-0 right-0 p-4">
-                      <div className="flex flex-wrap gap-2">
-                        {relatedPost.tags.map((tag: string, index: string) => (
+                    <div className="absolute top-0 left-0 right-0 p-3 md:p-4">
+                      <div className="flex flex-wrap gap-1 md:gap-2">
+                        {relatedPost.tags.slice(0, 2).map((tag: string, index: string) => (
                           <span
                             key={`${tag}${index}`}
                             className="text-xs text-white bg-[#BB1919]/90 px-2 py-1 rounded-full backdrop-blur-sm"
@@ -200,26 +224,31 @@ const PostDetails = () => {
                             #{tag}
                           </span>
                         ))}
+                        {relatedPost.tags.length > 2 && (
+                          <span className="text-xs text-white bg-black/50 px-2 py-1 rounded-full backdrop-blur-sm">
+                            +{relatedPost.tags.length - 2}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/95 via-[#1A1A1A]/50 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300">
-                      <div className="absolute bottom-0 left-0 right-0 p-4">
-                        <h3 className="text-white text-lg font-semibold line-clamp-2 mb-2">
+                      <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4">
+                        <h3 className="text-white text-sm md:text-base lg:text-lg font-semibold line-clamp-2 mb-2">
                           {relatedPost.title}
                         </h3>
-                        <div className="flex items-center gap-2 text-white/80 text-sm">
+                        <div className="flex items-center gap-2 text-white/80 text-xs md:text-sm">
                           <span>{relatedPost.location}</span>
                         </div>
                       </div>
                     </div>
                   </Link>
 
-                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#1A1A1A]/95 to-transparent">
+                  <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 bg-gradient-to-t from-[#1A1A1A]/95 to-transparent">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         {/* Avatar removido */}
                       </div>
-                      <div className="flex items-center gap-4 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                      <div className="flex items-center gap-4 bg-white/10 backdrop-blur-sm px-2 md:px-3 py-1 md:py-1.5 rounded-full">
                         <PostStats post={relatedPost} userId={user.id} />
                       </div>
                     </div>

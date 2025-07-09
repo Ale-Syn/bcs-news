@@ -276,6 +276,7 @@ export const useGetCurrentUser = () => {
   return useQuery({
     queryKey: [QUERY_KEYS.GET_CURRENT_USER],
     queryFn: getCurrentUser,
+    enabled: false, // Deshabilitar para evitar llamadas automáticas
   });
 };
 
