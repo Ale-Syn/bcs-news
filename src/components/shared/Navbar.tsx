@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { Menu, X, Search } from "lucide-react";
+import { Link, useLocation, useParams } from "react-router-dom";
+import { Search, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "../ui/button";
+// import { Button } from "../ui/button";
 import { useUserContext } from "@/context/AuthContext";
-import { useSignOutAccount, useGetPosts, useGetRecentPosts, useGetCategories } from "@/lib/react-query/queries";
+import { useGetPosts, useGetRecentPosts, useGetCategories } from "@/lib/react-query/queries";
 import { Input } from "../ui/input";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Models } from "appwrite";
@@ -54,6 +54,11 @@ const adminLinks = [
     route: "/admin/categories",
     label: "Categorías",
   },
+  {
+    imgURL: "/assets/icons/wallpaper.svg",
+    route: "/admin/ads",
+    label: "Anuncios",
+  },
 ];
 
 const Navbar = () => {
@@ -62,13 +67,13 @@ const Navbar = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [currentTime, setCurrentTime] = useState(new Date());
+  // Current time state removed (no longer displayed)
   const searchRef = useRef<HTMLDivElement>(null);
   const debouncedSearch = useDebounce(searchQuery, 300);
   const location = useLocation();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { user, isAuthenticated } = useUserContext();
-  const { mutate: signOut, isSuccess } = useSignOutAccount();
+  // const { mutate: signOut, isSuccess } = useSignOutAccount();
   const { data: postsData } = useGetPosts();
   const { data: recentPosts } = useGetRecentPosts();
   const { data: categoriesData } = useGetCategories();
@@ -135,18 +140,11 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    if (isSuccess) navigate(0);
-  }, [isSuccess]);
+  // useEffect(() => {
+  //   if (isSuccess) navigate(0);
+  // }, [isSuccess]);
 
-  // Handle time update
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
+  // Time update no longer needed in UI; keep for potential future use
 
   return (
     <nav
@@ -154,126 +152,25 @@ const Navbar = () => {
         "fixed top-0 w-full z-50 transition-all duration-300",
         isScrolled ? "bg-[#BB1919] shadow-md" : "bg-[#BB1919]"
       )}>
-      {/* Top Bar - Logo and User Actions */}
-      <div className="border-b border-white/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-12">
-            {/* Logo */}
-            <Link to="/" className="flex items-center">
-              <span className="text-white font-bold text-lg">ALTAVOZ BCS</span>
-            </Link>
-
-            {/* User Actions */}
-            <div className="flex items-center space-x-4">
-              {/* Current Time */}
-              <div className="text-white font-medium">
-                {currentTime.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
-              </div>
-              
-              {/* Search Button and Dropdown */}
-              <div className="relative" ref={searchRef}>
-                <button
-                  className="p-2 rounded-full hover:bg-white/10"
-                  onClick={() => setIsSearchOpen(!isSearchOpen)}>
-                  <Search className="h-5 w-5 text-white" />
-                </button>
-
-                {/* Search Dropdown */}
-                {isSearchOpen && (
-                  <div className="absolute right-0 mt-2 w-96 bg-white border border-[#E5E5E5] rounded-lg shadow-lg">
-                    <div className="p-4">
-                      <Input
-                        type="text"
-                        placeholder="Buscar noticia por titulo, descripcion o categoria..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="bg-white border-[#E5E5E5] text-[#1A1A1A] placeholder:text-[#4A4A4A]"
-                      />
-                    </div>
-                    <div className="max-h-96 overflow-y-auto">
-                      {searchResults.length > 0 ? (
-                        searchResults.map((result) => (
-                          <Link
-                            key={result.$id}
-                            to={`/posts/${result.$id}`}
-                            className="flex items-center px-4 py-3 hover:bg-[#F5F5F5] border-t border-[#E5E5E5]"
-                            onClick={() => {
-                              setIsSearchOpen(false);
-                              setSearchQuery("");
-                            }}>
-                            <div className="flex flex-col">
-                              <span className="text-[#1A1A1A]">
-                                {result.title}
-                              </span>
-                              <span className="text-xs text-[#4A4A4A]">
-                                {result.location && `${result.location} • `}
-                                {result.caption?.substring(0, 100)}
-                                {result.caption?.length > 100 ? "..." : ""}
-                              </span>
-                            </div>
-                          </Link>
-                        ))
-                      ) : searchQuery ? (
-                        <div className="px-4 py-3 text-[#4A4A4A] text-center">
-                          No se encontraron resultados
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Auth-dependent actions */}
-              {isAuthenticated ? (
-                <>
-                  <Button
-                    variant="ghost"
-                    className="hover:bg-white/10 text-white hover:text-white/80"
-                    onClick={() => signOut()}>
-                    <img
-                      src="/assets/icons/logout.svg"
-                      alt="logout"
-                      className="h-5 w-5 brightness-0 invert"
-                    />
-                  </Button>
-                  <div className="flex items-center gap-3">
-                    {isAdmin && (
-                      <span className="px-2 py-1 text-xs font-medium bg-white/10 text-white rounded-full">
-                        Admin
-                      </span>
-                    )}
-                    <Link to={`/profile/${user.id}`} className="flex-center gap-3">
-                      <img
-                        src={
-                          user.imageUrl || "/assets/icons/profile-placeholder.svg"
-                        }
-                        alt="profile"
-                        className="h-8 w-8 rounded-full border-2 border-white"
-                      />
-                    </Link>
-                  </div>
-                </>
-              ) : (
-                /* Not authenticated - show only admin login */
-                <div className="flex items-center space-x-2">
-                  <Link to="/admin/login" className="hidden">
-                    <Button size="sm" className="bg-white text-[#BB1919] hover:bg-white/90">
-                      Acceso Admin
-                    </Button>
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+      {/* Mobile Header: Hamburger only */}
+      <div className="md:hidden flex justify-end items-center h-12 px-4">
+        <button
+          className="p-2 rounded-full hover:bg-white/10"
+          onClick={() => setIsOpen(!isOpen)}>
+          {isOpen ? (
+            <X className="h-6 w-6 text-white" />
+          ) : (
+            <Menu className="h-6 w-6 text-white" />
+          )}
+        </button>
       </div>
 
-      {/* Main Navigation - App Features and Categories */}
-      <div className="bg-[#BB1919]">
+      {/* Main Navigation - App Features and Categories (hidden; menú solo móvil) */}
+      <div className="hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14">
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center justify-between w-full">
+            <div className="hidden md:flex items-center justify-between flex-1">
               {/* Navigation Items - Left Side */}
               <div className="flex items-center space-x-6">
                 {/* Public navigation items - shown to all users */}
@@ -383,17 +280,61 @@ const Navbar = () => {
                 </div>
               )}
             </div>
+            {/* Right side: Search (desktop only) */}
+            <div className="hidden md:flex items-center gap-2">
+              {/* Search Button and Dropdown (desktop) */}
+              <div className="relative" ref={searchRef}>
+                <button
+                  className="p-2 rounded-full hover:bg-white/10"
+                  onClick={() => setIsSearchOpen(!isSearchOpen)}>
+                  <Search className="h-5 w-5 text-white" />
+                </button>
 
-            {/* Mobile Menu Button */}
-            <button
-              className="md:hidden p-2 rounded-full hover:bg-white/10"
-              onClick={() => setIsOpen(!isOpen)}>
-              {isOpen ? (
-                <X className="h-6 w-6 text-white" />
-              ) : (
-                <Menu className="h-6 w-6 text-white" />
-              )}
-            </button>
+                {isSearchOpen && (
+                  <div className="absolute right-0 mt-2 w-96 bg-white border border-[#E5E5E5] rounded-lg shadow-lg">
+                    <div className="p-4">
+                      <Input
+                        type="text"
+                        placeholder="Buscar noticia por titulo, descripcion o categoria..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="bg-white border-[#E5E5E5] text-[#1A1A1A] placeholder:text-[#4A4A4A]"
+                      />
+                    </div>
+                    <div className="max-h-96 overflow-y-auto">
+                      {searchResults.length > 0 ? (
+                        searchResults.map((result) => (
+                          <Link
+                            key={result.$id}
+                            to={`/posts/${result.$id}`}
+                            className="flex items-center px-4 py-3 hover:bg-[#F5F5F5] border-t border-[#E5E5E5]"
+                            onClick={() => {
+                              setIsSearchOpen(false);
+                              setSearchQuery("");
+                            }}>
+                            <div className="flex flex-col">
+                              <span className="text-[#1A1A1A]">
+                                {result.title}
+                              </span>
+                              <span className="text-xs text-[#4A4A4A]">
+                                {result.location && `${result.location} • `}
+                                {result.caption?.substring(0, 100)}
+                                {result.caption?.length > 100 ? "..." : ""}
+                              </span>
+                            </div>
+                          </Link>
+                        ))
+                      ) : searchQuery ? (
+                        <div className="px-4 py-3 text-[#4A4A4A] text-center">
+                          No se encontraron resultados
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+            </div>
           </div>
         </div>
       </div>
@@ -402,6 +343,44 @@ const Navbar = () => {
       {isOpen && (
         <div className="md:hidden bg-[#BB1919] border-t border-white/20">
           <div className="px-2 pt-2 pb-3 space-y-1">
+            {/* Mobile Search Inline */}
+            <div className="px-2 pb-2">
+              <div className="bg-white rounded-lg p-2">
+                <Input
+                  type="text"
+                  placeholder="Buscar..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="bg-white border-[#E5E5E5] text-[#1A1A1A] placeholder:text-[#4A4A4A]"
+                />
+                {searchQuery && (
+                  <div className="mt-2 max-h-60 overflow-y-auto">
+                    {searchResults.length > 0 ? (
+                      searchResults.map((result) => (
+                        <Link
+                          key={result.$id}
+                          to={`/posts/${result.$id}`}
+                          className="block px-2 py-2 rounded hover:bg-[#F5F5F5]"
+                          onClick={() => {
+                            setIsOpen(false);
+                            setSearchQuery("");
+                          }}
+                        >
+                          <div className="text-[#1A1A1A] text-sm">{result.title}</div>
+                          <div className="text-[#4A4A4A] text-xs">
+                            {result.location && `${result.location} • `}
+                            {result.caption?.substring(0, 80)}
+                            {result.caption?.length > 80 ? "..." : ""}
+                          </div>
+                        </Link>
+                      ))
+                    ) : (
+                      <div className="text-[#4A4A4A] text-xs px-2 py-1">Sin resultados</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
             {/* Public navigation items - shown to all users */}
             {publicLinks.map((link) => (
               <Link

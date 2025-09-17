@@ -503,6 +503,93 @@ export async function deleteSavedPost(savedRecordId: string) {
   }
 }
 
+// ============================================================
+// ADS (BANNERS)
+// ============================================================
+
+type AdBannerPayload = {
+  position: "top" | "bottom" | "sidebar";
+  imageUrl: string;
+  imageId?: string;
+  linkUrl?: string;
+  alt?: string;
+};
+
+// ============================== GET AD BANNER BY POSITION
+export async function getAdBanner(position: "top" | "bottom" | "sidebar") {
+  try {
+    const ads = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.adsCollectionId,
+      [Query.equal("position", position), Query.orderDesc("$updatedAt"), Query.limit(1)]
+    );
+
+    if (!ads || ads.documents.length === 0) return null;
+    return ads.documents[0];
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
+// ============================== SAVE/UPSERT AD BANNER
+export async function saveAdBanner(payload: AdBannerPayload, file?: File) {
+  try {
+    let imageUrl = payload.imageUrl;
+    let imageId = payload.imageId;
+
+    if (file) {
+      const uploaded = await uploadFile(file);
+      if (!uploaded) throw Error;
+      imageUrl = getFilePreview(uploaded.$id) as any;
+      imageId = uploaded.$id;
+    }
+
+    // Buscar existente por posición
+    const existing = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.adsCollectionId,
+      [Query.equal("position", payload.position), Query.limit(1)]
+    );
+
+    if (existing.documents.length > 0) {
+      const updated = await databases.updateDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.adsCollectionId,
+        existing.documents[0].$id,
+        {
+          position: payload.position,
+          imageUrl,
+          imageId,
+          linkUrl: payload.linkUrl || "",
+          alt: payload.alt || "",
+          updatedAt: new Date(),
+        }
+      );
+      return updated;
+    }
+
+    const created = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.adsCollectionId,
+      ID.unique(),
+      {
+        position: payload.position,
+        imageUrl,
+        imageId,
+        linkUrl: payload.linkUrl || "",
+        alt: payload.alt || "",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+    );
+    return created;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
 // ============================== GET USER'S POST
 export async function getUserPosts(userId?: string) {
   if (!userId) return;

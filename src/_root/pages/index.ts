@@ -13,3 +13,4 @@ export { default as AdminSetup } from "./AdminSetup";
 export { default as PublicPage } from "./PublicPage";
 export { default as AdminDashboard } from "./AdminDashboard";
 export { default as CategoriesManagement } from "./CategoriesManagement";
+export { default as AdminAds } from "./admin/AdminAds";

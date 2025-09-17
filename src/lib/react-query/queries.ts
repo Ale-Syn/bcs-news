@@ -32,6 +32,8 @@ import {
   deleteCategory,
   savePostOrder,
   getOrderedPosts,
+  getAdBanner,
+  saveAdBanner,
 } from "@/lib/appwrite/api";
 import { INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 
@@ -236,6 +238,35 @@ export const useDeleteSavedPost = () => {
       });
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_CURRENT_USER],
+      });
+    },
+  });
+};
+
+// ============================================================
+// ADS QUERIES
+// ============================================================
+
+export const useGetAdBanner = (position: "top" | "bottom" | "sidebar") => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_AD_BANNER, position],
+    queryFn: () => getAdBanner(position),
+  });
+};
+
+export const useSaveAdBanner = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      payload,
+      file,
+    }: {
+      payload: { position: "top" | "bottom" | "sidebar"; imageUrl: string; imageId?: string; linkUrl?: string; alt?: string };
+      file?: File;
+    }) => saveAdBanner(payload as any, file),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_AD_BANNER, variables.payload.position],
       });
     },
   });
