@@ -1,6 +1,6 @@
 import { Models } from "appwrite";
 import { Loader, NoDataMessage, DraggablePostGrid, DraggableSideGrid } from "@/components/shared";
-import { useGetRecentPosts, useSavePostOrder, useGetOrderedPosts, useGetCategories } from "@/lib/react-query/queries";
+import { useGetRecentPosts, useSavePostOrder, useGetOrderedPosts } from "@/lib/react-query/queries";
 import { Link, useParams } from "react-router-dom";
 import { multiFormatDateString } from "@/lib/utils";
 import { useState, useEffect } from "react";
@@ -18,7 +18,7 @@ const Home = () => {
   const { location, category } = useParams();
   const { user } = useUserContext();
   const isAdmin = user.role === "ADMIN";
-  const { data: categoriesData } = useGetCategories();
+  
 
   // Usar posts ordenados si el usuario no es admin, sino usar posts normales
   const {
