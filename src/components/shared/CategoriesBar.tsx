@@ -1,11 +1,10 @@
-import { Link, useLocation, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { useGetRecentPosts, useGetCategories, useSignOutAccount } from "@/lib/react-query/queries";
 import { Models } from "appwrite";
 import { useEffect, useRef, useState } from "react";
 import { useUserContext, INITIAL_USER } from "@/context/AuthContext";
 
 const CategoriesBar = () => {
-  const location = useLocation();
   const { location: locationParam, category: categoryParam } = useParams();
   const currentParam = categoryParam || locationParam;
 

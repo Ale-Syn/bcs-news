@@ -19,7 +19,7 @@ const FileUploaderWithEditor = ({ fieldChange, mediaUrl, aspect }: FileUploaderW
   const [crop, setCrop] = useState<Crop>({
     unit: '%',
     width: 90,
-    // height se calcula automáticamente si hay aspect
+    height: aspect ? Math.min(90 / aspect, 90) : 50,
     x: 5,
     y: 5
   });
@@ -252,7 +252,7 @@ const FileUploaderWithEditor = ({ fieldChange, mediaUrl, aspect }: FileUploaderW
                     const newCrop: Crop = {
                       unit: '%',
                       width: 90,
-                      // si hay aspect, height lo calcula ReactCrop
+                      height: aspect ? Math.min(90 / aspect, 90) : 50,
                       x: 5,
                       y: 5
                     };
