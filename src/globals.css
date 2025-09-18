@@ -1,3 +1,4 @@
+/* stylelint-disable at-rule-no-unknown */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 
 @tailwind base;
@@ -25,6 +26,22 @@
   body {
     @apply bg-white text-[#1A1A1A] min-h-screen font-inter;
   }
+}
+
+/* Breaking news marquee animation */
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.breaking-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 18s linear infinite;
+}
+
+.breaking-marquee:hover {
+  animation-play-state: paused;
 }
 
 @layer utilities {

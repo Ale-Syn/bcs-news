@@ -15,6 +15,7 @@ import {
   PublicPage,
   AdminDashboard,
   CategoriesManagement,
+  AdminAds,
 } from "@/_root/pages";
 import RootLayout from "./_root/RootLayout";
 import AdminLoginForm from "@/_auth/forms/AdminLoginForm";
@@ -99,14 +100,7 @@ const App = () => {
           />
 
           {/* Rutas de administración - solo ADMIN */}
-          <Route
-            path="/all-users"
-            element={
-              <ProtectedRoute allowedRoles={["ADMIN"]}>
-                <AllUsers />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/all-users" element={<AllUsers />} />
           <Route
             path="/admin/settings"
             element={
@@ -145,6 +139,14 @@ const App = () => {
             element={
               <ProtectedRoute allowedRoles={["ADMIN"]}>
                 <CategoriesManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/ads"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
+                <AdminAds />
               </ProtectedRoute>
             }
           />

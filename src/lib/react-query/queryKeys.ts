@@ -15,6 +15,7 @@ export enum QUERY_KEYS {
   GET_USER_POSTS = "getUserPosts",
   GET_FILE_PREVIEW = "getFilePreview",
   GET_ORDERED_POSTS = "getOrderedPosts",
+  GET_AD_BANNER = "getAdBanner",
 
   //  SEARCH KEYS
   SEARCH_POSTS = "getSearchPosts",

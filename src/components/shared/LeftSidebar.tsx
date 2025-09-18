@@ -18,10 +18,17 @@ const LeftSidebar = () => {
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     e.preventDefault();
-    signOut();
-    setIsAuthenticated(false);
-    setUser(INITIAL_USER);
-    navigate("/admin/login");
+    signOut(undefined, {
+      onSettled: () => {
+        try {
+          localStorage.removeItem('user');
+          localStorage.removeItem('cookieFallback');
+        } catch {}
+        setIsAuthenticated(false);
+        setUser(INITIAL_USER);
+        navigate("/");
+      },
+    });
   };
 
   return (

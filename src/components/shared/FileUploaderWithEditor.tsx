@@ -9,16 +9,17 @@ import { convertFileToUrl } from "@/lib/utils";
 type FileUploaderWithEditorProps = {
   fieldChange: (files: File[]) => void;
   mediaUrl: string;
+  aspect?: number; // relación de aspecto opcional (ej. 16/9)
 };
 
-const FileUploaderWithEditor = ({ fieldChange, mediaUrl }: FileUploaderWithEditorProps) => {
+const FileUploaderWithEditor = ({ fieldChange, mediaUrl, aspect }: FileUploaderWithEditorProps) => {
   const [file, setFile] = useState<File[]>([]);
   const [fileUrl, setFileUrl] = useState<string>(mediaUrl);
   const [showEditor, setShowEditor] = useState<boolean>(false);
   const [crop, setCrop] = useState<Crop>({
     unit: '%',
     width: 90,
-    height: 90,
+    height: aspect ? Math.min(90 / aspect, 90) : 50,
     x: 5,
     y: 5
   });
@@ -233,7 +234,7 @@ const FileUploaderWithEditor = ({ fieldChange, mediaUrl }: FileUploaderWithEdito
               crop={crop}
               onChange={(c) => setCrop(c)}
               onComplete={(c) => setCompletedCrop(c)}
-              aspect={undefined}
+              aspect={aspect}
               className="max-w-full"
             >
               <img
@@ -248,10 +249,10 @@ const FileUploaderWithEditor = ({ fieldChange, mediaUrl }: FileUploaderWithEdito
                 }}
                 onLoad={() => {
                   if (imgRef.current) {
-                    const newCrop = {
-                      unit: '%' as const,
+                    const newCrop: Crop = {
+                      unit: '%',
                       width: 90,
-                      height: 90,
+                      height: aspect ? Math.min(90 / aspect, 90) : 50,
                       x: 5,
                       y: 5
                     };
