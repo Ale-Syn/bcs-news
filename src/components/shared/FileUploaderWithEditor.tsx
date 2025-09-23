@@ -36,9 +36,12 @@ const FileUploaderWithEditor = ({ fieldChange, mediaUrl, aspect }: FileUploaderW
     (acceptedFiles: FileWithPath[]) => {
       setFile(acceptedFiles);
       setFileUrl(convertFileToUrl(acceptedFiles[0]));
-      setShowEditor(true);
+      // No abrir el editor automáticamente; usar la imagen original por defecto
+      setShowEditor(false);
+      // Notificar al formulario inmediatamente con el archivo original
+      fieldChange(acceptedFiles as unknown as File[]);
     },
-    [file]
+    [file, fieldChange]
   );
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -68,13 +71,16 @@ const FileUploaderWithEditor = ({ fieldChange, mediaUrl, aspect }: FileUploaderW
           
           setFile([pastedFile]);
           setFileUrl(convertFileToUrl(pastedFile));
-          setShowEditor(true);
+          // No abrir editor automáticamente cuando se pega
+          setShowEditor(false);
+          // Notificar al formulario con la imagen original
+          fieldChange([pastedFile]);
           setShowPasteHint(false);
         }
         break;
       }
     }
-  }, []);
+  }, [fieldChange]);
 
   // Handle focus and blur for paste hint
   const handleFocus = useCallback(() => {

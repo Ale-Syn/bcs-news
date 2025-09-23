@@ -67,6 +67,32 @@ const PostDetails = () => {
     navigate(`/posts/${postId}`);
   };
 
+  // Selección para sidebar: priorizar relacionadas, excluir la actual y completar con recientes sin duplicados
+  const buildSidebarPosts = () => {
+    const chosen: any[] = [];
+    const currentId = id;
+
+    const pushUnique = (list: any[] | undefined) => {
+      if (!list) return;
+      for (const p of list) {
+        if (!p) continue;
+        if (p.$id === currentId) continue;
+        if (chosen.find((c) => c.$id === p.$id)) continue;
+        chosen.push(p);
+        if (chosen.length === 4) break;
+      }
+    };
+
+    // Primero, relacionadas
+    pushUnique(relatedPosts);
+    // Completar con recientes si faltan
+    if (chosen.length < 4) pushUnique(allPosts?.documents);
+
+    return chosen.slice(0, 4);
+  };
+
+  const sidebarPosts = buildSidebarPosts();
+
   return (
     <div className="post_details-container">
       {/* Botón Volver - Ahora visible en todas las pantallas */}
@@ -89,98 +115,167 @@ const PostDetails = () => {
       {isLoading || !post ? (
         <Loader />
       ) : (
-        <div key={postKey} className="bg-white w-[calc(100%-16px)] sm:w-[calc(100%-32px)] md:w-full max-w-5xl mx-auto rounded-lg md:rounded-xl lg:rounded-3xl flex flex-col lg:flex-row border border-[#E5E5E5] overflow-hidden">
-          {/* Imagen - Responsiva y optimizada */}
-          <div className="lg:w-[48%] xl:w-[50%] bg-[#F8F8F8] p-2 md:p-3 lg:p-4 xl:p-5 flex items-center justify-center">
-            <div className="w-full relative">
-              <img
-                src={post?.imageUrl}
-                alt="post image"
-                className="h-48 sm:h-64 md:h-80 lg:h-[350px] xl:h-[400px] max-h-[50vh] sm:max-h-[60vh] lg:max-h-none w-[90%] sm:w-[95%] md:w-full max-w-md lg:max-w-none rounded-lg md:rounded-xl object-cover object-center shadow-sm mx-auto"
-              />
+        <div key={postKey} className="w-[calc(100%-16px)] sm:w-[calc(100%-32px)] md:w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Columna principal: artículo */}
+          <div className="lg:col-span-2 flex flex-col">
+            {/* Imagen - Fondo blanco, tamaño uniforme, completa */}
+            <div className="bg-white p-0">
+              <div className="w-full max-w-2xl mx-auto">
+                <div className="w-full h-64 md:h-80 lg:h-96 bg-white">
+                  <img
+                    src={post?.imageUrl}
+                    alt="post image"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </div>
             </div>
-          </div>
 
-          {/* Contenido - Flexible */}
-          <div className="flex-1 flex flex-col p-3 md:p-4 lg:p-6 xl:p-8 min-h-[400px] sm:min-h-[500px] lg:min-h-[520px]">
-            {/* Header Section */}
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4 lg:mb-6">
-              <div className="flex-1 min-w-0">
-                <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-[#1A1A1A] leading-tight mb-3">
-                  {post?.title}
-                </h1>
-                <div className="flex flex-wrap items-center gap-2 text-sm md:text-base text-[#666666]">
-                  <span className="font-medium">
-                    {multiFormatDateString(post?.$createdAt)}
-                  </span>
-                  <span>•</span>
-                  <span className="font-medium">
-                    {post?.location}
-                  </span>
+            {/* Contenido - Flexible */}
+            <div className="flex-1 flex flex-col p-3 md:p-4 lg:p-6 xl:p-8 max-w-2xl mx-auto">
+              {/* Header Section */}
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4 lg:mb-6">
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-[#1A1A1A] leading-tight mb-3">
+                    {post?.title}
+                  </h1>
+                  <div className="flex flex-wrap items-center gap-2 text-sm md:text-base text-[#666666]">
+                    <span className="font-medium">
+                      {multiFormatDateString(post?.$createdAt)}
+                    </span>
+                    <span>•</span>
+                    <span className="font-medium">
+                      {post?.location}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Botones de acción */}
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <Link
+                    to={`/update-post/${post?.$id}`}
+                    className={`${user.id !== post?.creator.$id && "hidden"}`}>
+                    <img
+                      src={"/assets/icons/edit.svg"}
+                      alt="edit"
+                      width={20}
+                      height={20}
+                      className="md:w-6 md:h-6 opacity-70 hover:opacity-100 transition-opacity"
+                    />
+                  </Link>
+
+                  <Button
+                    onClick={handleDeletePost}
+                    variant="ghost"
+                    className={`p-2 hover:bg-red-50 rounded-lg ${
+                      user.id !== post?.creator.$id && "hidden"
+                    }`}>
+                    <img
+                      src={"/assets/icons/delete.svg"}
+                      alt="delete"
+                      width={20}
+                      height={20}
+                      className="md:w-6 md:h-6 opacity-70 hover:opacity-100 transition-opacity"
+                    />
+                  </Button>
                 </div>
               </div>
 
-              {/* Botones de acción */}
-              <div className="flex items-center gap-3 flex-shrink-0">
-                <Link
-                  to={`/update-post/${post?.$id}`}
-                  className={`${user.id !== post?.creator.$id && "hidden"}`}>
-                  <img
-                    src={"/assets/icons/edit.svg"}
-                    alt="edit"
-                    width={20}
-                    height={20}
-                    className="md:w-6 md:h-6 opacity-70 hover:opacity-100 transition-opacity"
-                  />
-                </Link>
+              <hr className="border-[#E5E5E5] mb-4 lg:mb-6" />
 
-                <Button
-                  onClick={handleDeletePost}
-                  variant="ghost"
-                  className={`p-2 hover:bg-red-50 rounded-lg ${
-                    user.id !== post?.creator.$id && "hidden"
-                  }`}>
-                  <img
-                    src={"/assets/icons/delete.svg"}
-                    alt="delete"
-                    width={20}
-                    height={20}
-                    className="md:w-6 md:h-6 opacity-70 hover:opacity-100 transition-opacity"
-                  />
-                </Button>
+              {/* Contenido Scrolleable */}
+              <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 mb-4 lg:mb-6">
+                <p className="text-[#1A1A1A] text-sm md:text-base lg:text-lg leading-relaxed break-words whitespace-pre-wrap">
+                  {post?.caption}
+                </p>
               </div>
-            </div>
 
-            <hr className="border-[#E5E5E5] mb-4 lg:mb-6" />
+              {/* Footer Section */}
+              <div className="flex flex-col gap-4 mt-auto">
+                {/* Tags */}
+                {post?.tags && post.tags.length > 0 && (
+                  <ul className="flex gap-2 flex-wrap">
+                    {post.tags.map((tag: string, index: string) => (
+                      <li
+                        key={`${tag}${index}`}
+                        className="text-[#BB1919] text-xs md:text-sm font-medium bg-[#BB1919]/10 px-3 py-1.5 rounded-full">
+                        #{tag}
+                      </li>
+                    ))}
+                  </ul>
+                )}
 
-            {/* Contenido Scrolleable */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 mb-4 lg:mb-6">
-              <p className="text-[#1A1A1A] text-sm md:text-base lg:text-lg leading-relaxed break-words whitespace-pre-wrap">
-                {post?.caption}
-              </p>
-            </div>
-
-            {/* Footer Section */}
-            <div className="flex flex-col gap-4 mt-auto">
-              {/* Tags */}
-              {post?.tags && post.tags.length > 0 && (
-                <ul className="flex gap-2 flex-wrap">
-                  {post.tags.map((tag: string, index: string) => (
-                    <li
-                      key={`${tag}${index}`}
-                      className="text-[#BB1919] text-xs md:text-sm font-medium bg-[#BB1919]/10 px-3 py-1.5 rounded-full">
-                      #{tag}
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              {/* Post Stats */}
-              <div className="w-full">
-                <PostStats post={post} userId={user.id} />
+                {/* Post Stats */}
+                <div className="w-full">
+                  <PostStats post={post} userId={user.id} />
+                </div>
               </div>
             </div>
           </div>
+
+          {/* Sidebar derecha: destacadas / recomendadas */}
+          <aside className="hidden lg:block lg:col-span-1">
+            <div className="sticky top-4">
+              <div className="bg-white rounded-lg border border-[#E5E5E5] p-4">
+                <h3 className="text-base font-semibold text-[#1A1A1A] mb-3">Noticias destacadas</h3>
+                <ul className="space-y-4">
+                  {sidebarPosts?.map((sp: any) => (
+                    <li key={sp.$id}>
+                      <Link to={`/posts/${sp.$id}`} className="flex items-start gap-3 group">
+                        <div className="w-28 h-20 flex-shrink-0 overflow-hidden rounded-md bg-[#F2F2F2]">
+                          <img src={sp.imageUrl} alt={sp.title} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[15px] font-semibold text-[#1A1A1A] leading-snug group-hover:text-[#BB1919] flex items-center gap-1">
+                            <span className="line-clamp-2 truncate">{sp.title}</span>
+                            <button
+                              type="button"
+                              title="Abrir en nueva pestaña"
+                              className="inline-flex items-center justify-center text-[#666666] hover:text-[#BB1919] focus:outline-none"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                window.open(`/posts/${sp.$id}`, '_blank', 'noopener,noreferrer');
+                              }}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                                className="w-3.5 h-3.5 flex-shrink-0"
+                                aria-hidden="true"
+                              >
+                                <path d="M11 3a1 1 0 100 2h2.586L9.293 9.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                                <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 100-2H5z" />
+                              </svg>
+                            </button>
+                          </p>
+                          {sp.location && (
+                            <p className="text-xs text-[#666666] mt-1">{sp.location}</p>
+                          )}
+                        </div>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Publicidad / Ads */}
+              <div className="mt-4 bg-white rounded-lg border border-[#E5E5E5] p-4">
+                <h3 className="text-base font-semibold text-[#1A1A1A] mb-3">Publicidad</h3>
+                <div className="space-y-4">
+                  {/* Slot 300x250 */}
+                  <div className="w-full h-[250px] max-w-[300px] mx-auto border-2 border-dashed border-[#E5E5E5] rounded-md flex items-center justify-center text-[#666666]">
+                    <span className="text-xs">Anuncio 300×250</span>
+                  </div>
+                  {/* Slot 300x600 (opcional largo) */}
+                  <div className="w-full h-[300px] lg:h-[600px] max-w-[300px] mx-auto border-2 border-dashed border-[#E5E5E5] rounded-md flex items-center justify-center text-[#666666]">
+                    <span className="text-xs">Anuncio 300×600</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
         </div>
       )}
 
