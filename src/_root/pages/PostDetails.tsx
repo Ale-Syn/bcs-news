@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
 import { Button } from "@/components/ui";
-import { Loader, NoDataMessage } from "@/components/shared";
+import { Loader, NoDataMessage, DraggablePostGrid } from "@/components/shared";
 import { PostStats } from "@/components/shared";
 
 import {
@@ -44,51 +44,31 @@ const PostDetails = () => {
     }
   }, [id]);
 
-  // Filter posts by shared tags and exclude current post
-  const relatedPosts = allPosts?.documents.filter((relatedPost: any) => {
-    // Exclude current post
-    if (relatedPost.$id === id) return false;
-    
-    // Check if posts share at least one tag
-    if (!post?.tags || !relatedPost.tags) return false;
-    
-    return post.tags.some((tag: string) => 
-      relatedPost.tags.includes(tag)
-    );
-  }).slice(0, 8); // Limit to 8 related posts
+  // Related posts by same category/location and exclude current post
+  const relatedPosts = allPosts?.documents
+    .filter((relatedPost: any) => {
+      if (relatedPost.$id === id) return false;
+      if (!post?.location) return false;
+      return relatedPost.location === post.location;
+    })
+    .slice(0, 8);
 
   const handleDeletePost = () => {
     deletePost({ postId: id, imageId: post?.imageId });
     navigate(-1);
   };
 
-  const handleRelatedPostClick = (e: React.MouseEvent, postId: string) => {
-    e.preventDefault();
-    navigate(`/posts/${postId}`);
-  };
+  // Navegación directa en tarjetas relacionadas manejada por Link del grid
 
-  // Selección para sidebar: priorizar relacionadas, excluir la actual y completar con recientes sin duplicados
+  // Selección para sidebar: aleatorias del total (excluye la actual)
   const buildSidebarPosts = () => {
-    const chosen: any[] = [];
-    const currentId = id;
-
-    const pushUnique = (list: any[] | undefined) => {
-      if (!list) return;
-      for (const p of list) {
-        if (!p) continue;
-        if (p.$id === currentId) continue;
-        if (chosen.find((c) => c.$id === p.$id)) continue;
-        chosen.push(p);
-        if (chosen.length === 4) break;
-      }
-    };
-
-    // Primero, relacionadas
-    pushUnique(relatedPosts);
-    // Completar con recientes si faltan
-    if (chosen.length < 4) pushUnique(allPosts?.documents);
-
-    return chosen.slice(0, 4);
+    const pool = (allPosts?.documents || []).filter((p: any) => p && p.$id !== id);
+    // Shuffle (Fisher–Yates)
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    return pool.slice(0, 4);
   };
 
   const sidebarPosts = buildSidebarPosts();
@@ -262,7 +242,6 @@ const PostDetails = () => {
 
               {/* Publicidad / Ads */}
               <div className="mt-4 bg-white rounded-lg border border-[#E5E5E5] p-4">
-                <h3 className="text-base font-semibold text-[#1A1A1A] mb-3">Publicidad</h3>
                 <div className="space-y-4">
                   {/* Slot 300x250 */}
                   <div className="w-full h-[250px] max-w-[300px] mx-auto border-2 border-dashed border-[#E5E5E5] rounded-md flex items-center justify-center text-[#666666]">
@@ -281,7 +260,7 @@ const PostDetails = () => {
 
       {/* Related News Section - Mejorado para responsivo */}
       <div className="w-full max-w-5xl mt-8 md:mt-12">
-        <div className="bg-[#F8F8F8] rounded-xl md:rounded-2xl p-4 md:p-6 lg:p-8">
+        <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 lg:p-8">
           <div className="flex items-center gap-3 mb-4 md:mb-6">
             <div className="h-6 md:h-8 w-1 bg-[#BB1919] rounded-full"></div>
             <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-[#1A1A1A]">
@@ -296,61 +275,13 @@ const PostDetails = () => {
               message="No hay más noticias con categorías similares en este momento"
             />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-              {relatedPosts.map((relatedPost) => (
-                <div key={relatedPost.$id} className="relative h-64 md:h-80">
-                  <Link 
-                    to={`/posts/${relatedPost.$id}`} 
-                    className="grid-post_link"
-                    onClick={(e) => handleRelatedPostClick(e, relatedPost.$id)}
-                  >
-                    <img
-                      src={relatedPost.imageUrl}
-                      alt="post"
-                      className="h-full w-full object-cover rounded-lg md:rounded-xl"
-                    />
-                    <div className="absolute top-0 left-0 right-0 p-3 md:p-4">
-                      <div className="flex flex-wrap gap-1 md:gap-2">
-                        {relatedPost.tags.slice(0, 2).map((tag: string, index: string) => (
-                          <span
-                            key={`${tag}${index}`}
-                            className="text-xs text-white bg-[#BB1919]/90 px-2 py-1 rounded-full backdrop-blur-sm"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                        {relatedPost.tags.length > 2 && (
-                          <span className="text-xs text-white bg-black/50 px-2 py-1 rounded-full backdrop-blur-sm">
-                            +{relatedPost.tags.length - 2}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/95 via-[#1A1A1A]/50 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300">
-                      <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4">
-                        <h3 className="text-white text-sm md:text-base lg:text-lg font-semibold line-clamp-2 mb-2">
-                          {relatedPost.title}
-                        </h3>
-                        <div className="flex items-center gap-2 text-white/80 text-xs md:text-sm">
-                          <span>{relatedPost.location}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-
-                  <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 bg-gradient-to-t from-[#1A1A1A]/95 to-transparent">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {/* Avatar removido */}
-                      </div>
-                      <div className="flex items-center gap-4 bg-white/10 backdrop-blur-sm px-2 md:px-3 py-1 md:py-1.5 rounded-full">
-                        <PostStats post={relatedPost} userId={user.id} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <DraggablePostGrid
+              posts={relatedPosts}
+              className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4"
+              showMeta={false}
+              showTags={false}
+              showStats={false}
+            />
           )}
         </div>
       </div>
