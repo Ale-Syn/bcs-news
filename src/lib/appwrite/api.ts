@@ -1,6 +1,7 @@
 import { ID, Query } from "appwrite";
 
 import { appwriteConfig, account, databases, storage, avatars } from "./config";
+import { toBoolean } from "@/lib/utils";
 import { IUpdatePost, INewPost, INewUser, IUpdateUser } from "@/types";
 
 // ============================================================
@@ -937,7 +938,7 @@ export async function getOrderedPosts(orderType: "main" | "side") {
       // Si no hay orden guardado
       if (orderType === "side") {
         // Para "side": devolver solo destacados
-        const featured = allPosts.documents.filter((p: { isFeaturedSide?: boolean }) => Boolean(p.isFeaturedSide));
+        const featured = allPosts.documents.filter((p: { isFeaturedSide?: boolean | string | number }) => toBoolean((p as any).isFeaturedSide));
         return { documents: featured, total: featured.length } as any;
       }
       // Para "main": devolver todos
@@ -946,7 +947,7 @@ export async function getOrderedPosts(orderType: "main" | "side") {
 
     // Obtener la lista base según el tipo
     const posts = orderType === "side"
-      ? { documents: allPosts.documents.filter((p: { isFeaturedSide?: boolean }) => Boolean(p.isFeaturedSide)), total: allPosts.total }
+      ? { documents: allPosts.documents.filter((p: { isFeaturedSide?: boolean | string | number }) => toBoolean((p as any).isFeaturedSide)), total: allPosts.total }
       : allPosts;
 
     if (!posts) throw Error;
@@ -970,7 +971,7 @@ export async function getOrderedPosts(orderType: "main" | "side") {
     console.log(error);
     if (orderType === "side") {
       const all = await getAllPosts();
-      const featured = all.documents.filter((p: { isFeaturedSide?: boolean }) => Boolean(p.isFeaturedSide));
+      const featured = all.documents.filter((p: { isFeaturedSide?: boolean | string | number }) => toBoolean((p as any).isFeaturedSide));
       return { documents: featured, total: featured.length } as any;
     }
     return await getAllPosts();

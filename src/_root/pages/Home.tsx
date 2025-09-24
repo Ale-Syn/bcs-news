@@ -2,7 +2,7 @@ import { Models } from "appwrite";
 import { Loader, NoDataMessage, DraggablePostGrid, DraggableSideGrid } from "@/components/shared";
 import { useGetRecentPosts, useGetAllPosts, useSavePostOrder, useGetOrderedPosts } from "@/lib/react-query/queries";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { multiFormatDateString } from "@/lib/utils";
+import { multiFormatDateString, toBoolean } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { useUserContext } from "@/context/AuthContext";
 import { Button } from "@/components/ui";
@@ -107,12 +107,12 @@ const Home = () => {
   const postsToDisplay = isAdmin && reorderedPosts.length > 0 ? reorderedPosts : filteredPosts;
 
   // Excluir noticias destacadas para "Más Noticias" y carrusel
-  const mainPostsOnly = (postsToDisplay || []).filter((p: any) => !p?.isFeaturedSide);
+  const mainPostsOnly = (postsToDisplay || []).filter((p: any) => !toBoolean(p?.isFeaturedSide));
 
   // Posts para la sección lateral
   // Si hay un orden guardado (para todos), usarlo; si no, usar las marcadas como destacadas (máx 2); fallback a recientes
   const featuredMarked = (sidePostsSource?.documents || recentPosts?.documents || [])
-    ?.filter((p: any) => p.isFeaturedSide)
+    ?.filter((p: any) => toBoolean(p.isFeaturedSide))
     .slice(0, 2);
   const sidePostsToDisplay = isAdmin && reorderedSidePosts.length > 0 
     ? reorderedSidePosts.slice(0, 2) 
