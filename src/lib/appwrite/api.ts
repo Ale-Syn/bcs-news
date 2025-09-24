@@ -242,6 +242,7 @@ export async function createPost(post: INewPost) {
         imageId: uploadedFile.$id,
         location: post.location,
         tags: tags,
+        isFeaturedSide: Boolean(post.isFeaturedSide) || false,
       }
     );
 
@@ -400,6 +401,7 @@ export async function updatePost(post: IUpdatePost) {
         imageId: image.imageId,
         location: post.location,
         tags: tags,
+        isFeaturedSide: Boolean(post.isFeaturedSide) || false,
       }
     );
 

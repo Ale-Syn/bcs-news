@@ -227,7 +227,7 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
 
   return (
     <div
-      className={`flex justify-between items-center z-20 ${containerStyles}`}>
+      className={`flex justify-between items-center z-10 ${containerStyles}`}>
       {/* Sección de likes a la izquierda */}
       <div className="flex items-center gap-2">
         <button
@@ -246,13 +246,13 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
 
       {/* Sección de acciones a la derecha */}
       <div className="flex gap-2">
-        <div className="relative z-[9999]" ref={shareMenuRef}>
+        <div className="relative z-10" ref={shareMenuRef}>
           <Share2
             className="w-5 h-5 cursor-pointer text-[#1A1A1A] hover:text-[#BB1919]"
             onClick={() => setIsShareOpen(!isShareOpen)}
           />
           {isShareOpen && (
-            <div className="fixed w-48 bg-white rounded-lg shadow-xl border border-[#E5E5E5] py-2 z-[9999] shadow-2xl" 
+            <div className="fixed w-48 bg-white rounded-lg shadow-xl border border-[#E5E5E5] py-2 z-30 shadow-2xl" 
                  style={{
                    top: shareMenuRef.current ? 
                      shareMenuRef.current.getBoundingClientRect().bottom + 8 + 'px' : 

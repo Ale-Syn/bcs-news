@@ -32,4 +32,5 @@ export const PostValidation = z.object({
   file: z.custom<File[]>(),
   location: z.string().min(1, { message: "Este campo es requerido" }).max(1000, { message: "Maximum 1000 characters." }),
   tags: z.string(),
+  isFeaturedSide: z.boolean().optional().default(false),
 });

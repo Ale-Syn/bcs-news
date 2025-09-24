@@ -20,6 +20,7 @@ export type INewPost = {
   file: File[];
   location?: string;
   tags?: string;
+  isFeaturedSide?: boolean;
 };
 
 export type IUpdatePost = {
@@ -31,6 +32,7 @@ export type IUpdatePost = {
   file: File[];
   location?: string;
   tags?: string;
+  isFeaturedSide?: boolean;
 };
 
 export type IUser = {

@@ -110,9 +110,13 @@ const Home = () => {
   const featuredPosts = postsToDisplay?.slice(0, 5) || [];
 
   // Posts para la sección lateral
+  // Si hay un orden guardado (para todos), usarlo; si no, usar las marcadas como destacadas (máx 2); fallback a recientes
+  const featuredMarked = (sidePostsSource?.documents || recentPosts?.documents || [])
+    ?.filter((p: any) => p.isFeaturedSide)
+    .slice(0, 2);
   const sidePostsToDisplay = isAdmin && reorderedSidePosts.length > 0 
     ? reorderedSidePosts 
-    : sidePostsSource?.documents?.slice(0, 2) || [];
+    : (sideOrderedPosts?.documents?.length ? sideOrderedPosts.documents.slice(0,2) : featuredMarked.length ? featuredMarked : (sidePostsSource?.documents?.slice(0, 2) || []));
 
   // Función para manejar el reordenamiento (solo admin)
   const handleReorder = (newOrder: Models.Document[]) => {
