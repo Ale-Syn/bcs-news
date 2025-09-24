@@ -628,6 +628,43 @@ export async function getRecentPosts() {
   }
 }
 
+// ============================== GET ALL POSTS (no limit for admins)
+export async function getAllPosts() {
+  try {
+    const pageSize = 100; // Appwrite máximo 100 por solicitud
+    let hasMore = true;
+    let lastId: string | undefined = undefined;
+    const allDocuments: any[] = [];
+
+    while (hasMore) {
+      const queries: any[] = [Query.orderDesc("$createdAt"), Query.limit(pageSize)];
+      if (lastId) {
+        queries.push(Query.cursorAfter(lastId));
+      }
+
+      const page = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.postCollectionId,
+        queries
+      );
+
+      const docs = page?.documents || [];
+      allDocuments.push(...docs);
+
+      if (!docs.length || docs.length < pageSize) {
+        hasMore = false;
+      } else {
+        lastId = docs[docs.length - 1].$id;
+      }
+    }
+
+    return { documents: allDocuments, total: allDocuments.length } as any;
+  } catch (error) {
+    console.log(error);
+    return { documents: [], total: 0 } as any;
+  }
+}
+
 // ============================================================
 // USER
 // ============================================================
@@ -894,38 +931,49 @@ export async function getPostOrder(orderType: "main" | "side") {
 export async function getOrderedPosts(orderType: "main" | "side") {
   try {
     const orderDoc = await getPostOrder(orderType);
+    const allPosts = await getAllPosts();
     
     if (!orderDoc || !orderDoc.postIds || orderDoc.postIds.length === 0) {
-      // Si no hay orden guardado, devolver posts en orden por fecha
-      return await getRecentPosts();
+      // Si no hay orden guardado
+      if (orderType === "side") {
+        // Para "side": devolver solo destacados
+        const featured = allPosts.documents.filter((p: { isFeaturedSide?: boolean }) => Boolean(p.isFeaturedSide));
+        return { documents: featured, total: featured.length } as any;
+      }
+      // Para "main": devolver todos
+      return allPosts;
     }
 
-    // Obtener los posts en el orden guardado
-    const posts = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.postCollectionId,
-      [Query.orderDesc("$createdAt"), Query.limit(20)]
-    );
+    // Obtener la lista base según el tipo
+    const posts = orderType === "side"
+      ? { documents: allPosts.documents.filter((p: { isFeaturedSide?: boolean }) => Boolean(p.isFeaturedSide)), total: allPosts.total }
+      : allPosts;
 
     if (!posts) throw Error;
 
     // Reordenar los posts según el orden guardado
     const orderedPosts = orderDoc.postIds
-      .map((postId: string) => posts.documents.find(post => post.$id === postId))
-      .filter(Boolean); // Filtrar posts que ya no existen
+      .map((postId: string) => posts.documents.find((post: { $id: string }) => post.$id === postId))
+      .filter(Boolean);
 
     // Agregar posts nuevos que no estén en el orden guardado
     const newPosts = posts.documents.filter(
-      post => !orderDoc.postIds.includes(post.$id)
+      (post: { $id: string }) => !orderDoc.postIds.includes(post.$id)
     );
 
     return {
-      documents: [...orderedPosts, ...newPosts],
+      // Nuevos primero, luego el orden guardado
+      documents: [...newPosts, ...orderedPosts],
       total: posts.total
     };
   } catch (error) {
     console.log(error);
-    return await getRecentPosts(); // Fallback a orden por fecha
+    if (orderType === "side") {
+      const all = await getAllPosts();
+      const featured = all.documents.filter((p: { isFeaturedSide?: boolean }) => Boolean(p.isFeaturedSide));
+      return { documents: featured, total: featured.length } as any;
+    }
+    return await getAllPosts();
   }
 }
 

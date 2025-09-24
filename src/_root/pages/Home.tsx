@@ -1,6 +1,6 @@
 import { Models } from "appwrite";
 import { Loader, NoDataMessage, DraggablePostGrid, DraggableSideGrid } from "@/components/shared";
-import { useGetRecentPosts, useSavePostOrder, useGetOrderedPosts } from "@/lib/react-query/queries";
+import { useGetRecentPosts, useGetAllPosts, useSavePostOrder, useGetOrderedPosts } from "@/lib/react-query/queries";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { multiFormatDateString } from "@/lib/utils";
 import { useState, useEffect } from "react";
@@ -27,7 +27,7 @@ const Home = () => {
     data: recentPosts,
     isLoading: isPostLoading,
     isError: isErrorPosts,
-  } = useGetRecentPosts();
+  } = isAdmin ? useGetAllPosts() : useGetRecentPosts();
 
   const {
     data: mainOrderedPosts,
@@ -99,15 +99,15 @@ const Home = () => {
   // Eliminado: categorías/locations ya no se usan en esta vista (barra global)
   const filteredPosts = filterParam
     ? posts?.documents.filter(
-        (post) => post.location === decodeURIComponent(filterParam)
+        (post: Models.Document) => post.location === decodeURIComponent(filterParam)
       )
     : posts?.documents;
 
   // Usar posts reordenados si existen (solo admin), sino usar los filtrados/ordenados
   const postsToDisplay = isAdmin && reorderedPosts.length > 0 ? reorderedPosts : filteredPosts;
 
-  // Get the first 5 posts as featured posts for the carousel
-  const featuredPosts = postsToDisplay?.slice(0, 5) || [];
+  // Excluir noticias destacadas para "Más Noticias" y carrusel
+  const mainPostsOnly = (postsToDisplay || []).filter((p: any) => !p?.isFeaturedSide);
 
   // Posts para la sección lateral
   // Si hay un orden guardado (para todos), usarlo; si no, usar las marcadas como destacadas (máx 2); fallback a recientes
@@ -115,8 +115,15 @@ const Home = () => {
     ?.filter((p: any) => p.isFeaturedSide)
     .slice(0, 2);
   const sidePostsToDisplay = isAdmin && reorderedSidePosts.length > 0 
-    ? reorderedSidePosts 
+    ? reorderedSidePosts.slice(0, 2) 
     : (sideOrderedPosts?.documents?.length ? sideOrderedPosts.documents.slice(0,2) : featuredMarked.length ? featuredMarked : (sidePostsSource?.documents?.slice(0, 2) || []));
+
+  // Quitar duplicados: excluir de "Más Noticias" lo que está en "Noticias Destacadas"
+  const sideIds = new Set((sidePostsToDisplay || []).map((p: Models.Document) => p.$id));
+  const mainWithoutSide = mainPostsOnly.filter((p: Models.Document) => !sideIds.has(p.$id));
+
+  // Primeros 5 para carrusel, solo de "Más Noticias" (no destacadas ni duplicadas)
+  const featuredPosts = mainWithoutSide.slice(0, 5);
 
   // Función para manejar el reordenamiento (solo admin)
   const handleReorder = (newOrder: Models.Document[]) => {
@@ -259,9 +266,9 @@ const Home = () => {
                       )}
                     </div>
                   </div>
-                  {postsToDisplay && postsToDisplay.length > 0 ? (
+                  {mainWithoutSide && mainWithoutSide.length > 0 ? (
                     <DraggablePostGrid 
-                      posts={postsToDisplay.slice(0, 10)} 
+                      posts={isAdmin ? mainWithoutSide : mainWithoutSide.slice(0, 10)} 
                       onReorder={handleReorder}
                     />
                   ) : (

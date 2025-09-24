@@ -21,6 +21,7 @@ import {
   getUserById,
   updateUser,
   getRecentPosts,
+  getAllPosts,
   getInfinitePosts,
   searchPosts,
   savePost,
@@ -93,6 +94,13 @@ export const useGetRecentPosts = () => {
   return useQuery({
     queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
     queryFn: getRecentPosts,
+  });
+};
+
+export const useGetAllPosts = () => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_ALL_POSTS],
+    queryFn: getAllPosts,
   });
 };
 
