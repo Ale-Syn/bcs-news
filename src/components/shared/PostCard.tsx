@@ -7,9 +7,12 @@ import { useUserContext } from "@/context/AuthContext";
 
 type PostCardProps = {
   post: Models.Document;
+  showMeta?: boolean; // fecha y ubicación
+  showTags?: boolean;
+  showStats?: boolean;
 };
 
-const PostCard = ({ post }: PostCardProps) => {
+const PostCard = ({ post, showMeta = true, showTags = true, showStats = true }: PostCardProps) => {
   const { user } = useUserContext();
 
   if (!post.creator) return;
@@ -45,31 +48,36 @@ const PostCard = ({ post }: PostCardProps) => {
               />
             </Link>
           </div>
-          <div className="flex items-center gap-1 md:gap-2 text-[#666666] text-xs mb-2 md:mb-3">
-            <span>{multiFormatDateString(post.$createdAt)}</span>
-            <span>•</span>
-            <span>{post.location}</span>
-          </div>
-          <div className="flex flex-wrap gap-1 mb-3 overflow-hidden" style={{ maxHeight: '2.5rem' }}>
-            {post.tags.slice(0, 2).map((tag: string, index: string) => (
-              <span
-                key={`${tag}${index}`}
-                className="text-xs text-[#BB1919] bg-[#BB1919]/10 px-1.5 md:px-2 py-0.5 md:py-1 rounded-full h-fit flex-shrink-0"
-              >
-                #{tag}
-              </span>
-            ))}
-            {post.tags.length > 2 && (
-              <span className="text-xs text-[#666666] bg-gray-100 px-1.5 md:px-2 py-0.5 md:py-1 rounded-full h-fit flex-shrink-0">
-                +{post.tags.length - 2}
-              </span>
-            )}
-          </div>
+          {showMeta && (
+            <div className="flex items-center gap-1 md:gap-2 text-[#666666] text-xs mb-2 md:mb-3">
+              <span>{multiFormatDateString(post.$createdAt)}</span>
+              <span>•</span>
+              <span>{post.location}</span>
+            </div>
+          )}
+          {showTags && (
+            <div className="flex flex-wrap gap-1 mb-3 overflow-hidden" style={{ maxHeight: '2.5rem' }}>
+              {post.tags.slice(0, 2).map((tag: string, index: string) => (
+                <span
+                  key={`${tag}${index}`}
+                  className="text-xs text-[#BB1919] bg-[#BB1919]/10 px-1.5 md:px-2 py-0.5 md:py-1 rounded-full h-fit flex-shrink-0"
+                >
+                  #{tag}
+                </span>
+              ))}
+              {post.tags.length > 2 && (
+                <span className="text-xs text-[#666666] bg-gray-100 px-1.5 md:px-2 py-0.5 md:py-1 rounded-full h-fit flex-shrink-0">
+                  +{post.tags.length - 2}
+                </span>
+              )}
+            </div>
+          )}
         </Link>
-
-        <div className="mt-2 md:mt-3">
-          <PostStats post={post} userId={user.id} />
-        </div>
+        {showStats && (
+          <div className="mt-2 md:mt-3">
+            <PostStats post={post} userId={user.id} />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -8,12 +8,18 @@ type DraggablePostGridProps = {
   posts: Models.Document[];
   className?: string;
   onReorder?: (reorderedPosts: Models.Document[]) => void;
+  showMeta?: boolean;
+  showTags?: boolean;
+  showStats?: boolean;
 };
 
 const DraggablePostGrid = ({ 
   posts, 
   className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6 auto-rows-fr",
-  onReorder 
+  onReorder,
+  showMeta = true,
+  showTags = true,
+  showStats = true,
 }: DraggablePostGridProps) => {
   const { user } = useUserContext();
   const [orderedPosts, setOrderedPosts] = useState<Models.Document[]>(posts);
@@ -53,7 +59,7 @@ const DraggablePostGrid = ({
         cursor: isAdmin ? (isDragging ? 'grabbing' : 'grab') : 'default',
       }}
     >
-      <PostCard post={post} />
+      <PostCard post={post} showMeta={showMeta} showTags={showTags} showStats={showStats} />
       
 
       

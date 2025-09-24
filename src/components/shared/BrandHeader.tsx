@@ -1,10 +1,12 @@
+import { Link } from "react-router-dom";
+
 const BrandHeader = () => {
   return (
     <div className="w-full bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between gap-4">
           <h1 className="h1-bold text-3xl md:text-5xl lg:text-6xl font-bold text-[#1A1A1A]">
-            ALTAVOZ BCS
+            <Link to="/">ALTAVOZ BCS</Link>
           </h1>
           <div className="flex flex-col items-end gap-1 sm:gap-1.5">
             <div className="flex items-center gap-2">

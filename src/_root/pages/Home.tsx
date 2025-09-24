@@ -1,10 +1,11 @@
 import { Models } from "appwrite";
 import { Loader, NoDataMessage, DraggablePostGrid, DraggableSideGrid } from "@/components/shared";
 import { useGetRecentPosts, useSavePostOrder, useGetOrderedPosts } from "@/lib/react-query/queries";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { multiFormatDateString } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { useUserContext } from "@/context/AuthContext";
+import { Button } from "@/components/ui";
 import {
   Carousel,
   CarouselContent,
@@ -18,6 +19,7 @@ const Home = () => {
   const { location, category } = useParams();
   const { user } = useUserContext();
   const isAdmin = user.role === "ADMIN";
+  const navigate = useNavigate();
   
 
   // Usar posts ordenados si el usuario no es admin, sino usar posts normales
@@ -135,6 +137,23 @@ const Home = () => {
       <div className="w-full">
         <div className="home-container">
           <div className="home-posts">
+            {filterParam && (
+              <div className="flex max-w-5xl w-full mb-2">
+                <Button
+                  onClick={() => navigate(-1)}
+                  variant="ghost"
+                  className="shad-button_ghost">
+                  <img
+                    src={"/assets/icons/back.svg"}
+                    alt="back"
+                    width={20}
+                    height={20}
+                    className="md:w-6 md:h-6"
+                  />
+                  <p className="text-sm md:text-base font-medium text-[#1A1A1A]">Volver</p>
+                </Button>
+              </div>
+            )}
             {/* Barra de categorías removida; ahora es global (CategoriesBar) */}
             {(isPostLoading || (!isAdmin && (isMainOrderLoading || isSideOrderLoading))) && !posts ? (
               <Loader />
@@ -238,7 +257,7 @@ const Home = () => {
                   </div>
                   {postsToDisplay && postsToDisplay.length > 0 ? (
                     <DraggablePostGrid 
-                      posts={postsToDisplay.slice(0, 6)} 
+                      posts={postsToDisplay.slice(0, 10)} 
                       onReorder={handleReorder}
                     />
                   ) : (
