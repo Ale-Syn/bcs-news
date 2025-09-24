@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { PostStats } from "@/components/shared";
 import { multiFormatDateString } from "@/lib/utils";
 import { useUserContext } from "@/context/AuthContext";
+import { useDeletePost } from "@/lib/react-query/queries";
 
 type PostCardProps = {
   post: Models.Document;
@@ -14,6 +15,8 @@ type PostCardProps = {
 
 const PostCard = ({ post, showMeta = true, showTags = true, showStats = true }: PostCardProps) => {
   const { user } = useUserContext();
+  const { mutate: deletePost } = useDeletePost();
+  const isAdmin = user?.role === "ADMIN";
 
   if (!post.creator) return;
 
@@ -35,18 +38,41 @@ const PostCard = ({ post, showMeta = true, showTags = true, showStats = true }: 
             <h3 className="text-sm sm:text-base md:text-base lg:text-lg font-semibold text-[#1A1A1A] line-clamp-2 hover:text-[#BB1919] transition-colors flex-1 min-w-0">
               {post.title}
             </h3>
-            <Link
-              to={`/update-post/${post.$id}`}
-              className={`flex-shrink-0 ${user.id !== post.creator.$id && "hidden"}`}
-              onClick={(e) => e.stopPropagation()}>
-              <img
-                src={"/assets/icons/edit.svg"}
-                alt="edit"
-                width={16}
-                height={16}
-                className="md:w-5 md:h-5 opacity-70 hover:opacity-100 transition-opacity"
-              />
-            </Link>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Link
+                to={`/update-post/${post.$id}`}
+                className={`${user.id !== post.creator.$id && "hidden"}`}
+                onClick={(e) => e.stopPropagation()}>
+                <img
+                  src={"/assets/icons/edit.svg"}
+                  alt="edit"
+                  width={16}
+                  height={16}
+                  className="md:w-5 md:h-5 opacity-70 hover:opacity-100 transition-opacity"
+                />
+              </Link>
+              {isAdmin && (
+                <button
+                  type="button"
+                  aria-label="Eliminar"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (window.confirm("¿Eliminar esta noticia?")) {
+                      deletePost({ postId: post.$id, imageId: post.imageId });
+                    }
+                  }}
+                  className="p-0.5 md:p-1 rounded hover:bg-[#F5F5F5] transition-colors">
+                  <img
+                    src={"/assets/icons/delete.svg"}
+                    alt="delete"
+                    width={16}
+                    height={16}
+                    className="md:w-5 md:h-5 opacity-70 hover:opacity-100 transition-opacity"
+                  />
+                </button>
+              )}
+            </div>
           </div>
           {showMeta && (
             <div className="flex items-center gap-1 md:gap-2 text-[#666666] text-xs mb-2 md:mb-3">

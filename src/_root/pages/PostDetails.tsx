@@ -163,8 +163,8 @@ const PostDetails = () => {
 
               <hr className="border-[#E5E5E5] mb-4 lg:mb-6" />
 
-              {/* Contenido Scrolleable */}
-              <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 mb-4 lg:mb-6">
+              {/* Contenido Scrolleable (sin scroll interno en móvil) */}
+              <div className="flex-1 overflow-visible lg:overflow-y-auto custom-scrollbar pr-0 md:pr-2 mb-4 lg:mb-6">
                 <p className="text-[#1A1A1A] text-sm md:text-base lg:text-lg leading-relaxed break-words whitespace-pre-wrap">
                   {post?.caption}
                 </p>

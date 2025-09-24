@@ -39,6 +39,7 @@ const PostForm = ({ post, action }: PostFormProps) => {
       file: [],
       location: post ? post.location : "",
       tags: post ? post.tags.join(",") : "",
+      isFeaturedSide: post ? Boolean((post as any).isFeaturedSide) : false,
     },
   });
 
@@ -254,6 +255,29 @@ const PostForm = ({ post, action }: PostFormProps) => {
                   className="shad-input"
                   {...field}
                 />
+              </FormControl>
+              <FormMessage className="shad-form_message" />
+            </FormItem>
+          )}
+        />
+
+        {/* Destacada (Sidebar Home) */}
+        <FormField
+          control={form.control}
+          name="isFeaturedSide"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="shad-form_label">Marcar como Noticia Destacada (máximo 2)</FormLabel>
+              <FormControl>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={field.value}
+                    onChange={(e) => field.onChange(e.target.checked)}
+                    className="h-4 w-4 rounded border-gray-300 text-[#BB1919] focus:ring-[#BB1919]"
+                  />
+                  <span className="text-sm text-[#1A1A1A]">Aparecer en "Noticias Destacadas" (home)</span>
+                </div>
               </FormControl>
               <FormMessage className="shad-form_message" />
             </FormItem>
