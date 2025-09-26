@@ -2,7 +2,6 @@ import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea
 import { Models } from "appwrite";
 import { useUserContext } from "@/context/AuthContext";
 import { Link } from "react-router-dom";
-import { multiFormatDateString } from "@/lib/utils";
 
 type DraggableSideGridProps = {
   posts: Models.Document[];
@@ -16,9 +15,9 @@ const SidePostCard = ({ post }: { post: Models.Document }) => {
   if (!post.creator) return;
 
   return (
-    <div className="side-post-card bbc-card-hover flex flex-col group" style={{ height: '363px' }}>
+    <div className="side-post-card flex flex-col group h-full">
       {/* Imagen - altura específica 202px */}
-      <Link to={`/posts/${post.$id}`} className="flex-shrink-0" style={{ height: '198px' }}>
+      <Link to={`/posts/${post.$id}`} className="flex-shrink-0 h-[198px]">
         <div className="relative w-full h-full overflow-hidden rounded-t-lg">
           <img
             src={post.imageUrl || "/assets/icons/profile-placeholder.svg"}
@@ -29,10 +28,10 @@ const SidePostCard = ({ post }: { post: Models.Document }) => {
       </Link>
 
       {/* Contenido - altura restante (165px) */}
-      <div className="p-2 sm:p-3 md:p-3 flex flex-col justify-between" style={{ height: '200px' }}>
-        <div className="flex-grow mt-3 sm:mt-4 md:mt-4">
+      <div className="p-2 sm:p-3 md:p-3 flex flex-col justify-between flex-1">
+        <div className="flex-grow mt-3 sm:mt-3 md:mt-3">
           <Link to={`/posts/${post.$id}`} className="flex flex-col h-full">
-            <div className="flex-between items-start mb-1 gap-2">
+            <div className="flex-between items-start mb-2 sm:mb-3 md:mb-3 gap-2">
               <h3 className="text-sm sm:text-base md:text-base lg:text-lg font-semibold text-[#1A1A1A] line-clamp-2 hover:text-[#BB1919] transition-colors flex-1 min-w-0">
                 {post.title}
               </h3>
@@ -49,26 +48,7 @@ const SidePostCard = ({ post }: { post: Models.Document }) => {
                 />
               </Link>
             </div>
-            <div className="flex items-center gap-1 md:gap-2 text-[#666666] text-xs mb-1 md:mb-2">
-              <span>{multiFormatDateString(post.$createdAt)}</span>
-              <span>•</span>
-              <span>{post.location}</span>
-            </div>
-            <div className="flex flex-wrap gap-1 mb-2 overflow-hidden" style={{ maxHeight: '2rem' }}>
-              {post.tags.slice(0, 2).map((tag: string, index: string) => (
-                <span
-                  key={`${tag}${index}`}
-                  className="text-xs text-[#BB1919] bg-[#BB1919]/10 px-1.5 md:px-2 py-0.5 md:py-1 rounded-full h-fit flex-shrink-0"
-                >
-                  #{tag}
-                </span>
-              ))}
-              {post.tags.length > 2 && (
-                <span className="text-xs text-[#666666] bg-gray-100 px-1.5 md:px-2 py-0.5 md:py-1 rounded-full h-fit flex-shrink-0">
-                  +{post.tags.length - 2}
-                </span>
-              )}
-            </div>
+            <div className="text-xs text-[#444444] line-clamp-3 mb-2">{post.caption}</div>
           </Link>
         </div>
 
@@ -113,10 +93,10 @@ const DraggableSideGrid = ({
     isDragging?: boolean;
   }) => (
     <div
-      className={`w-full h-full transition-all duration-200 relative ${
+      className={`w-full h-full transition-none relative ${
         isDragging 
           ? 'rotate-2 scale-105 shadow-2xl ring-2 ring-[#BB1919] ring-opacity-50 z-50' 
-          : 'hover:scale-102 hover:shadow-md'
+          : ''
       }`}
       style={{
         cursor: isAdmin ? (isDragging ? 'grabbing' : 'grab') : 'default',

@@ -11,6 +11,11 @@ type DraggablePostGridProps = {
   showMeta?: boolean;
   showTags?: boolean;
   showStats?: boolean;
+  showCaption?: boolean;
+  cardClassName?: string;
+  layout?: "vertical" | "horizontal";
+  showCreatedAt?: boolean;
+  titleClampLines?: 2 | 3;
 };
 
 const DraggablePostGrid = ({ 
@@ -20,6 +25,12 @@ const DraggablePostGrid = ({
   showMeta = true,
   showTags = true,
   showStats = true,
+  showCaption = false,
+  // clase adicional para personalizar tarjeta desde el contenedor
+  cardClassName,
+  layout = "vertical",
+  showCreatedAt = false,
+  titleClampLines = 2,
 }: DraggablePostGridProps) => {
   const { user } = useUserContext();
   const [orderedPosts, setOrderedPosts] = useState<Models.Document[]>(posts);
@@ -59,7 +70,7 @@ const DraggablePostGrid = ({
         cursor: isAdmin ? (isDragging ? 'grabbing' : 'grab') : 'default',
       }}
     >
-      <PostCard post={post} showMeta={showMeta} showTags={showTags} showStats={showStats} />
+      <PostCard post={post} showMeta={showMeta} showTags={showTags} showStats={showStats} showCaption={showCaption} className={cardClassName || ""} layout={layout} showCreatedAt={showCreatedAt} titleClampLines={titleClampLines} />
       
 
       
