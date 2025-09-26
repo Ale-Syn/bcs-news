@@ -7,7 +7,7 @@ import { PostStats } from "@/components/shared";
 
 import {
   useGetPostById,
-  useGetRecentPosts,
+  useGetAllPosts,
   useDeletePost,
 } from "@/lib/react-query/queries";
 import { multiFormatDateString } from "@/lib/utils";
@@ -22,7 +22,7 @@ const PostDetails = () => {
   
   // Force re-render when navigating between different posts
   const postKey = `post-details-${id}`;
-  const { data: allPosts, isLoading: isAllPostsLoading } = useGetRecentPosts();
+  const { data: allPosts, isLoading: isAllPostsLoading } = useGetAllPosts();
   const { mutate: deletePost } = useDeletePost();
 
   // Scroll to top when navigating to a new post
@@ -51,7 +51,7 @@ const PostDetails = () => {
       if (!post?.location) return false;
       return relatedPost.location === post.location;
     })
-    .slice(0, 8);
+    .sort((a: any, b: any) => new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime());
 
   const handleDeletePost = () => {
     deletePost({ postId: id, imageId: post?.imageId });
@@ -196,7 +196,7 @@ const PostDetails = () => {
           {/* Sidebar derecha: destacadas / recomendadas */}
           <aside className="hidden lg:block lg:col-span-1">
             <div className="sticky top-4">
-              <div className="bg-white rounded-lg border border-[#E5E5E5] p-4">
+              <div className="bg-white rounded-lg p-4 no-border">
                 <h3 className="text-base font-semibold text-[#1A1A1A] mb-3">Noticias destacadas</h3>
                 <ul className="space-y-4">
                   {sidebarPosts?.map((sp: any) => (
@@ -230,8 +230,8 @@ const PostDetails = () => {
                               </svg>
                             </button>
                           </p>
-                          {sp.location && (
-                            <p className="text-xs text-[#666666] mt-1">{sp.location}</p>
+                          {sp.caption && (
+                            <p className="text-xs text-[#666666] mt-1 line-clamp-2">{sp.caption}</p>
                           )}
                         </div>
                       </Link>
@@ -241,14 +241,14 @@ const PostDetails = () => {
               </div>
 
               {/* Publicidad / Ads */}
-              <div className="mt-4 bg-white rounded-lg border border-[#E5E5E5] p-4">
+              <div className="mt-4 bg-white rounded-lg p-4 no-border">
                 <div className="space-y-4">
                   {/* Slot 300x250 */}
-                  <div className="w-full h-[250px] max-w-[300px] mx-auto border-2 border-dashed border-[#E5E5E5] rounded-md flex items-center justify-center text-[#666666]">
+                  <div className="w-full h-[250px] max-w-[300px] mx-auto border-2 border-dashed border-transparent rounded-md flex items-center justify-center text-[#666666]">
                     <span className="text-xs">Anuncio 300×250</span>
                   </div>
                   {/* Slot 300x600 (opcional largo) */}
-                  <div className="w-full h-[300px] lg:h-[600px] max-w-[300px] mx-auto border-2 border-dashed border-[#E5E5E5] rounded-md flex items-center justify-center text-[#666666]">
+                  <div className="w-full h-[300px] lg:h-[600px] max-w-[300px] mx-auto border-2 border-dashed border-transparent rounded-md flex items-center justify-center text-[#666666]">
                     <span className="text-xs">Anuncio 300×600</span>
                   </div>
                 </div>
@@ -277,10 +277,12 @@ const PostDetails = () => {
           ) : (
             <DraggablePostGrid
               posts={relatedPosts}
-              className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4"
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4"
               showMeta={false}
               showTags={false}
               showStats={false}
+              showCaption={true}
+              cardClassName="!bg-white hover:!bg-white no-border shadow-none hover:shadow-none"
             />
           )}
         </div>

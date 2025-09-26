@@ -11,19 +11,26 @@ type PostCardProps = {
   showMeta?: boolean; // fecha y ubicación
   showTags?: boolean;
   showStats?: boolean;
+  showCaption?: boolean;
+  className?: string;
+  layout?: "vertical" | "horizontal";
+  showCreatedAt?: boolean;
+  titleClampLines?: 2 | 3;
 };
 
-const PostCard = ({ post, showMeta = true, showTags = true, showStats = true }: PostCardProps) => {
+const PostCard = ({ post, showMeta = true, showTags = true, showStats = true, showCaption = false, className = "", layout = "vertical", showCreatedAt = false, titleClampLines = 2 }: PostCardProps) => {
   const { user } = useUserContext();
   const { mutate: deletePost } = useDeletePost();
   const isAdmin = user?.role === "ADMIN";
 
   if (!post.creator) return;
 
+  const isHorizontal = layout === "horizontal";
+
   return (
-    <div className="post-card bbc-card-hover flex flex-col h-full group">
-      <Link to={`/posts/${post.$id}`} className="block">
-        <div className="relative aspect-[5/3] md:aspect-[5/2.8] lg:aspect-[5/3] w-full overflow-hidden">
+    <div className={`post-card bbc-card-hover ${isHorizontal ? 'flex flex-row no-border' : 'flex flex-col'} h-full group ${className}`}>
+      <Link to={`/posts/${post.$id}`} className={isHorizontal ? 'block w-40 sm:w-48 md:w-56 flex-shrink-0' : 'block'}>
+        <div className={`${isHorizontal ? 'relative w-full h-full aspect-[4/3]' : 'relative aspect-[5/3] md:aspect-[5/2.8] lg:aspect-[5/3]'} w-full overflow-hidden`}>
           <img
             src={post.imageUrl || "/assets/icons/profile-placeholder.svg"}
             alt="post image"
@@ -32,12 +39,33 @@ const PostCard = ({ post, showMeta = true, showTags = true, showStats = true }: 
         </div>
       </Link>
 
-      <div className="p-3 sm:p-4 md:p-4 pb-4 sm:pb-5 md:pb-5 flex flex-col flex-grow">
-        <Link to={`/posts/${post.$id}`} className="flex-grow flex flex-col">
-          <div className="flex-between items-start mb-2 gap-2">
-            <h3 className="text-sm sm:text-base md:text-base lg:text-lg font-semibold text-[#1A1A1A] line-clamp-2 hover:text-[#BB1919] transition-colors flex-1 min-w-0">
-              {post.title}
-            </h3>
+      <div className={`p-3 sm:p-4 md:p-4 pb-4 sm:pb-5 md:pb-5 flex flex-col flex-grow ${isHorizontal ? 'min-w-0 justify-center bg-white no-border' : ''}`}>
+        <Link to={`/posts/${post.$id}`} className={`flex-grow flex flex-col ${isHorizontal ? 'min-w-0 justify-center' : ''}`}>
+          <div className={`flex items-start ${isHorizontal ? 'mb-0' : 'mb-2'} gap-2`}>
+            <div className="flex-1 min-w-0">
+              <div className="leading-tight">
+                <h3 className={`${isHorizontal ? 'text-base sm:text-lg md:text-xl' : 'text-sm sm:text-base md:text-base lg:text-lg'} font-semibold text-[#1A1A1A] ${titleClampLines === 3 ? 'line-clamp-3' : 'line-clamp-2'} hover:text-[#BB1919] transition-colors min-w-0`}>
+                  {post.title}
+                </h3>
+              </div>
+              {showCaption && (
+                <div className="leading-snug">
+                  <p className="mt-0 text-sm text-[#444444] line-clamp-2">{post.caption}</p>
+                </div>
+              )}
+              {showCreatedAt && (
+                <div className="mt-1 text-xs text-[#666666]">
+                  {new Date(post.$createdAt).toLocaleString('es-MX', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false,
+                  })}
+                </div>
+              )}
+            </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <Link
                 to={`/update-post/${post.$id}`}

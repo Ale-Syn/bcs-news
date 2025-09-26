@@ -107,6 +107,19 @@
     @apply invert brightness-0 transition;
   }
 
+  /* Remove borders regardless of component defaults */
+  .no-border {
+    @apply border-0 !important;
+  }
+
+  /* Force 3-line clamp utility for broader browser support */
+  .clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
   .flex-center {
     @apply flex justify-center items-center;
   }
@@ -159,7 +172,7 @@
 
   /* Side Post Card - para noticias laterales */
   .side-post-card {
-    @apply bg-[#F8F8F8] rounded-lg md:rounded-xl border border-[#E5E5E5] w-full min-h-[200px] sm:min-h-[220px] md:min-h-[230px] lg:min-h-[180px] xl:min-h-[190px] transition-all duration-300 hover:shadow-lg hover:shadow-[#BB1919]/10;
+    @apply bg-white rounded-lg md:rounded-xl border-0 w-full min-h-[200px] sm:min-h-[220px] md:min-h-[230px] lg:min-h-[180px] xl:min-h-[190px] transition-none;
   }
 
   /* BBC-inspired button styles */

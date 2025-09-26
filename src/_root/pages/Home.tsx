@@ -228,7 +228,7 @@ const Home = () => {
 
                   {/* Side Posts Grid with Drag and Drop */}
                   <div className="w-full lg:w-1/4 xl:w-2/5 flex flex-col">
-                    <div className="mb-3 flex-shrink-0">
+                    <div className="mt-2 mb-6 flex-shrink-0">
                       <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-[#1A1A1A]">
                         Noticias Destacadas
                         <div className="h-1 w-32 bg-[#BB1919] rounded-full"></div>
@@ -270,6 +270,9 @@ const Home = () => {
                     <DraggablePostGrid 
                       posts={isAdmin ? mainWithoutSide : mainWithoutSide.slice(0, 10)} 
                       onReorder={handleReorder}
+                      showMeta={false}
+                      showTags={false}
+                      showCaption={true}
                     />
                   ) : (
                     <NoDataMessage

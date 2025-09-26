@@ -1,24 +1,21 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useGetPosts } from "@/lib/react-query/queries";
+import { useGetAllPosts } from "@/lib/react-query/queries";
 import { DraggablePostGrid, Loader, AdBanner } from "@/components/shared";
 import { Button } from "@/components/ui";
 
 const Location = () => {
   const { location, category } = useParams();
   const navigate = useNavigate();
-  const { data: postsData, isLoading } = useGetPosts();
+  const { data: postsData, isLoading } = useGetAllPosts();
 
   // Get the filter parameter (could be location or category)
   const filterParam = category || location || "";
   const displayName = decodeURIComponent(filterParam);
 
-  // Filter posts by location or category
-  const filteredPosts = postsData?.pages.reduce((acc: any[], page) => {
-    const pagePosts = page.documents.filter(
-      (post: any) => post.location === displayName
-    );
-    return [...acc, ...pagePosts];
-  }, []);
+  // Filtrar posts por ubicación o categoría sobre el total de posts
+  const filteredPosts = postsData?.documents.filter(
+    (post: any) => post.location === displayName
+  ) || [];
 
   if (isLoading) {
     return (
@@ -37,6 +34,11 @@ const Location = () => {
       </div>
     );
   }
+
+  // Recomendados: tomar posts recientes que NO pertenezcan a la categoría/ubicación actual
+  const recommended = (postsData?.documents || [])
+    .filter((post: any) => post.location !== displayName)
+    .slice(0, 5);
 
   return (
     <div className="flex flex-1 flex-col w-full">
@@ -67,16 +69,69 @@ const Location = () => {
               </h2>
             </div>
           </div>
-          <div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="body-bold text-[#1A1A1A]">
-              {category ? "Posts por categoría" : "Posts por ubicación"}
-            </h3>
+
+          {/* Layout 2 columnas: contenido principal + sidebar */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Contenido principal */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-lg p-4 md:p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="body-bold text-[#1A1A1A]">
+                  {category ? "Posts por categoría" : "Posts por ubicación"}
+                </h3>
+              </div>
+              <DraggablePostGrid 
+                posts={filteredPosts}
+                showMeta={false}
+                showTags={false}
+                showStats={false}
+                showCaption={true}
+                className="grid grid-cols-1 gap-4"
+                layout="horizontal"
+                showCreatedAt={true}
+                titleClampLines={3}
+              />
+              </div>
+            </div>
+
+            {/* Sidebar: Te recomendamos */}
+            <aside className="lg:col-span-1">
+              <div className="sticky top-24">
+                <h3 className="text-lg md:text-xl font-extrabold text-[#1A1A1A] tracking-tight mb-3">
+                  Recomendaciones
+                </h3>
+                <div className="h-0.5 w-24 bg-[#BB1919] mb-4" />
+
+                <ul className="space-y-6">
+                  {recommended.map((post: any) => (
+                    <li key={post.$id} className="flex gap-3">
+                      {post.imageUrl && (
+                        <a href={`/posts/${post.$id}`} className="flex-shrink-0 block w-24 h-16 overflow-hidden rounded-md bg-gray-100">
+                          <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />
+                        </a>
+                      )}
+                      <div className="min-w-0">
+                        <a href={`/posts/${post.$id}`} className="block text-[#1A1A1A] font-semibold leading-snug hover:underline clamp-3">
+                          {post.title}
+                        </a>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {new Date(post.$createdAt).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                  {recommended.length === 0 && (
+                    <li className="text-sm text-gray-500">No hay recomendaciones por ahora.</li>
+                  )}
+                </ul>
+
+                {/* Espacio publicitario debajo del listado */}
+                <div className="mt-6">
+                  <AdBanner heightClass="aspect-square" className="rounded-lg" />
+                </div>
+              </div>
+            </aside>
           </div>
-          <DraggablePostGrid 
-            posts={filteredPosts}
-          />
-        </div>
         </div>
       </div>
     </div>
