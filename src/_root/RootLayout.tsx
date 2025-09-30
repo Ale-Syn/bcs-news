@@ -18,7 +18,7 @@ const RootLayout = () => {
       <div className="flex flex-1 flex-col overflow-y-auto pt-10 md:pt-0">
         <BrandHeader />
         {!isAdminSectionRoute && <BreakingNewsTicker />}
-        {location.pathname === "/" && <CategoriesBar />}
+        {!isAdminSectionRoute && <CategoriesBar />}
         {location.pathname === "/admin/dashboard" && <AdminTopMenu />}
         {isAdminSectionRoute && <AdminBackBar />}
         <main className="flex flex-1">

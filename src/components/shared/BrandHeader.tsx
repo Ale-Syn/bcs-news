@@ -4,11 +4,11 @@ const BrandHeader = () => {
   return (
     <div className="w-full bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex items-center justify-between gap-4">
-          <h1 className="h1-bold text-3xl md:text-5xl lg:text-6xl font-bold text-[#1A1A1A]">
+        <div className="flex flex-col items-center sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+          <h1 className="font-rozha tracking-tight text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-[#1A1A1A] text-center sm:text-left">
             <Link to="/">ALTAVOZ BCS</Link>
           </h1>
-          <div className="flex flex-col items-end gap-1 sm:gap-1.5">
+          <div className="flex flex-col items-center sm:items-end gap-1 sm:gap-1.5 mt-1 sm:mt-0">
             <div className="flex items-center gap-2">
               <a href="https://www.facebook.com/profile.php?id=61577335120064" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="p-2.5 rounded-full hover:bg-[#F3F4F6] transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6 text-[#1A1A1A]"><path d="M22 12.06C22 6.48 17.52 2 11.94 2 6.36 2 1.88 6.48 1.88 12.06c0 4.99 3.64 9.13 8.4 10v-7.07H7.93v-2.93h2.35V9.41c0-2.33 1.39-3.62 3.52-3.62 1.02 0 2.08.18 2.08.18v2.29h-1.17c-1.15 0-1.51.72-1.51 1.46v1.76h2.57l-.41 2.93h-2.16V22c4.76-.87 8.4-5.01 8.4-9.94Z"/></svg>

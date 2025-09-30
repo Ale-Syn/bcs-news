@@ -43,7 +43,8 @@ module.exports = {
         '465': '465px',
       },
       fontFamily: {
-        inter: ['Inter', 'sans-serif'],
+        inter: ['"IBM Plex Sans"', 'Inter', 'sans-serif'],
+        rozha: ['"Rozha One"', 'serif'],
 
       },
       keyframes: {
