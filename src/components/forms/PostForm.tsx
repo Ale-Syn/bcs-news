@@ -2,6 +2,7 @@ import * as z from "zod";
 import { Models } from "appwrite";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useRef } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
@@ -31,6 +32,7 @@ const PostForm = ({ post, action }: PostFormProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useUserContext();
+  const captionRef = useRef<HTMLTextAreaElement | null>(null);
   const form = useForm<z.infer<typeof PostValidation>>({
     resolver: zodResolver(PostValidation),
     defaultValues: {
@@ -49,6 +51,39 @@ const PostForm = ({ post, action }: PostFormProps) => {
   const { mutateAsync: updatePost, isLoading: isLoadingUpdate } =
     useUpdatePost();
   const { data: categories, isLoading: isLoadingCategories } = useGetCategories();
+
+  // Inserta una imagen en Markdown en la posición del cursor del campo "Descripción"
+  const insertImageMarkdown = () => {
+    const url = window.prompt("URL de la imagen");
+    if (!url) return;
+    const alt = window.prompt("Texto alternativo (opcional)") || "";
+
+    const textarea = captionRef.current;
+    const currentValue = form.getValues("caption") || "";
+
+    const selectionStart = textarea?.selectionStart ?? currentValue.length;
+    const selectionEnd = textarea?.selectionEnd ?? selectionStart;
+
+    const before = currentValue.slice(0, selectionStart);
+    const after = currentValue.slice(selectionEnd);
+
+    const needsLeadingNewline = before.length > 0 && !before.endsWith("\n");
+    const needsTrailingNewline = after.length > 0 && !after.startsWith("\n");
+
+    const markdown = `${needsLeadingNewline ? "\n" : ""}![${alt}](${url})${needsTrailingNewline ? "\n" : ""}`;
+    const nextValue = before + markdown + after;
+
+    form.setValue("caption", nextValue, { shouldDirty: true });
+
+    // Reenfocar y colocar el cursor después del bloque insertado
+    setTimeout(() => {
+      if (textarea) {
+        textarea.focus();
+        const cursorPos = before.length + markdown.length;
+        textarea.setSelectionRange(cursorPos, cursorPos);
+      }
+    }, 0);
+  };
 
   // Handler
   const handleSubmit = async (value: z.infer<typeof PostValidation>) => {
@@ -178,19 +213,31 @@ const PostForm = ({ post, action }: PostFormProps) => {
         <FormField
           control={form.control}
           name="caption"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="shad-form_label">Descripcion</FormLabel>
-              <FormControl>
-                <Textarea
-                  className="shad-textarea custom-scrollbar"
-                  placeholder="Escribe tu noticia aquí..."
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage className="shad-form_message" />
-            </FormItem>
-          )}
+          render={({ field }) => {
+            const { ref: fieldRef, ...fieldProps } = field as any;
+            return (
+              <FormItem>
+                <div className="flex items-center justify-between gap-2">
+                  <FormLabel className="shad-form_label">Descripción</FormLabel>
+                  <Button type="button" className="shad-button_dark text-xs px-2 py-1" onClick={insertImageMarkdown}>
+                    Insertar imagen
+                  </Button>
+                </div>
+                <FormControl>
+                  <Textarea
+                    className="shad-textarea custom-scrollbar"
+                    placeholder={"Escribe tu noticia aquí... Usa ![texto alternativo](URL_de_imagen) para insertar imágenes dentro del texto."}
+                    ref={(el) => {
+                      captionRef.current = el;
+                      if (typeof fieldRef === "function") fieldRef(el);
+                    }}
+                    {...fieldProps}
+                  />
+                </FormControl>
+                <FormMessage className="shad-form_message" />
+              </FormItem>
+            );
+          }}
         />
 
         <FormField

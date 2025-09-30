@@ -94,6 +94,9 @@ export const useGetRecentPosts = () => {
   return useQuery({
     queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
     queryFn: getRecentPosts,
+    staleTime: 60 * 1000,
+    cacheTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -101,6 +104,9 @@ export const useGetAllPosts = () => {
   return useQuery({
     queryKey: [QUERY_KEYS.GET_ALL_POSTS],
     queryFn: getAllPosts,
+    staleTime: 60 * 1000,
+    cacheTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -134,6 +140,10 @@ export const useGetPostById = (postId?: string) => {
     queryKey: [QUERY_KEYS.GET_POST_BY_ID, postId],
     queryFn: () => getPostById(postId),
     enabled: !!postId,
+    keepPreviousData: true,
+    staleTime: 30 * 1000,
+    cacheTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 

@@ -1,11 +1,9 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useGetAllPosts } from "@/lib/react-query/queries";
 import { DraggablePostGrid, Loader, AdBanner } from "@/components/shared";
-import { Button } from "@/components/ui";
 
 const Location = () => {
   const { location, category } = useParams();
-  const navigate = useNavigate();
   const { data: postsData, isLoading } = useGetAllPosts();
 
   // Get the filter parameter (could be location or category)
@@ -42,27 +40,15 @@ const Location = () => {
 
   return (
     <div className="flex flex-1 flex-col w-full">
-      <div className="w-full">
+      <div className="w-full mt-3 md:mt-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AdBanner heightClass="h-16 md:h-20 lg:h-20" className="rounded-lg" />
         </div>
       </div>
       <div className="common-container">
         <div className="user-container">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <Button
-                onClick={() => navigate(-1)}
-                variant="ghost"
-                className="shad-button_ghost p-2">
-                <img
-                  src={"/assets/icons/back.svg"}
-                  alt="Volver"
-                  width={20}
-                  height={20}
-                  className="md:w-6 md:h-6"
-                />
-              </Button>
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center gap-2">
               <h2 className="h3-bold md:h2-bold text-[#1A1A1A]">
                 {displayName}
                 <div className="h-1 w-20 bg-[#BB1919] rounded-full"></div>
@@ -74,12 +60,7 @@ const Location = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Contenido principal */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-lg p-4 md:p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="body-bold text-[#1A1A1A]">
-                  {category ? "Posts por categoría" : "Posts por ubicación"}
-                </h3>
-              </div>
+              <div className="bg-white rounded-lg p-2 md:p-3">
               <DraggablePostGrid 
                 posts={filteredPosts}
                 showMeta={false}

@@ -1,4 +1,4 @@
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
 import { useGetRecentPosts, useGetCategories, useSignOutAccount } from "@/lib/react-query/queries";
 import { Models } from "appwrite";
 import { useEffect, useRef, useState } from "react";
@@ -7,6 +7,10 @@ import { useUserContext, INITIAL_USER } from "@/context/AuthContext";
 const CategoriesBar = () => {
   const { location: locationParam, category: categoryParam } = useParams();
   const currentParam = categoryParam || locationParam;
+  const routerLocation = useLocation();
+  const isPostDetailsRoute = routerLocation.pathname.startsWith('/posts/');
+  const hasFilterSelected = !!currentParam;
+  const showBack = isPostDetailsRoute || hasFilterSelected;
 
   const { data: categoriesData } = useGetCategories();
   const { data: recentPosts } = useGetRecentPosts();
@@ -50,9 +54,19 @@ const CategoriesBar = () => {
     <div className="bg-[#BB1919] sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between py-1.5">
-          {/* Links de categorías (scroll horizontal) */}
-          <div className="flex-1 min-w-0 overflow-x-auto">
-            <div className="flex items-center gap-2 sm:gap-4 whitespace-nowrap divide-x divide-white/20">
+          {/* Botón volver + Links de categorías (scroll horizontal) */}
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            {showBack && (
+              <button
+                onClick={() => navigate(-1)}
+                aria-label="Volver"
+                className="p-2 rounded-md hover:bg-white/10 text-white flex-shrink-0"
+              >
+                <img src="/assets/icons/back.svg" alt="Volver" className="h-4 w-4 md:h-5 md:w-5 brightness-0 invert" />
+              </button>
+            )}
+            <div className="flex-1 min-w-0 overflow-x-auto">
+              <div className="flex items-center gap-2 sm:gap-4 whitespace-nowrap divide-x divide-white/20">
               <Link
                 to="/"
                 className={`text-[13px] sm:text-sm font-semibold uppercase tracking-wide px-3 py-2 rounded-md transition-colors ${
@@ -72,6 +86,7 @@ const CategoriesBar = () => {
                   {loc}
                 </Link>
               ))}
+              </div>
             </div>
           </div>
 

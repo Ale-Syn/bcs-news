@@ -1,8 +1,9 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 import { Button } from "@/components/ui";
 import { Loader, NoDataMessage, DraggablePostGrid } from "@/components/shared";
+import RichCaption from "@/components/shared/RichCaption";
 import { PostStats } from "@/components/shared";
 
 import {
@@ -44,14 +45,16 @@ const PostDetails = () => {
     }
   }, [id]);
 
-  // Related posts by same category/location and exclude current post
-  const relatedPosts = allPosts?.documents
-    .filter((relatedPost: any) => {
-      if (relatedPost.$id === id) return false;
-      if (!post?.location) return false;
-      return relatedPost.location === post.location;
-    })
-    .sort((a: any, b: any) => new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime());
+  // Related posts by same category/location and exclude current post (memoized)
+  const relatedPosts = useMemo(() => {
+    if (!post || !post.location || !allPosts?.documents) return undefined;
+    return allPosts.documents
+      .filter((relatedPost: any) => {
+        if (relatedPost.$id === id) return false;
+        return relatedPost.location === post.location;
+      })
+      .sort((a: any, b: any) => new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime());
+  }, [post, allPosts, id]);
 
   const handleDeletePost = () => {
     deletePost({ postId: id, imageId: post?.imageId });
@@ -75,22 +78,7 @@ const PostDetails = () => {
 
   return (
     <div className="post_details-container">
-      {/* Botón Volver - Ahora visible en todas las pantallas */}
-      <div className="flex max-w-5xl w-full mb-4 md:mb-0">
-        <Button
-          onClick={() => navigate(-1)}
-          variant="ghost"
-          className="shad-button_ghost">
-          <img
-            src={"/assets/icons/back.svg"}
-            alt="back"
-            width={20}
-            height={20}
-            className="md:w-6 md:h-6"
-          />
-          <p className="text-sm md:text-base font-medium text-[#1A1A1A]">Volver</p>
-        </Button>
-      </div>
+      {/* Botón Volver integrado al encabezado */}
 
       {isLoading || !post ? (
         <Loader />
@@ -98,36 +86,22 @@ const PostDetails = () => {
         <div key={postKey} className="w-[calc(100%-16px)] sm:w-[calc(100%-32px)] md:w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Columna principal: artículo */}
           <div className="lg:col-span-2 flex flex-col">
-            {/* Imagen - Fondo blanco, tamaño uniforme, completa */}
-            <div className="bg-white p-0">
-              <div className="w-full max-w-2xl mx-auto">
-                <div className="w-full h-64 md:h-80 lg:h-96 bg-white">
-                  <img
-                    src={post?.imageUrl}
-                    alt="post image"
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Contenido - Flexible */}
-            <div className="flex-1 flex flex-col p-3 md:p-4 lg:p-6 xl:p-8 max-w-2xl mx-auto">
-              {/* Header Section */}
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4 lg:mb-6">
-                <div className="flex-1 min-w-0">
-                  <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-[#1A1A1A] leading-tight mb-3">
+            {/* Header: Título y metadatos primero */}
+            <div className="p-3 md:p-4 lg:p-6 xl:p-8 max-w-2xl mx-auto w-full">
+              <div className="flex flex-col gap-2 mb-2 md:mb-3">
+                <div className="flex items-center gap-2">
+                  <h1 className="flex-1 text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-[#1A1A1A] leading-tight">
                     {post?.title}
                   </h1>
-                  <div className="flex flex-wrap items-center gap-2 text-sm md:text-base text-[#666666]">
-                    <span className="font-medium">
-                      {multiFormatDateString(post?.$createdAt)}
-                    </span>
-                    <span>•</span>
-                    <span className="font-medium">
-                      {post?.location}
-                    </span>
-                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 text-sm md:text-base text-[#666666]">
+                  <span className="font-medium">
+                    {multiFormatDateString(post?.$createdAt)}
+                  </span>
+                  <span>•</span>
+                  <span className="font-medium">
+                    {post?.location}
+                  </span>
                 </div>
 
                 {/* Botones de acción */}
@@ -160,14 +134,28 @@ const PostDetails = () => {
                   </Button>
                 </div>
               </div>
+            </div>
 
+            {/* Imagen - después del título */}
+            <div className="bg-white p-0">
+              <div className="w-full max-w-2xl mx-auto">
+                <div className="w-full h-64 md:h-80 lg:h-96 bg-white">
+                  <img
+                    src={post?.imageUrl}
+                    alt="post image"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Contenido - descripción y resto */}
+            <div className="flex-1 flex flex-col p-3 md:p-4 lg:p-6 xl:p-8 max-w-2xl mx-auto">
               <hr className="border-[#E5E5E5] mb-4 lg:mb-6" />
 
               {/* Contenido Scrolleable (sin scroll interno en móvil) */}
               <div className="flex-1 overflow-visible lg:overflow-y-auto custom-scrollbar pr-0 md:pr-2 mb-4 lg:mb-6">
-                <p className="text-[#1A1A1A] text-sm md:text-base lg:text-lg leading-relaxed break-words whitespace-pre-wrap">
-                  {post?.caption}
-                </p>
+                <RichCaption text={post?.caption || ""} />
               </div>
 
               {/* Footer Section */}
@@ -267,7 +255,7 @@ const PostDetails = () => {
               Más Noticias Relacionadas
             </h3>
           </div>
-          {isAllPostsLoading || !relatedPosts ? (
+          {isAllPostsLoading || !post || relatedPosts === undefined ? (
             <Loader />
           ) : relatedPosts.length === 0 ? (
             <NoDataMessage

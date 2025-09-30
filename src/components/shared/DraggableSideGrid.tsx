@@ -16,8 +16,8 @@ const SidePostCard = ({ post }: { post: Models.Document }) => {
 
   return (
     <div className="side-post-card flex flex-col group h-full">
-      {/* Imagen - altura específica 202px */}
-      <Link to={`/posts/${post.$id}`} className="flex-shrink-0 h-[198px]">
+      {/* Imagen - altura ligeramente reducida */}
+      <Link to={`/posts/${post.$id}`} className="flex-shrink-0 h-[180px]">
         <div className="relative w-full h-full overflow-hidden rounded-t-lg">
           <img
             src={post.imageUrl || "/assets/icons/profile-placeholder.svg"}
