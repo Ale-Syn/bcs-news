@@ -46,7 +46,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const base = getBaseUrl(req);
     const canonical = `${base}/posts/${id}`;
-    // Asegurar og:image explícito: si no hay imagen del post, usar una imagen pública por defecto
+    // Asegurar og:image explícito: si no hay imagen válida, usar una por defecto
     const ogImage: string = isAbsoluteHttps(imageUrl) ? imageUrl : `${base}/assets/images/profile.png`;
 
     // HTML mínimo con Open Graph
@@ -97,7 +97,6 @@ function isAbsoluteHttps(url: string): boolean {
     return false;
   }
 }
-
 function escapeHtml(input: string): string {
   return input
     .replace(/&/g, "&amp;")
@@ -106,7 +105,3 @@ function escapeHtml(input: string): string {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
-
-
-
-
