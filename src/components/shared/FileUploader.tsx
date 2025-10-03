@@ -12,36 +12,45 @@ type FileUploaderProps = {
 const FileUploader = ({ fieldChange, mediaUrl }: FileUploaderProps) => {
   const [file, setFile] = useState<File[]>([]);
   const [fileUrl, setFileUrl] = useState<string>(mediaUrl);
+  const [isVideo, setIsVideo] = useState<boolean>(false);
 
-  const onDrop = useCallback(
-    (acceptedFiles: FileWithPath[]) => {
-      setFile(acceptedFiles);
-      fieldChange(acceptedFiles);
-      setFileUrl(convertFileToUrl(acceptedFiles[0]));
-    },
-    [file]
-  );
+  const onDrop = useCallback((acceptedFiles: FileWithPath[]) => {
+    if (!acceptedFiles || acceptedFiles.length === 0) return;
+    setFile(acceptedFiles as unknown as File[]);
+    fieldChange(acceptedFiles as unknown as File[]);
+    const first = acceptedFiles[0] as File;
+    setIsVideo(first.type?.startsWith('video') || false);
+    setFileUrl(convertFileToUrl(first));
+  }, [fieldChange]);
 
-  const { getRootProps, getInputProps } = useDropzone({
+  const { getRootProps, getInputProps, open } = useDropzone({
     onDrop,
     accept: {
-      "image/*": [".png", ".jpeg", ".jpg"],
+      "image/*": [".png", ".jpeg", ".jpg", ".webp", ".gif"],
+      "video/*": [".mp4", ".webm", ".ogg"],
     },
+    multiple: true,
+    maxFiles: 10,
+    useFsAccessApi: false,
   });
 
   return (
     <div
       {...getRootProps()}
       className="flex flex-center flex-col bg-[#F8F8F8] rounded-xl cursor-pointer border-2 border-dashed border-[#E5E5E5] hover:border-[#BB1919] transition-colors duration-200">
-      <input {...getInputProps()} className="cursor-pointer" />
+      <input {...getInputProps({ accept: "image/*,video/*", capture: "environment" })} className="cursor-pointer" />
 
       {fileUrl ? (
         <>
           <div className="flex flex-1 justify-center w-full p-5 lg:p-10">
-            <img src={fileUrl} alt="image" className="file_uploader-img" />
+            {isVideo ? (
+              <video src={fileUrl} className="w-full h-full object-contain max-h-[400px]" controls playsInline preload="metadata" />
+            ) : (
+              <img src={fileUrl} alt="preview" className="file_uploader-img" />
+            )}
           </div>
           <p className="file_uploader-label">
-            Hacer click o arrastrar imagen para reemplazar
+            Hacer click o arrastrar archivo para reemplazar
           </p>
         </>
       ) : (
@@ -55,12 +64,19 @@ const FileUploader = ({ fieldChange, mediaUrl }: FileUploaderProps) => {
           />
 
           <h3 className="base-medium text-[#1A1A1A] mb-2 mt-6">
-            Arrastrar y soltar imagen aqui
+            Arrastrar y soltar imagen o video aquí
           </h3>
-          <p className="text-[#666666] small-regular mb-6">SVG, PNG, JPG</p>
+          <p className="text-[#666666] small-regular mb-6">Imágenes: SVG, PNG, JPG, WEBP • Videos: MP4, WEBM</p>
 
-          <Button type="button" className="shad-button_dark">
-            Seleccionar Archivo
+          <Button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              open();
+            }}
+            className="shad-button_dark"
+          >
+            Seleccionar Archivos
           </Button>
         </div>
       )}

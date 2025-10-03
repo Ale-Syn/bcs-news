@@ -15,6 +15,7 @@ type FileUploaderWithEditorProps = {
 const FileUploaderWithEditor = ({ fieldChange, mediaUrl, aspect }: FileUploaderWithEditorProps) => {
   const [file, setFile] = useState<File[]>([]);
   const [fileUrl, setFileUrl] = useState<string>(mediaUrl);
+  const [isVideo, setIsVideo] = useState<boolean>(false);
   const [showEditor, setShowEditor] = useState<boolean>(false);
   const [crop, setCrop] = useState<Crop>({
     unit: '%',
@@ -34,21 +35,28 @@ const FileUploaderWithEditor = ({ fieldChange, mediaUrl, aspect }: FileUploaderW
 
   const onDrop = useCallback(
     (acceptedFiles: FileWithPath[]) => {
-      setFile(acceptedFiles);
-      setFileUrl(convertFileToUrl(acceptedFiles[0]));
-      // No abrir el editor automáticamente; usar la imagen original por defecto
+      if (!acceptedFiles || acceptedFiles.length === 0) return;
+      setFile(acceptedFiles as unknown as File[]);
+      const first = acceptedFiles[0] as File;
+      setIsVideo(first.type?.startsWith('video') || false);
+      setFileUrl(convertFileToUrl(first));
+      // No abrir el editor automáticamente; usar el archivo original por defecto
       setShowEditor(false);
-      // Notificar al formulario inmediatamente con el archivo original
+      // Notificar al formulario inmediatamente (se usará el primer archivo)
       fieldChange(acceptedFiles as unknown as File[]);
     },
-    [file, fieldChange]
+    [fieldChange]
   );
 
-  const { getRootProps, getInputProps } = useDropzone({
+  const { getRootProps, getInputProps, open } = useDropzone({
     onDrop,
     accept: {
-      "image/*": [".png", ".jpeg", ".jpg"],
+      "image/*": [".png", ".jpeg", ".jpg", ".webp", ".gif"],
+      "video/*": [".mp4", ".webm", ".ogg"],
     },
+    multiple: true,
+    maxFiles: 10,
+    useFsAccessApi: false,
   });
 
   // Handle paste from clipboard
@@ -366,18 +374,22 @@ const FileUploaderWithEditor = ({ fieldChange, mediaUrl, aspect }: FileUploaderW
               ? 'border-[#BB1919] bg-[#BB1919]/5' 
               : 'border-[#E5E5E5] hover:border-[#BB1919]'
           }`}>
-          <input {...getInputProps()} className="cursor-pointer" />
+          <input {...getInputProps({ accept: "image/*,video/*", capture: "environment" })} className="cursor-pointer" />
 
           {fileUrl ? (
             <>
               <div className="flex flex-1 justify-center w-full p-5 lg:p-10">
-                <img src={fileUrl} alt="image" className="file_uploader-img" />
+                {isVideo ? (
+                  <video src={fileUrl} className="w-full h-full object-contain max-h-[400px]" controls playsInline preload="metadata" />
+                ) : (
+                  <img src={fileUrl} alt="preview" className="file_uploader-img" />
+                )}
               </div>
               <div className="flex gap-2 items-center justify-center pb-4">
                 <p className="file_uploader-label">
-                  Hacer click, arrastrar o pegar imagen para reemplazar
+                  Hacer click, arrastrar o pegar archivo para reemplazar
                 </p>
-                {file.length > 0 && (
+                {file.length > 0 && !isVideo && (
                   <Button
                     type="button"
                     onClick={(e) => {
@@ -402,16 +414,23 @@ const FileUploaderWithEditor = ({ fieldChange, mediaUrl, aspect }: FileUploaderW
               />
 
               <h3 className="base-medium text-[#1A1A1A] mb-2 mt-6">
-                Arrastrar, seleccionar o pegar imagen
+                Arrastrar, seleccionar o pegar imagen o video
               </h3>
-              <p className="text-[#666666] small-regular mb-4">SVG, PNG, JPG</p>
+              <p className="text-[#666666] small-regular mb-4">Imágenes: SVG, PNG, JPG, WEBP • Videos: MP4, WEBM</p>
               
               <div className="flex flex-col items-center gap-2">
-                <Button type="button" className="shad-button_dark">
-                  Seleccionar Archivo
+                <Button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    open();
+                  }}
+                  className="shad-button_dark"
+                >
+                  Seleccionar Archivos
                 </Button>
                 <p className="text-[#999999] text-xs">
-                  O presiona Ctrl+V para pegar desde el portapapeles
+                  O presiona Ctrl+V para pegar desde el portapapeles (se usa el primero)
                 </p>
               </div>
             </div>

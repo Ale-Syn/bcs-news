@@ -16,9 +16,10 @@ type PostCardProps = {
   layout?: "vertical" | "horizontal";
   showCreatedAt?: boolean;
   titleClampLines?: 2 | 3;
+  size?: "normal" | "compact" | "mini";
 };
 
-const PostCard = ({ post, showMeta = true, showTags = true, showStats = true, showCaption = false, className = "", layout = "vertical", showCreatedAt = false, titleClampLines = 2 }: PostCardProps) => {
+const PostCard = ({ post, showMeta = true, showTags = true, showStats = true, showCaption = false, className = "", layout = "vertical", showCreatedAt = false, titleClampLines = 2, size = "normal" }: PostCardProps) => {
   const { user } = useUserContext();
   const { mutate: deletePost } = useDeletePost();
   const isAdmin = user?.role === "ADMIN";
@@ -26,11 +27,38 @@ const PostCard = ({ post, showMeta = true, showTags = true, showStats = true, sh
   if (!post.creator) return;
 
   const isHorizontal = layout === "horizontal";
+  const isCompact = size === "compact" || size === "mini";
+  const linkWidthClass = isHorizontal
+    ? (size === 'mini'
+        ? 'block w-24 sm:w-28 md:w-32 flex-shrink-0'
+        : isCompact
+          ? 'block w-28 sm:w-32 md:w-36 flex-shrink-0'
+          : 'block w-40 sm:w-48 md:w-56 flex-shrink-0')
+    : 'block';
+  const titleSizeClass = isHorizontal
+    ? (size === 'mini'
+        ? 'text-xs sm:text-sm'
+        : isCompact
+          ? 'text-sm md:text-base'
+          : 'text-sm sm:text-base md:text-base lg:text-lg')
+    : (size === 'mini'
+        ? 'text-sm'
+        : isCompact
+          ? 'text-sm sm:text-base md:text-lg'
+          : 'text-sm sm:text-base md:text-base lg:text-lg');
+
+  const mediaContainerClass = isHorizontal
+    ? 'relative w-full h-full aspect-[4/3]'
+    : (size === 'mini'
+        ? 'relative aspect-[16/9]'
+        : size === 'compact'
+          ? 'relative aspect-[5/3] md:aspect-[16/9]'
+          : 'relative aspect-[5/3] md:aspect-[5/2.8] lg:aspect-[5/3]');
 
   return (
     <div className={`post-card bbc-card-hover ${isHorizontal ? 'flex flex-row no-border' : 'flex flex-col'} h-full group ${className}`}>
-      <Link to={`/posts/${post.$id}`} className={isHorizontal ? 'block w-40 sm:w-48 md:w-56 flex-shrink-0' : 'block'}>
-        <div className={`${isHorizontal ? 'relative w-full h-full aspect-[4/3]' : 'relative aspect-[5/3] md:aspect-[5/2.8] lg:aspect-[5/3]'} w-full overflow-hidden`}>
+      <Link to={`/posts/${post.$id}`} className={linkWidthClass}>
+        <div className={`${mediaContainerClass} w-full overflow-hidden`}>
           <img
             src={post.imageUrl || "/assets/icons/profile-placeholder.svg"}
             alt="post image"
@@ -44,13 +72,13 @@ const PostCard = ({ post, showMeta = true, showTags = true, showStats = true, sh
           <div className={`flex items-start ${isHorizontal ? 'mb-0' : 'mb-2'} gap-2`}>
             <div className="flex-1 min-w-0">
               <div className="leading-tight">
-                <h3 className={`${isHorizontal ? 'text-base sm:text-lg md:text-xl' : 'text-sm sm:text-base md:text-base lg:text-lg'} font-semibold text-[#1A1A1A] ${titleClampLines === 3 ? 'line-clamp-3' : 'line-clamp-2'} hover:text-[#BB1919] transition-colors min-w-0`}>
+                <h3 className={`${isHorizontal ? 'text-base sm:text-lg md:text-xl' : ''} ${titleSizeClass} font-semibold text-[#1A1A1A] ${titleClampLines === 3 ? 'line-clamp-3' : 'line-clamp-2'} hover:text-[#BB1919] transition-colors min-w-0`}>
                   {post.title}
                 </h3>
               </div>
               {showCaption && (
                 <div className="leading-snug">
-                  <p className="mt-0 text-sm text-[#444444] line-clamp-2">{post.caption}</p>
+                  <p className={`mt-0 ${isCompact ? 'text-xs' : 'text-sm'} text-[#444444] line-clamp-2`}>{post.caption}</p>
                 </div>
               )}
               {showCreatedAt && (

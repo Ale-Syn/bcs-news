@@ -4,9 +4,9 @@ const BrandHeader = () => {
   return (
     <div className="w-full bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex flex-col items-center sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+        <div className="flex flex-col items-center sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 rounded-lg transition-colors duration-200 hover:bg-black/5">
           <h1 className="font-rozha tracking-tight text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-[#1A1A1A] text-center sm:text-left">
-            <Link to="/">ALTAVOZ BCS</Link>
+            <Link to="/" className="underline underline-offset-4 decoration-black decoration-1 drop-shadow transition-colors duration-200 hover:drop-shadow-md rounded px-2">ALTAVOZ BCS</Link>
           </h1>
           <div className="flex flex-col items-center sm:items-end gap-1 sm:gap-1.5 mt-1 sm:mt-0">
             <div className="flex items-center gap-2">

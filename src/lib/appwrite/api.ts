@@ -214,6 +214,10 @@ export async function clearAllSessions() {
 // ============================== CREATE POST
 export async function createPost(post: INewPost) {
   try {
+    // Validación defensiva: requerir imagen
+    if (!post.file || post.file.length === 0) {
+      throw new Error("IMAGE_REQUIRED");
+    }
     // Upload file to appwrite storage
     const uploadedFile = await uploadFile(post.file[0]);
 

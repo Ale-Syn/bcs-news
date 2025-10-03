@@ -1,9 +1,9 @@
 import { Models } from "appwrite";
-import { Loader, NoDataMessage, DraggablePostGrid, DraggableSideGrid } from "@/components/shared";
+import { Loader, NoDataMessage, DraggablePostGrid, DraggableSideGrid, PostCard } from "@/components/shared";
 import { useGetRecentPosts, useGetAllPosts, useSavePostOrder, useGetOrderedPosts } from "@/lib/react-query/queries";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { multiFormatDateString } from "@/lib/utils";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useUserContext } from "@/context/AuthContext";
 import { Button } from "@/components/ui";
 import {
@@ -124,6 +124,54 @@ const Home = () => {
 
   // Primeros 5 para carrusel, solo de "Más Noticias" (no destacadas ni duplicadas)
   const featuredPosts = mainWithoutSide.slice(0, 5);
+
+  // Bloque Local: filtrar categoría 'local' (case-insensitive)
+  const localPosts = (postsToDisplay || []).filter((p: any) => String(p?.location || "").toLowerCase() === "local");
+  // Utilidad: selección aleatoria estable usando localStorage (por categoría)
+  const selectStableByCategory = useCallback((categoryKey: string, postsInCategory: any[], leftCount: number) => {
+    const ids = postsInCategory.map((p) => p.$id);
+    const storageKey = `home.selection.${categoryKey}`;
+    let selectedIds: string[] = [];
+    try {
+      const saved = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      if (Array.isArray(saved)) selectedIds = saved;
+    } catch {}
+
+    const need = Math.min(leftCount + 1, ids.length);
+    const allContain = selectedIds.length >= need && selectedIds.every((id) => ids.includes(id));
+
+    if (!allContain) {
+      const arr = [...postsInCategory];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
+      }
+      selectedIds = arr.slice(0, need).map((p) => p.$id);
+      try { localStorage.setItem(storageKey, JSON.stringify(selectedIds)); } catch {}
+    }
+
+    const map = new Map(postsInCategory.map((p) => [p.$id, p]));
+    const left = selectedIds.slice(0, Math.min(leftCount, selectedIds.length - 1)).map((id) => map.get(id)).filter(Boolean);
+    const big = map.get(selectedIds[left.length]) || postsInCategory[0];
+    return { left, big } as { left: any[]; big: any };
+  }, []);
+
+  const localIdsKey = useMemo(() => localPosts.map((p: any) => p.$id).join(','), [localPosts]);
+  const { left: leftLocalRandom } = useMemo(() => selectStableByCategory('local', localPosts, 4), [selectStableByCategory, localIdsKey]);
+
+  // Otras categorías (excluyendo local)
+  const otherCategories = useMemo<string[]>(
+    () => Array.from(
+      new Set(
+        (postsToDisplay || [])
+          .map((p: any) => String(p?.location || '').toLowerCase())
+          .filter((c: string) => c && c !== 'local')
+      )
+    ) as string[],
+    [postsToDisplay]
+  );
 
   // Función para manejar el reordenamiento (solo admin)
   const handleReorder = (newOrder: Models.Document[]) => {
@@ -268,7 +316,7 @@ const Home = () => {
                   </div>
                   {mainWithoutSide && mainWithoutSide.length > 0 ? (
                     <DraggablePostGrid 
-                      posts={isAdmin ? mainWithoutSide : mainWithoutSide.slice(0, 10)} 
+                      posts={isAdmin ? mainWithoutSide : mainWithoutSide.slice(0, 8)} 
                       onReorder={handleReorder}
                       showMeta={false}
                       showTags={false}
@@ -281,6 +329,140 @@ const Home = () => {
                     />
                   )}
                 </div>
+
+                {/* Bloque Local: 4 noticias pequeñas (2x2) */}
+                {localPosts && localPosts.length > 0 && (
+                  <div className="mt-6 md:mt-8 border-t border-[#E5E5E5] pt-4 md:pt-6">
+                    <div className="mb-4 md:mb-6 flex items-center justify-between">
+                      <h2 className="text-lg sm:base-bold md:h3-bold text-[#1A1A1A]">
+                        Local
+                        <div className="h-1 w-16 md:w-20 bg-[#BB1919] rounded-full"></div>
+                      </h2>
+                      <Button
+                        onClick={() => navigate(`/location/${encodeURIComponent('local')}`)}
+                        variant="outline"
+                        className="border-[#BB1919] text-[#BB1919] hover:bg-[#BB1919]/10"
+                      >
+                        Ver más Local
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                      {/* Columna izquierda: 2 pequeñas */}
+                      <div className="flex flex-col gap-3">
+                        {leftLocalRandom.slice(0, 2).map((p: Models.Document) => (
+                          <PostCard
+                            key={p.$id}
+                            post={p}
+                            layout="horizontal"
+                            showMeta={false}
+                            showTags={false}
+                            showStats={false}
+                            showCaption={true}
+                          />
+                        ))}
+                      </div>
+                      {/* Columna derecha: 2 pequeñas */}
+                      <div className="flex flex-col gap-3">
+                        {leftLocalRandom.slice(2, 4).map((p: Models.Document) => (
+                          <PostCard
+                            key={p.$id}
+                            post={p}
+                            layout="horizontal"
+                            showMeta={false}
+                            showTags={false}
+                            showStats={false}
+                            showCaption={true}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Bloques por otras categorías */}
+                {otherCategories.map((cat: string) => {
+                  const postsInCat = (postsToDisplay || []).filter((p: any) => String(p?.location || '').toLowerCase() === cat);
+                  if (!postsInCat.length) return null;
+                  const isPolitica = cat === 'politica' || cat === 'política';
+                  const { left, big } = selectStableByCategory(cat, postsInCat, isPolitica ? 2 : 2);
+                  const title = cat.charAt(0).toUpperCase() + cat.slice(1);
+                  return (
+                    <div key={`cat-${title}`} className="mt-6 md:mt-8 border-t border-[#E5E5E5] pt-4 md:pt-6">
+                      <div className="mb-4 md:mb-6 flex items-center justify-between">
+                        <h2 className="text-lg sm:base-bold md:h3-bold text-[#1A1A1A]">
+                          {title}
+                          <div className="h-1 w-16 md:w-20 bg-[#BB1919] rounded-full"></div>
+                        </h2>
+                        <Button
+                          onClick={() => navigate(`/location/${encodeURIComponent(cat)}`)}
+                          variant="outline"
+                          className="border-[#BB1919] text-[#BB1919] hover:bg-[#BB1919]/10"
+                        >
+                          Ver más {title}
+                        </Button>
+                      </div>
+                      {isPolitica ? (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                          {/* Izquierda: nota grande */}
+                          <div>
+                            <PostCard
+                              post={big}
+                              layout="vertical"
+                              showMeta={false}
+                              showTags={false}
+                              showStats={false}
+                              showCaption={true}
+                              className="shadow-sm hover:shadow-md transition-shadow"
+                              titleClampLines={3}
+                            />
+                          </div>
+                          {/* Derecha: 2 pequeñas en columna */}
+                          <div className="flex flex-col gap-3">
+                            {left.slice(0, 2).map((p: Models.Document) => (
+                              <PostCard
+                                key={p.$id}
+                                post={p}
+                                layout="horizontal"
+                                showMeta={false}
+                                showTags={false}
+                                showStats={false}
+                                showCaption={true}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                          <div className="flex flex-col gap-3">
+                            {left.map((p: Models.Document) => (
+                              <PostCard
+                                key={p.$id}
+                                post={p}
+                                layout="horizontal"
+                                showMeta={false}
+                                showTags={false}
+                                showStats={false}
+                                showCaption={true}
+                              />
+                            ))}
+                          </div>
+                          <div>
+                            <PostCard
+                              post={big}
+                              layout="vertical"
+                              showMeta={false}
+                              showTags={false}
+                              showStats={false}
+                              showCaption={true}
+                              className="shadow-sm hover:shadow-md transition-shadow"
+                              titleClampLines={3}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </>
             )}
           </div>
