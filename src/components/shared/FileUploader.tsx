@@ -10,7 +10,7 @@ type FileUploaderProps = {
 };
 
 const FileUploader = ({ fieldChange, mediaUrl }: FileUploaderProps) => {
-  const [file, setFile] = useState<File[]>([]);
+  const [, setFile] = useState<File[]>([]);
   const [fileUrl, setFileUrl] = useState<string>(mediaUrl);
   const [isVideo, setIsVideo] = useState<boolean>(false);
 
