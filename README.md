@@ -762,3 +762,29 @@ And if you're hungry for more than just a course and want to understand how we l
 </a>
 
 #
+
+## Compartir en redes (Open Graph para posts)
+
+Para que Facebook, WhatsApp y X muestren imagen, título y descripción al compartir un enlace de una noticia, se agregó una ruta de "share" servida desde una función serverless que genera metadatos OG por cada post.
+
+### ¿Cómo usarlo?
+
+- Comparte enlaces con el formato: `https://TU_DOMINIO/share/posts/POST_ID`
+- La función devolverá HTML con metaetiquetas `og:*` y redirigirá al usuario a la página real `/posts/POST_ID`.
+- Facebook cachea los metadatos; usa el Debugger si cambiaste título/imagen.
+
+### Variables de entorno requeridas (también en Vercel)
+
+Además de las variables `VITE_APPWRITE_*` ya existentes, crea una API Key de Appwrite con permisos de lectura de Base de Datos y configúrala:
+
+- `APPWRITE_API_KEY`
+
+### Validación
+
+- Facebook Sharing Debugger: abre `https://developers.facebook.com/tools/debug/` y pega el enlace `/share/posts/POST_ID`.
+- Si ves advertencias de caché, pulsa "Scrape Again".
+
+### Notas
+
+- El rewrite está en `vercel.json` para enrutar `/share/posts/:id` hacia la función `api/share/posts/[id].ts`.
+- La imagen se toma del campo `imageUrl` del post.
