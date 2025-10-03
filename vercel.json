@@ -7,7 +7,7 @@
     "framework": "vite",
     "installCommand": "npm install",
     "rewrites": [
-        { "source": "/share/posts/(?<id>[^/]+)", "destination": "/api/share/posts/$id" },
+        { "source": "/share/posts/:id", "destination": "/api/share/posts/:id" },
         { "source": "/(.*)", "destination": "/index.html" }
     ]
 }
