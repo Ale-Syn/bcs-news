@@ -374,7 +374,7 @@ const FileUploaderWithEditor = ({ fieldChange, mediaUrl, aspect }: FileUploaderW
               ? 'border-[#BB1919] bg-[#BB1919]/5' 
               : 'border-[#E5E5E5] hover:border-[#BB1919]'
           }`}>
-          <input {...getInputProps({ accept: "image/*,video/*", capture: "environment" })} className="cursor-pointer" />
+          <input {...getInputProps({ accept: "image/*,video/*" })} className="cursor-pointer" />
 
           {fileUrl ? (
             <>
