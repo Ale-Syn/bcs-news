@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useGetAllPosts } from "@/lib/react-query/queries";
-import { DraggablePostGrid, Loader, AdBanner } from "@/components/shared";
+import { DraggablePostGrid, Loader } from "@/components/shared";
+import GoogleAd from "@/components/shared/GoogleAd";
 
 const Location = () => {
   const { location, category } = useParams();
@@ -42,7 +43,7 @@ const Location = () => {
     <div className="flex flex-1 flex-col w-full">
       <div className="w-full mt-3 md:mt-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <AdBanner heightClass="h-16 md:h-20 lg:h-20" className="rounded-lg" />
+          <GoogleAd slot="REEMPLAZA_CON_SLOT_TOP" className="rounded-lg" style={{ display: "block", minHeight: 90 }} />
         </div>
       </div>
       <div className="common-container">
@@ -108,7 +109,7 @@ const Location = () => {
 
                 {/* Espacio publicitario debajo del listado */}
                 <div className="mt-6">
-                  <AdBanner heightClass="aspect-square" className="rounded-lg" />
+                  <GoogleAd slot="REEMPLAZA_CON_SLOT_SIDEBAR" className="rounded-lg" style={{ display: "block", minHeight: 250 }} />
                 </div>
               </div>
             </aside>

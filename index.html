@@ -9,11 +9,12 @@
     <!-- Content Security Policy para desarrollo local -->
     <meta http-equiv="Content-Security-Policy" 
           content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https:; 
-                   script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cloud.appwrite.io; 
-                   connect-src 'self' https://cloud.appwrite.io wss: ws:; 
-                   img-src 'self' data: blob: https:; 
+                   script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cloud.appwrite.io https://pagead2.googlesyndication.com; 
+                   connect-src 'self' https://cloud.appwrite.io https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net wss: ws:; 
+                   img-src 'self' data: blob: https: https://pagead2.googlesyndication.com https://tpc.googlesyndication.com https://googleads.g.doubleclick.net; 
                    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
-                   font-src 'self' https://fonts.gstatic.com;">
+                   font-src 'self' https://fonts.gstatic.com; 
+                   frame-src https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com https://tpc.googlesyndication.com;">
     
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap"
