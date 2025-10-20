@@ -28,7 +28,7 @@ export const ProfileValidation = z.object({
 // ============================================================
 export const PostValidation = z.object({
   title: z.string().min(5, { message: "El título debe tener al menos 5 letras." }).max(200, { message: "Máximo 200 caracteres" }),
-  caption: z.string().min(5, { message: "Minimo 5 letras." }).max(2200, { message: "Maximum 2,200 caracters" }),
+  caption: z.string().min(5, { message: "Minimo 5 letras." }).max(10000, { message: "Máximo 10,000 caracteres" }),
   file: z
     .custom<File[]>()
     .refine((files) => Array.isArray(files) && files.length > 0, {
