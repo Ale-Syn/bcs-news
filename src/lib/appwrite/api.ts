@@ -230,24 +230,27 @@ export async function createPost(post: INewPost) {
       throw Error;
     }
 
-    // Convert tags into array
-    const tags = post.tags?.replace(/ /g, "").split(",") || [];
+    // Convertir tags en array y limpiar vacíos
+    const tags = (post.tags?.replace(/ /g, "").split(",").filter(Boolean)) || [];
+
+    // Construir payload evitando atributos desconocidos
+    const docData: any = {
+      creator: post.userId,
+      title: post.title,
+      caption: post.caption,
+      imageUrl: typeof fileUrl === "string" ? fileUrl : fileUrl.toString(),
+      imageId: uploadedFile.$id,
+      location: post.location,
+      tags: tags,
+    };
+    if (post.isFeaturedSide) docData.isFeaturedSide = true;
 
     // Create post
     const newPost = await databases.createDocument(
       appwriteConfig.databaseId,
       appwriteConfig.postCollectionId,
       ID.unique(),
-      {
-        creator: post.userId,
-        title: post.title,
-        caption: post.caption,
-        imageUrl: fileUrl,
-        imageId: uploadedFile.$id,
-        location: post.location,
-        tags: tags,
-        isFeaturedSide: Boolean(post.isFeaturedSide) || false,
-      }
+      docData
     );
 
     if (!newPost) {
@@ -290,7 +293,8 @@ export function getFilePreview(fileId: string) {
 
     if (!fileUrl) throw Error;
 
-    return fileUrl;
+    // Asegurar string plano
+    return typeof fileUrl === "string" ? fileUrl : fileUrl.toString();
   } catch (error) {
     console.log(error);
   }
