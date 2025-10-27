@@ -26,7 +26,7 @@ export async function createUserAccount(user: INewUser) {
       name: newAccount.name,
       email: newAccount.email,
       username: user.username,
-      imageUrl: avatarUrl,
+      imageUrl: (avatarUrl as any)?.toString?.() ?? String(avatarUrl),
     });
 
     return newUser;
@@ -41,7 +41,7 @@ export async function saveUserToDB(user: {
   accountId: string;
   email: string;
   name: string;
-  imageUrl: URL;
+  imageUrl: string;
   username?: string;
 }) {
   try {
@@ -224,7 +224,7 @@ export async function createPost(post: INewPost) {
     if (!uploadedFile) throw Error;
 
     // Get file url
-    const fileUrl = getFilePreview(uploadedFile.$id);
+    const fileUrl: string = getFilePreview(uploadedFile.$id);
     if (!fileUrl) {
       await deleteFile(uploadedFile.$id);
       throw Error;
@@ -238,7 +238,7 @@ export async function createPost(post: INewPost) {
       creator: post.userId,
       title: post.title,
       caption: post.caption,
-      imageUrl: typeof fileUrl === "string" ? fileUrl : fileUrl.toString(),
+      imageUrl: fileUrl,
       imageId: uploadedFile.$id,
       location: post.location,
       tags: tags,
@@ -280,7 +280,7 @@ export async function uploadFile(file: File) {
 }
 
 // ============================== GET FILE URL
-export function getFilePreview(fileId: string) {
+export function getFilePreview(fileId: string): string {
   try {
     const fileUrl = storage.getFileView(
       appwriteConfig.storageId,
@@ -294,9 +294,10 @@ export function getFilePreview(fileId: string) {
     if (!fileUrl) throw Error;
 
     // Asegurar string plano
-    return typeof fileUrl === "string" ? fileUrl : fileUrl.toString();
+    return typeof fileUrl === "string" ? fileUrl : (fileUrl as any).toString();
   } catch (error) {
     console.log(error);
+    return "";
   }
 }
 
@@ -385,7 +386,7 @@ export async function updatePost(post: IUpdatePost) {
       if (!uploadedFile) throw Error;
 
       // Get new file url
-      const fileUrl = getFilePreview(uploadedFile.$id);
+      const fileUrl: string = getFilePreview(uploadedFile.$id);
       if (!fileUrl) {
         await deleteFile(uploadedFile.$id);
         throw Error;
