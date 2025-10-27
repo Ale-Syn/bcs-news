@@ -14,6 +14,9 @@ const RootLayout = () => {
   const location = useLocation();
   const adminSectionPrefixes = ["/admin", "/create-post", "/all-users"];
   const isAdminSectionRoute = adminSectionPrefixes.some((p) => location.pathname.startsWith(p));
+  const adClient = import.meta.env.VITE_ADSENSE_CLIENT as string | undefined;
+  const topSlot = import.meta.env.VITE_ADSENSE_TOP_SLOT as string | undefined;
+  const showTopAd = !!adClient && !!topSlot;
   return (
     <AdSenseProvider>
       <div className="w-full min-h-screen flex flex-col">
@@ -21,10 +24,10 @@ const RootLayout = () => {
         <div className="flex flex-1 flex-col overflow-y-auto pt-10 md:pt-0">
           <BrandHeader />
           {!isAdminSectionRoute && <BreakingNewsTicker />}
-          {!isAdminSectionRoute && (
+          {!isAdminSectionRoute && showTopAd && (
             <div className="w-full mt-2">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <GoogleAd slot="REEMPLAZA_CON_SLOT_TOP_GLOBAL" style={{ display: "block", minHeight: 90 }} />
+                <GoogleAd slot={topSlot!} style={{ display: "block" }} />
               </div>
             </div>
           )}
