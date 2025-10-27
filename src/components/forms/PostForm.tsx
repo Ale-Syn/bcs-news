@@ -224,15 +224,25 @@ const PostForm = ({ post, action }: PostFormProps) => {
                   </Button>
                 </div>
                 <FormControl>
-                  <Textarea
-                    className="shad-textarea custom-scrollbar"
-                    placeholder={"Escribe tu noticia aquí... Usa ![texto alternativo](URL_de_imagen) para insertar imágenes dentro del texto."}
-                    ref={(el) => {
-                      captionRef.current = el;
-                      if (typeof fieldRef === "function") fieldRef(el);
-                    }}
-                    {...fieldProps}
-                  />
+                  <div className="flex flex-col gap-1">
+                    <Textarea
+                      className="shad-textarea custom-scrollbar"
+                      placeholder={"Escribe tu noticia aquí... Usa ![texto alternativo](URL_de_imagen) para insertar imágenes dentro del texto."}
+                      maxLength={4500}
+                      ref={(el) => {
+                        captionRef.current = el;
+                        if (typeof fieldRef === "function") fieldRef(el);
+                      }}
+                      onChange={(e) => {
+                        const value = e.target.value.slice(0, 4500);
+                        fieldProps.onChange(value);
+                      }}
+                      value={(fieldProps.value ?? "").toString().slice(0, 4500)}
+                    />
+                    <div className="flex items-center justify-end text-xs text-gray-500">
+                      {(fieldProps.value?.length ?? 0)}/4500
+                    </div>
+                  </div>
                 </FormControl>
                 <FormMessage className="shad-form_message" />
               </FormItem>

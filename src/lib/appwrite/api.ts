@@ -233,11 +233,14 @@ export async function createPost(post: INewPost) {
     // Convertir tags en array y limpiar vacíos
     const tags = (post.tags?.replace(/ /g, "").split(",").filter(Boolean)) || [];
 
+    // Normalizar y limitar caption a 4500 caracteres (límite Appwrite)
+    const normalizedCaption = (post.caption ?? "").toString().slice(0, 4500);
+
     // Construir payload evitando atributos desconocidos
     const docData: any = {
       creator: post.userId,
       title: post.title,
-      caption: post.caption,
+      caption: normalizedCaption,
       imageUrl: fileUrl,
       imageId: uploadedFile.$id,
       location: post.location,
@@ -398,6 +401,9 @@ export async function updatePost(post: IUpdatePost) {
     // Convert tags into array
     const tags = post.tags?.replace(/ /g, "").split(",") || [];
 
+    // Normalizar y limitar caption a 4500 caracteres (límite Appwrite)
+    const normalizedCaption = (post.caption ?? "").toString().slice(0, 4500);
+
     //  Update post
     const updatedPost = await databases.updateDocument(
       appwriteConfig.databaseId,
@@ -405,7 +411,7 @@ export async function updatePost(post: IUpdatePost) {
       post.postId,
       {
         title: post.title,
-        caption: post.caption,
+        caption: normalizedCaption,
         imageUrl: image.imageUrl,
         imageId: image.imageId,
         location: post.location,
