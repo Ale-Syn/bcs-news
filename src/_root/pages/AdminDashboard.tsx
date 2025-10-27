@@ -55,7 +55,7 @@ const AdminDashboard = () => {
               <div className="bg-[#BB1919] text-white px-4 py-2 rounded-full text-sm font-medium">
                 👑 ADMINISTRADOR
               </div>
-              <Link to="/">
+              <Link to="/?view=public">
                 <Button variant="outline" className="border-[#BB1919] text-[#BB1919] hover:bg-[#BB1919] hover:text-white">
                   Ver Sitio Principal
                 </Button>
@@ -80,7 +80,7 @@ const AdminDashboard = () => {
           </div>
           <div className="mt-3">
             <Link 
-              to="/" 
+              to="/?view=public" 
               className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium"
             >
               Ir a la página principal para probar →

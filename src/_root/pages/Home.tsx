@@ -1,7 +1,7 @@
 import { Models } from "appwrite";
 import { Loader, NoDataMessage, DraggablePostGrid, DraggableSideGrid, PostCard } from "@/components/shared";
 import { useGetRecentPosts, useGetAllPosts, useSavePostOrder, useGetOrderedPosts } from "@/lib/react-query/queries";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
 import { multiFormatDateString } from "@/lib/utils";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useUserContext } from "@/context/AuthContext";
@@ -18,7 +18,9 @@ import Autoplay from "embla-carousel-autoplay";
 const Home = () => {
   const { location, category } = useParams();
   const { user } = useUserContext();
-  const isAdmin = user.role === "ADMIN";
+  const locationHook = useLocation();
+  const publicView = new URLSearchParams(locationHook.search).get("view") === "public";
+  const isAdmin = !publicView && user.role === "ADMIN";
   const navigate = useNavigate();
   
 

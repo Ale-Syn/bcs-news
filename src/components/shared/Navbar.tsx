@@ -80,8 +80,10 @@ const Navbar = () => {
   const { location: locationParam, category: categoryParam } = useParams();
   const currentParam = categoryParam || locationParam;
 
-  // Admin check - make sure we're properly checking the role
-  const isAdmin = user?.role === "ADMIN";
+  // Modo "vista pública" forzado por query param
+  const publicView = new URLSearchParams(location.search).get("view") === "public";
+  // Admin check - respetar publicView para ocultar elementos admin
+  const isAdmin = !publicView && user?.role === "ADMIN";
 
   // Get categories from database - fallback to locations from posts if categories not available
   const categories = categoriesData?.documents || [];
