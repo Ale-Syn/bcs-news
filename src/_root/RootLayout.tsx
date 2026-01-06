@@ -10,6 +10,7 @@ import AdminBackBar from "@/components/shared/AdminBackBar";
 import Footer from "@/components/shared/Footer";
 import AdSenseProvider from "@/components/shared/AdSenseProvider";
 import GoogleAd from "@/components/shared/GoogleAd";
+import RandomGoogleAd from "@/components/shared/RandomGoogleAd";
 
 const RootLayout = () => {
   const location = useLocation();
@@ -17,7 +18,12 @@ const RootLayout = () => {
   const isAdminSectionRoute = adminSectionPrefixes.some((p) => location.pathname.startsWith(p));
   const adClient = import.meta.env.VITE_ADSENSE_CLIENT as string | undefined;
   const topSlot = import.meta.env.VITE_ADSENSE_TOP_SLOT as string | undefined;
-  const showTopAd = !!adClient && !!topSlot;
+  const topSlotsStr = import.meta.env.VITE_ADSENSE_TOP_SLOTS as string | undefined;
+  const topSlots = (topSlotsStr || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => !!s);
+  const showTopAd = !!adClient && (!!topSlot || topSlots.length > 0);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -33,7 +39,11 @@ const RootLayout = () => {
           {!isAdminSectionRoute && showTopAd && (
             <div className="w-full mt-2">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <GoogleAd slot={topSlot!} style={{ display: "block" }} />
+                {topSlots.length > 0 ? (
+                  <RandomGoogleAd slots={topSlots} style={{ display: "block" }} />
+                ) : (
+                  <GoogleAd slot={topSlot!} style={{ display: "block" }} />
+                )}
               </div>
             </div>
           )}

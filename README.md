@@ -120,6 +120,15 @@ VITE_APPWRITE_STORAGE_ID=
 VITE_APPWRITE_USER_COLLECTION_ID=
 VITE_APPWRITE_POST_COLLECTION_ID=
 VITE_APPWRITE_SAVES_COLLECTION_ID=
+
+# Google AdSense (opcional)
+# Cliente AdSense (requerido si usas GoogleAd)
+VITE_ADSENSE_CLIENT=
+# Slot único superior (opcional si usas lista)
+VITE_ADSENSE_TOP_SLOT=
+# Lista de slots superiores separados por coma para rotación aleatoria
+# Ejemplo: 1234567890,0987654321,1122334455
+VITE_ADSENSE_TOP_SLOTS=
 ```
 
 Replace the placeholder values with your actual Appwrite credentials. You can obtain these credentials by signing up on the [Appwrite website](https://appwrite.io/).
