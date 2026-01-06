@@ -129,6 +129,12 @@ VITE_ADSENSE_TOP_SLOT=
 # Lista de slots superiores separados por coma para rotación aleatoria
 # Ejemplo: 1234567890,0987654321,1122334455
 VITE_ADSENSE_TOP_SLOTS=
+# Slots de sidebar (detalle de noticia)
+# 300x250 (lista o único)
+VITE_ADSENSE_SIDEBAR_SLOT=
+VITE_ADSENSE_SIDEBAR_SLOTS=
+# 300x600 (opcional; si no lo pones, se usa el de 300x250)
+VITE_ADSENSE_SIDEBAR_LARGE_SLOTS=
 ```
 
 Replace the placeholder values with your actual Appwrite credentials. You can obtain these credentials by signing up on the [Appwrite website](https://appwrite.io/).

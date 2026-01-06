@@ -13,6 +13,8 @@ import {
 } from "@/lib/react-query/queries";
 import { multiFormatDateString } from "@/lib/utils";
 import { useUserContext } from "@/context/AuthContext";
+import RandomGoogleAd from "@/components/shared/RandomGoogleAd";
+import GoogleAd from "@/components/shared/GoogleAd";
 
 const PostDetails = () => {
   const navigate = useNavigate();
@@ -75,6 +77,21 @@ const PostDetails = () => {
   };
 
   const sidebarPosts = buildSidebarPosts();
+
+  // Slots de AdSense para sidebar
+  const adClient = import.meta.env.VITE_ADSENSE_CLIENT as string | undefined;
+  const sidebarSlot = import.meta.env.VITE_ADSENSE_SIDEBAR_SLOT as string | undefined;
+  const sidebarSlotsStr = import.meta.env.VITE_ADSENSE_SIDEBAR_SLOTS as string | undefined;
+  const sidebarLargeSlotsStr = import.meta.env.VITE_ADSENSE_SIDEBAR_LARGE_SLOTS as string | undefined;
+  const sidebarSlots = (sidebarSlotsStr || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => !!s);
+  const sidebarLargeSlots = (sidebarLargeSlotsStr || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => !!s);
+  const canShowSidebarAds = !!adClient && (!!sidebarSlot || sidebarSlots.length > 0 || sidebarLargeSlots.length > 0);
 
   return (
     <div className="post_details-container">
@@ -232,12 +249,41 @@ const PostDetails = () => {
               <div className="mt-4 bg-white rounded-lg p-4 no-border">
                 <div className="space-y-4">
                   {/* Slot 300x250 */}
-                  <div className="w-full h-[250px] max-w-[300px] mx-auto border-2 border-dashed border-transparent rounded-md flex items-center justify-center text-[#666666]">
-                    <span className="text-xs">Anuncio 300×250</span>
+                  <div className="w-full max-w-[300px] mx-auto">
+                    {canShowSidebarAds ? (
+                      sidebarSlots.length > 0 ? (
+                        <RandomGoogleAd slots={sidebarSlots} style={{ display: "block", minHeight: 250 }} />
+                      ) : (
+                        <GoogleAd slot={sidebarSlot!} style={{ display: "block", minHeight: 250 }} />
+                      )
+                    ) : (
+                      <div className="w-full h-[250px] border-2 border-dashed border-transparent rounded-md flex items-center justify-center text-[#666666]">
+                        <span className="text-xs">Anuncio 300×250</span>
+                      </div>
+                    )}
                   </div>
                   {/* Slot 300x600 (opcional largo) */}
-                  <div className="w-full h-[300px] lg:h-[600px] max-w-[300px] mx-auto border-2 border-dashed border-transparent rounded-md flex items-center justify-center text-[#666666]">
-                    <span className="text-xs">Anuncio 300×600</span>
+                  <div className="w-full max-w-[300px] mx-auto">
+                    {canShowSidebarAds ? (
+                      sidebarLargeSlots.length > 0 ? (
+                        <RandomGoogleAd slots={sidebarLargeSlots} style={{ display: "block", minHeight: 600 }} />
+                      ) : (
+                        // Fallback: usa los mismos slots del 300x250 si no se configuraron específicos para 300x600
+                        sidebarSlots.length > 0 ? (
+                          <RandomGoogleAd slots={sidebarSlots} style={{ display: "block", minHeight: 600 }} />
+                        ) : sidebarSlot ? (
+                          <GoogleAd slot={sidebarSlot} style={{ display: "block", minHeight: 600 }} />
+                        ) : (
+                          <div className="w-full h-[600px] border-2 border-dashed border-transparent rounded-md flex items-center justify-center text-[#666666]">
+                            <span className="text-xs">Anuncio 300×600</span>
+                          </div>
+                        )
+                      )
+                    ) : (
+                      <div className="w-full h-[600px] border-2 border-dashed border-transparent rounded-md flex items-center justify-center text-[#666666]">
+                        <span className="text-xs">Anuncio 300×600</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
