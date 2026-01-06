@@ -138,12 +138,12 @@ const PostDetails = () => {
 
             {/* Imagen - después del título */}
             <div className="bg-white p-0">
-              <div className="w-full max-w-2xl mx-auto">
-                <div className="w-full h-64 md:h-80 lg:h-96 bg-white">
+              <div className="p-3 md:p-4 lg:p-6 xl:p-8 max-w-2xl mx-auto w-full">
+                <div className="relative w-full overflow-hidden rounded-lg md:rounded-xl aspect-[16/9] md:aspect-[16/8] lg:aspect-[16/9]">
                   <img
                     src={post?.imageUrl}
-                    alt="post image"
-                    className="w-full h-full object-contain"
+                    alt={post?.title || "post image"}
+                    className="object-cover w-full h-full"
                   />
                 </div>
               </div>

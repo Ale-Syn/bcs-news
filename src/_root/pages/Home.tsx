@@ -99,9 +99,10 @@ const Home = () => {
 
   // Construir lista de categorías/zonas usando tus categorías; fallback a ubicaciones de posts
   // Eliminado: categorías/locations ya no se usan en esta vista (barra global)
+  const filterValue = filterParam ? decodeURIComponent(filterParam).toLowerCase() : "";
   const filteredPosts = filterParam
     ? posts?.documents.filter(
-        (post: Models.Document) => post.location === decodeURIComponent(filterParam)
+        (post: Models.Document) => String(post.location || "").toLowerCase() === filterValue
       )
     : posts?.documents;
 

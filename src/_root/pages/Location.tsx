@@ -1,20 +1,41 @@
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { useGetAllPosts } from "@/lib/react-query/queries";
 import { DraggablePostGrid, Loader } from "@/components/shared";
 import GoogleAd from "@/components/shared/GoogleAd";
+import { Button } from "@/components/ui";
 
 const Location = () => {
   const { location, category } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: postsData, isLoading } = useGetAllPosts();
 
   // Get the filter parameter (could be location or category)
   const filterParam = category || location || "";
   const displayName = decodeURIComponent(filterParam);
+  const normalize = (s: string) => String(s || "").toLowerCase();
+  const filterKey = normalize(displayName);
 
   // Filtrar posts por ubicación o categoría sobre el total de posts
-  const filteredPosts = postsData?.documents.filter(
-    (post: any) => post.location === displayName
-  ) || [];
+  const filteredPosts =
+    (postsData?.documents || []).filter(
+      (post: any) => normalize(post.location) === filterKey
+    ) || [];
+
+  // Paginación
+  const perPage = 6;
+  const rawPage = Number(searchParams.get("page") || "1");
+  const totalPosts = filteredPosts.length;
+  const totalPages = Math.max(1, Math.ceil(totalPosts / perPage));
+  const currentPage = Number.isFinite(rawPage) && rawPage >= 1 ? Math.min(rawPage, totalPages) : 1;
+  const startIndex = (currentPage - 1) * perPage;
+  const pagedPosts = filteredPosts.slice(startIndex, startIndex + perPage);
+
+  const goToPage = (page: number) => {
+    const next = Math.min(Math.max(1, page), totalPages);
+    const params = new URLSearchParams(searchParams);
+    params.set("page", String(next));
+    setSearchParams(params);
+  };
 
   if (isLoading) {
     return (
@@ -63,7 +84,7 @@ const Location = () => {
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg p-2 md:p-3">
               <DraggablePostGrid 
-                posts={filteredPosts}
+                posts={pagedPosts}
                 showMeta={false}
                 showTags={false}
                 showStats={false}
@@ -73,6 +94,29 @@ const Location = () => {
                 showCreatedAt={true}
                 titleClampLines={3}
               />
+              <div className="mt-4 flex items-center justify-between">
+                <span className="text-sm text-gray-600">
+                  Mostrando {totalPosts === 0 ? 0 : startIndex + 1}–{startIndex + pagedPosts.length} de {totalPosts}
+                </span>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    className="border-[#BB1919] text-[#BB1919] hover:bg-[#BB1919]/10"
+                    disabled={currentPage <= 1}
+                    onClick={() => goToPage(currentPage - 1)}
+                  >
+                    Anterior
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="border-[#BB1919] text-[#BB1919] hover:bg-[#BB1919]/10"
+                    disabled={currentPage >= totalPages}
+                    onClick={() => goToPage(currentPage + 1)}
+                  >
+                    Siguiente
+                  </Button>
+                </div>
+              </div>
               </div>
             </div>
 

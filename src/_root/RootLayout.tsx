@@ -1,4 +1,5 @@
 import { Outlet, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
 import Navbar from "@/components/shared/Navbar";
 import BrandHeader from "@/components/shared/BrandHeader";
@@ -17,6 +18,11 @@ const RootLayout = () => {
   const adClient = import.meta.env.VITE_ADSENSE_CLIENT as string | undefined;
   const topSlot = import.meta.env.VITE_ADSENSE_TOP_SLOT as string | undefined;
   const showTopAd = !!adClient && !!topSlot;
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [location.pathname, location.search]);
+
   return (
     <AdSenseProvider>
       <div className="w-full min-h-screen flex flex-col">
