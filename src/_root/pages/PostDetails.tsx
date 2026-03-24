@@ -16,6 +16,18 @@ import { useUserContext } from "@/context/AuthContext";
 import RandomGoogleAd from "@/components/shared/RandomGoogleAd";
 import GoogleAd from "@/components/shared/GoogleAd";
 
+const normalizeImageUrl = (rawUrl?: string) => {
+  const trimmed = (rawUrl || "").trim();
+  if (!trimmed) return "";
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  if (trimmed.startsWith("//")) return `https:${trimmed}`;
+  if (trimmed.startsWith("www.")) return `https://${trimmed}`;
+  if (trimmed.startsWith("/")) {
+    return typeof window !== "undefined" ? `${window.location.origin}${trimmed}` : trimmed;
+  }
+  return trimmed;
+};
+
 const PostDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -46,6 +58,8 @@ const PostDetails = () => {
       });
     }
   }, [id]);
+
+  const heroImageUrl = normalizeImageUrl(post?.imageUrl);
 
   // Related posts by same category/location and exclude current post (memoized)
   const relatedPosts = useMemo(() => {
@@ -158,9 +172,15 @@ const PostDetails = () => {
               <div className="p-3 pt-0 md:p-4 md:pt-0 lg:p-6 lg:pt-0 xl:p-8 xl:pt-0 max-w-2xl mx-auto w-full">
                 <div className="relative w-full overflow-hidden rounded-lg md:rounded-xl aspect-[16/9] md:aspect-[16/8] lg:aspect-[16/9]">
                   <img
-                    src={post?.imageUrl}
+                    src={heroImageUrl || "/assets/icons/profile-placeholder.svg"}
                     alt={post?.title || "post image"}
                     className="object-cover w-full h-full"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.src.includes("profile-placeholder.svg")) {
+                        target.src = "/assets/icons/profile-placeholder.svg";
+                      }
+                    }}
                   />
                 </div>
               </div>
@@ -208,7 +228,17 @@ const PostDetails = () => {
                     <li key={sp.$id}>
                       <Link to={`/posts/${sp.$id}`} className="flex items-start gap-3 group">
                         <div className="w-28 h-20 flex-shrink-0 overflow-hidden rounded-md bg-[#F2F2F2]">
-                          <img src={sp.imageUrl} alt={sp.title} className="w-full h-full object-cover" />
+                          <img
+                            src={normalizeImageUrl(sp.imageUrl) || "/assets/icons/profile-placeholder.svg"}
+                            alt={sp.title}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.currentTarget;
+                              if (!target.src.includes("profile-placeholder.svg")) {
+                                target.src = "/assets/icons/profile-placeholder.svg";
+                              }
+                            }}
+                          />
                         </div>
                         <div className="min-w-0">
                           <p className="text-[15px] font-semibold text-[#1A1A1A] leading-snug group-hover:text-[#BB1919] flex items-center gap-1">

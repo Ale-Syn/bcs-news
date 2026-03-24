@@ -52,8 +52,31 @@ const PostForm = ({ post, action }: PostFormProps) => {
     useUpdatePost();
   const { data: categories, isLoading: isLoadingCategories } = useGetCategories();
 
+  const importExternalImage = async (rawUrl: string) => {
+    try {
+      const res = await fetch("/api/import-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: rawUrl }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.error || "No se pudo importar la imagen");
+      }
+      const data = await res.json();
+      return data?.url as string;
+    } catch (error: any) {
+      toast({
+        title: "No se pudo importar la imagen",
+        description: error?.message || "Usando la URL original.",
+        variant: "destructive",
+      });
+      return rawUrl;
+    }
+  };
+
   // Inserta una imagen en Markdown en la posición del cursor del campo "Descripción"
-  const insertImageMarkdown = () => {
+  const insertImageMarkdown = async () => {
     const url = window.prompt("URL de la imagen");
     if (!url) return;
     const alt = window.prompt("Texto alternativo (opcional)") || "";
@@ -64,13 +87,15 @@ const PostForm = ({ post, action }: PostFormProps) => {
     const selectionStart = textarea?.selectionStart ?? currentValue.length;
     const selectionEnd = textarea?.selectionEnd ?? selectionStart;
 
+    const importedUrl = await importExternalImage(url);
+
     const before = currentValue.slice(0, selectionStart);
     const after = currentValue.slice(selectionEnd);
 
     const needsLeadingNewline = before.length > 0 && !before.endsWith("\n");
     const needsTrailingNewline = after.length > 0 && !after.startsWith("\n");
 
-    const markdown = `${needsLeadingNewline ? "\n" : ""}![${alt}](${url})${needsTrailingNewline ? "\n" : ""}`;
+    const markdown = `${needsLeadingNewline ? "\n" : ""}![${alt}](${importedUrl})${needsTrailingNewline ? "\n" : ""}`;
     const nextValue = before + markdown + after;
 
     form.setValue("caption", nextValue, { shouldDirty: true });

@@ -6,6 +6,18 @@ type RichCaptionProps = {
 
 // Renderiza un caption con soporte básico de Markdown para imágenes: ![alt](url)
 // Inserta imágenes intercaladas entre párrafos del texto
+const normalizeImageUrl = (rawUrl: string) => {
+  const trimmed = (rawUrl || "").trim();
+  if (!trimmed) return "";
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  if (trimmed.startsWith("//")) return `https:${trimmed}`;
+  if (trimmed.startsWith("www.")) return `https://${trimmed}`;
+  if (trimmed.startsWith("/")) {
+    return typeof window !== "undefined" ? `${window.location.origin}${trimmed}` : trimmed;
+  }
+  return trimmed;
+};
+
 const RichCaption: React.FC<RichCaptionProps> = ({ text }) => {
   if (!text) return null;
 
@@ -43,15 +55,28 @@ const RichCaption: React.FC<RichCaptionProps> = ({ text }) => {
     pushText(text.slice(lastIndex, start));
 
     // Imagen
-    elements.push(
-      <div key={`img-${key++}`} className="my-3 md:my-4">
-        {/* eslint-disable-next-line jsx-a11y/alt-text */}
-        <img src={url} alt={alt || "imagen"} className="w-full rounded-md object-contain" />
-        {alt && (
-          <div className="text-xs text-[#666666] mt-1">{alt}</div>
-        )}
-      </div>
-    );
+    const normalizedUrl = normalizeImageUrl(url);
+    if (normalizedUrl) {
+      elements.push(
+        <div key={`img-${key++}`} className="my-3 md:my-4">
+          {/* eslint-disable-next-line jsx-a11y/alt-text */}
+          <img
+            src={normalizedUrl}
+            alt={alt || "imagen"}
+            className="w-full rounded-md object-contain"
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (!target.src.includes("profile-placeholder.svg")) {
+                target.src = "/assets/icons/profile-placeholder.svg";
+              }
+            }}
+          />
+          {alt && (
+            <div className="text-xs text-[#666666] mt-1">{alt}</div>
+          )}
+        </div>
+      );
+    }
 
     lastIndex = start + full.length;
   }
