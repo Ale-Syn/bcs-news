@@ -54,11 +54,6 @@ const adminLinks = [
     route: "/admin/categories",
     label: "Categorías",
   },
-  {
-    imgURL: "/assets/icons/wallpaper.svg",
-    route: "/admin/ads",
-    label: "Anuncios",
-  },
 ];
 
 const Navbar = () => {

@@ -47,7 +47,6 @@ const CategoriesBar = () => {
     { label: "Añadir", route: "/create-post" },
     { label: "Usuarios", route: "/all-users" },
     { label: "Categorías", route: "/admin/categories" },
-    { label: "Anuncios", route: "/admin/ads" },
   ];
 
   return (

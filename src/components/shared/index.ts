@@ -13,4 +13,3 @@ export { default as FileUploaderWithEditor } from "./FileUploaderWithEditor";
 export { default as ProfileUploader } from "./ProfileUploader";
 export { default as PostStats } from "./PostStats";
 export { default as NoDataMessage } from "./NoDataMessage";
-export { default as AdBanner } from "./AdBanner";

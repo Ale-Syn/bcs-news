@@ -2,6 +2,7 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { useGetAllPosts } from "@/lib/react-query/queries";
 import { DraggablePostGrid, Loader } from "@/components/shared";
 import GoogleAd from "@/components/shared/GoogleAd";
+import RandomGoogleAd from "@/components/shared/RandomGoogleAd";
 import { Button } from "@/components/ui";
 
 const Location = () => {
@@ -59,6 +60,15 @@ const Location = () => {
   const recommended = (postsData?.documents || [])
     .filter((post: any) => post.location !== displayName)
     .slice(0, 5);
+
+  const adClient = import.meta.env.VITE_ADSENSE_CLIENT as string | undefined;
+  const sidebarSlot = import.meta.env.VITE_ADSENSE_SIDEBAR_SLOT as string | undefined;
+  const sidebarSlotsStr = import.meta.env.VITE_ADSENSE_SIDEBAR_SLOTS as string | undefined;
+  const sidebarSlots = (sidebarSlotsStr || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => !!s);
+  const canShowSidebarAds = !!adClient && (!!sidebarSlot || sidebarSlots.length > 0);
 
   return (
     <div className="flex flex-1 flex-col w-full">
@@ -148,7 +158,17 @@ const Location = () => {
 
                 {/* Espacio publicitario debajo del listado */}
                 <div className="mt-6">
-                  <GoogleAd slot="REEMPLAZA_CON_SLOT_SIDEBAR" className="rounded-lg" style={{ display: "block", minHeight: 250 }} />
+                  {canShowSidebarAds ? (
+                    sidebarSlots.length > 0 ? (
+                      <RandomGoogleAd slots={sidebarSlots} className="rounded-lg" style={{ display: "block", minHeight: 250 }} />
+                    ) : (
+                      <GoogleAd slot={sidebarSlot!} className="rounded-lg" style={{ display: "block", minHeight: 250 }} />
+                    )
+                  ) : (
+                    <div className="w-full h-[250px] border-2 border-dashed border-transparent rounded-md flex items-center justify-center text-[#666666]">
+                      <span className="text-xs">Anuncio 300×250</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </aside>

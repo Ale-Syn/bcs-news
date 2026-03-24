@@ -10,7 +10,6 @@ export const appwriteConfig = {
   savesCollectionId: import.meta.env.VITE_APPWRITE_SAVES_COLLECTION_ID,
   categoriesCollectionId: import.meta.env.VITE_APPWRITE_CATEGORIES_COLLECTION_ID,
   postOrderCollectionId: import.meta.env.VITE_APPWRITE_POST_ORDER_COLLECTION_ID,
-  adsCollectionId: import.meta.env.VITE_APPWRITE_ADS_COLLECTION_ID,
 };
 
 // Validar que las variables de entorno estén configuradas
@@ -23,8 +22,7 @@ const requiredEnvVars = [
   'VITE_APPWRITE_POST_COLLECTION_ID',
   'VITE_APPWRITE_SAVES_COLLECTION_ID',
   'VITE_APPWRITE_CATEGORIES_COLLECTION_ID',
-  'VITE_APPWRITE_POST_ORDER_COLLECTION_ID',
-  'VITE_APPWRITE_ADS_COLLECTION_ID'
+  'VITE_APPWRITE_POST_ORDER_COLLECTION_ID'
 ];
 
 const missingEnvVars = requiredEnvVars.filter(envVar => !import.meta.env[envVar]);

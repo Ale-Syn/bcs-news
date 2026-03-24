@@ -15,7 +15,6 @@ import {
   PublicPage,
   AdminDashboard,
   CategoriesManagement,
-  AdminAds,
 } from "@/_root/pages";
 import RootLayout from "./_root/RootLayout";
 import AdminLoginForm from "@/_auth/forms/AdminLoginForm";
@@ -139,14 +138,6 @@ const App = () => {
             element={
               <ProtectedRoute allowedRoles={["ADMIN"]}>
                 <CategoriesManagement />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/ads"
-            element={
-              <ProtectedRoute allowedRoles={["ADMIN"]}>
-                <AdminAds />
               </ProtectedRoute>
             }
           />
