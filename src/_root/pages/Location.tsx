@@ -1,6 +1,7 @@
 import { useParams, useSearchParams } from "react-router-dom";
 import { useGetAllPosts } from "@/lib/react-query/queries";
 import { DraggablePostGrid, Loader } from "@/components/shared";
+import GoogleAd from "@/components/shared/GoogleAd";
 import { Button } from "@/components/ui";
 
 const Location = () => {
