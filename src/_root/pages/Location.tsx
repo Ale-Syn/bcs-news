@@ -1,7 +1,6 @@
 import { useParams, useSearchParams } from "react-router-dom";
 import { useGetAllPosts } from "@/lib/react-query/queries";
 import { DraggablePostGrid, Loader } from "@/components/shared";
-import GoogleAd from "@/components/shared/GoogleAd";
 import { Button } from "@/components/ui";
 
 const Location = () => {
@@ -62,11 +61,6 @@ const Location = () => {
 
   return (
     <div className="flex flex-1 flex-col w-full">
-      <div className="w-full mt-3 md:mt-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <GoogleAd slot="REEMPLAZA_CON_SLOT_TOP" className="rounded-lg" style={{ display: "block", minHeight: 90 }} />
-        </div>
-      </div>
       <div className="common-container">
         <div className="user-container">
           <div className="flex items-center justify-between mb-1">

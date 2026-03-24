@@ -104,8 +104,8 @@ const PostDetails = () => {
           {/* Columna principal: artículo */}
           <div className="lg:col-span-2 flex flex-col">
             {/* Header: Título y metadatos primero */}
-            <div className="p-3 md:p-4 lg:p-6 xl:p-8 max-w-2xl mx-auto w-full">
-              <div className="flex flex-col gap-2 mb-2 md:mb-3">
+            <div className="p-3 pb-0 md:p-4 md:pb-1 lg:p-6 lg:pb-2 xl:p-8 xl:pb-2 max-w-2xl mx-auto w-full">
+              <div className="flex flex-col gap-2 mb-0 md:mb-1">
                 <div className="flex items-center gap-2">
                   <h1 className="flex-1 text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-[#1A1A1A] leading-tight">
                     {post?.title}
@@ -155,7 +155,7 @@ const PostDetails = () => {
 
             {/* Imagen - después del título */}
             <div className="bg-white p-0">
-              <div className="p-3 md:p-4 lg:p-6 xl:p-8 max-w-2xl mx-auto w-full">
+              <div className="p-3 pt-0 md:p-4 md:pt-0 lg:p-6 lg:pt-0 xl:p-8 xl:pt-0 max-w-2xl mx-auto w-full">
                 <div className="relative w-full overflow-hidden rounded-lg md:rounded-xl aspect-[16/9] md:aspect-[16/8] lg:aspect-[16/9]">
                   <img
                     src={post?.imageUrl}
@@ -167,11 +167,11 @@ const PostDetails = () => {
             </div>
 
             {/* Contenido - descripción y resto */}
-            <div className="flex-1 flex flex-col p-3 md:p-4 lg:p-6 xl:p-8 max-w-2xl mx-auto">
-              <hr className="border-[#E5E5E5] mb-4 lg:mb-6" />
+            <div className="flex-1 flex flex-col p-1 md:p-2 lg:p-3 xl:p-4 max-w-2xl mx-auto">
+              <hr className="border-[#E5E5E5] mb-1 md:mb-2 lg:mb-3" />
 
               {/* Contenido Scrolleable (sin scroll interno en móvil) */}
-              <div className="flex-1 overflow-visible lg:overflow-y-auto custom-scrollbar pr-0 md:pr-2 mb-4 lg:mb-6">
+              <div className="flex-1 overflow-visible lg:overflow-y-auto custom-scrollbar pr-0 md:pr-2 mb-1 md:mb-2 lg:mb-3">
                 <RichCaption text={post?.caption || ""} />
               </div>
 
